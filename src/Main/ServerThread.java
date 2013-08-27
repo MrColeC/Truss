@@ -1,0 +1,227 @@
+package Main;
+
+import java.io.IOException;
+import java.net.Socket;
+
+import org.slf4j.Logger;
+
+/**
+ * Provides threads for the server so multiple clients can be handled by a
+ * single server
+ * 
+ * @author Cole Christie
+ * 
+ */
+public class ServerThread extends Thread {
+	private Logger log;
+	private Socket socket;
+	@SuppressWarnings("unused")
+	private Server server;
+	private Networking network;
+	private Auth subject;
+	private int UID;
+	private Crypto crypt;
+
+	/**
+	 * CONSTRUCTOR
+	 */
+	public ServerThread(Auth passedSubject, Logger passedLog,
+			Socket passedSocket, Server passedServer, int passedUID) {
+		log = passedLog;
+		socket = passedSocket;
+		server = passedServer;
+		network = new Networking(log);
+		subject = passedSubject;
+		UID = passedUID;
+	}
+
+	/**
+	 * Server thread Enables multi-client support
+	 */
+	public void run() {
+		log.info("Establishing session with client number [" + UID + "]");
+
+		// Bind I/O to the socket
+		network.BringUp(socket);
+
+		// Prep
+		String fromClient = null;
+
+		// Activate crypto
+		crypt = new Crypto(log, subject.GetPSK());
+		byte[] fetched = network.ReceiveByte();
+		String dec = crypt.decrypt(fetched);
+		String craftReturn = dec + "<S>";
+		log.info("Validating encryption with handshake.");
+		byte[] returnData = crypt.encrypt(craftReturn);
+		network.Send(returnData);
+
+		// Main Loop
+		while (!socket.isClosed()) {
+			// Collect data sent over the network
+			fetched = network.ReceiveByte();
+			if (fetched == null) {
+				log.info("Client disconnected abruptly");
+				break;
+			}
+
+			// Decrypt sent data
+			fromClient = crypt.decrypt(fetched);
+
+			// Case sensitive actions based upon data received
+			if (fromClient == null) {
+				log.info("Client disconnected abruptly");
+				break;
+			} else if (fromClient.compareToIgnoreCase("quit") == 0) {
+				log.info("Client disconnected gracefully");
+				break;
+			} else if (fromClient.compareToIgnoreCase("<REKEY>") == 0) {
+				SendACK(); // Send ACK
+				String prime = null;
+				String base = null;
+
+				// Grab 1st value (should be handshake for PRIME)
+				fromClient = fromNetwork();
+				SendACK(); // Send ACK
+				if (fromClient.compareToIgnoreCase("<PRIME>") == 0) {
+					prime = fromNetwork();
+					SendACK(); // Send ACK
+				} else {
+					log.error("Failed proper DH handshake over the network (failed to receive PRIME).");
+				}
+
+				// Grab 2nd value (should be handshake for BASE)
+				fromClient = fromNetwork();
+				SendACK(); // Send ACK
+				if (fromClient.compareToIgnoreCase("<BASE>") == 0) {
+					base = fromNetwork();
+					SendACK(); // Send ACK
+				} else {
+					log.error("Failed proper DH handshake over the network (failed to receive BASE).");
+				}
+
+				// Use received values to start DH
+				DH myDH = new DH(log, prime, 16, base, 16);
+
+				// Send rekeying ack
+				returnData = crypt.encrypt("<REKEY-STARTING>");
+				network.Send(returnData);
+				RecieveACK(); // Wait for ACK
+
+				// Perform phase1
+				myDH.DHPhase1();
+
+				// Receive client public key
+				byte[] clientPubKey = null;
+				fromClient = fromNetwork();
+				SendACK(); // Send ACK
+				if (fromClient.compareToIgnoreCase("<PUBLICKEY>") == 0) {
+					clientPubKey = fromNetworkByte();
+					SendACK(); // Send ACK
+					returnData = crypt.encrypt("<PubKey-GOOD>");
+					network.Send(returnData);
+					RecieveACK(); // Wait for ACK
+				} else {
+					log.error("Failed to receieve client public key.");
+				}
+
+				// Send server public key to client
+				network.Send(crypt.encrypt("<PUBLICKEY>"));
+				RecieveACK(); // Wait for ACK
+				network.Send(crypt.encrypt(myDH.GetPublicKeyBF()));
+				RecieveACK(); // Wait for ACK
+				fromClient = fromNetwork();
+				SendACK(); // Send ACK
+				if (fromClient.compareToIgnoreCase("<PubKey-GOOD>") != 0) {
+					log.error("Client has failed to acknowledge server public key!");
+				}
+
+				// Use server DH public key to generate shared secret
+				myDH.DHPhase2(myDH.CraftPublicKey(clientPubKey));
+
+				// Final verification
+				// System.out.println("Shared Secret (Hex): " +
+				// myDH.GetSharedSecret(10));
+				crypt.ReKey(myDH.GetSharedSecret(10));
+
+			} else {
+				log.info("Received from client [" + fromClient + "]");
+				craftReturn = "<S>" + fromClient;
+				returnData = crypt.encrypt(craftReturn);
+				network.Send(returnData);
+			}
+		}
+
+		// Tear down bound I/O
+		network.BringDown();
+
+		// Close this socket
+		try {
+			socket.close();
+		} catch (IOException e) {
+			log.error("Failed to close SOCKET within SERVER THREAD");
+		}
+	}
+
+	/**
+	 * Reads a string from the network
+	 * @return
+	 */
+	private String fromNetwork() {
+		String decryptedValue = null;
+
+		byte[] initialValue = network.ReceiveByte();
+		if (initialValue == null) {
+			log.info("Client disconnected abruptly");
+		}
+		decryptedValue = crypt.decrypt(initialValue);
+		if (decryptedValue == null) {
+			log.info("Client disconnected abruptly");
+		} else if (decryptedValue.compareToIgnoreCase("quit") == 0) {
+			log.info("Client disconnected gracefully");
+		}
+
+		return decryptedValue;
+	}
+
+	/**
+	 * Read bytes from the network
+	 * @return
+	 */
+	private byte[] fromNetworkByte() {
+		byte[] decryptedValue = null;
+
+		byte[] initialValue = network.ReceiveByte();
+		if (initialValue == null) {
+			log.info("Client disconnected abruptly");
+		}
+		decryptedValue = crypt.decryptByte(initialValue);
+		if (decryptedValue == null) {
+			log.info("Client disconnected abruptly");
+		}
+
+		return decryptedValue;
+	}
+
+	/**
+	 * Provides message synchronization
+	 */
+	private void SendACK() {
+		network.Send(crypt.encrypt("<ACK>"));
+		if (crypt.decrypt(network.ReceiveByteACK())
+				.compareToIgnoreCase("<ACK>") != 0) {
+			log.error("Partner failed to ACK");
+		}
+	}
+
+	/**
+	 * Provides message synchronization
+	 */
+	private void RecieveACK() {
+		if (crypt.decrypt(network.ReceiveByteACK())
+				.compareToIgnoreCase("<ACK>") != 0) {
+			log.error("Partner failed to ACK");
+		}
+		network.Send(crypt.encrypt("<ACK>"));
+	}
+}

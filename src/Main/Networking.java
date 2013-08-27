@@ -1,0 +1,289 @@
+package Main;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+
+import org.slf4j.Logger;
+
+/**
+ * Provides networking support to securely bind to a port to listen or connect
+ * to a remote port for communication
+ * 
+ * @author Cole Christie
+ * 
+ */
+public class Networking {
+	private Logger log;
+	private ServerSocket serverSocket;
+	private Socket ClientSocket;
+	private DataInputStream receive;
+	private DataOutputStream send;
+
+	// If verbose byte level network logging should be displayed
+	private static boolean VERBOSE = false;
+
+	/**
+	 * CONSTRUCTOR Basic version
+	 */
+	public Networking(Logger passedLog) {
+		log = passedLog;
+	}
+
+	/**
+	 * CONSTRUCTOR Server version
+	 */
+	public Networking(Logger passedLog, int port) {
+		log = passedLog;
+		BindServer(port);
+	}
+
+	/**
+	 * CONSTRUCTOR Client version
+	 */
+	public Networking(Logger passedLog, int passedPort, String target) {
+		int port = 40000;
+		if ((passedPort > 1024) && (passedPort <= 65535)) {
+			port = passedPort;
+		}
+		log = passedLog;
+		try {
+			ClientSocket = new Socket(target, port);
+		} catch (UnknownHostException e) {
+			log.error("Unknown host [" + target + "]");
+		} catch (IOException e) {
+			log.error("Unable to connect to target server and/or port");
+		}
+	}
+
+	/**
+	 * Passes the ClientSocket outside of the Networking class
+	 * 
+	 * @return
+	 */
+	public Socket PassBackClient() {
+		return ClientSocket;
+	}
+
+	/**
+	 * Binds to a port to listen for new connections
+	 */
+	private void BindServer(int passedSocket) {
+		int socket = 40000;
+		if ((passedSocket > 1024) && (passedSocket <= 65535)) {
+			socket = passedSocket;
+		}
+		try {
+			serverSocket = new ServerSocket(socket);
+		} catch (IOException e) {
+			log.warn("Could not listen on port. Port probably in use.");
+			System.exit(0);
+		}
+		log.info("Server launched on port " + socket);
+	}
+
+	/**
+	 * Listens on the servers port for new connections
+	 * 
+	 * @return the socket of the new connection
+	 */
+	public Socket ListenForNewConnection() {
+		Socket newClient = null;
+		try {
+			newClient = serverSocket.accept();
+		} catch (IOException e) {
+			log.error("Error: Failed to establish connection with the new client.");
+		}
+
+		// Logging
+		SocketAddress theirAddress = newClient.getRemoteSocketAddress();
+		SocketAddress myAddress = newClient.getLocalSocketAddress();
+		log.info("A client from [" + theirAddress + "] has connected to ["
+				+ myAddress + "] and has established a new session.");
+
+		return newClient;
+	}
+
+	/**
+	 * Connects IO to socket
+	 * 
+	 * @param passedSocket
+	 */
+	public void BringUp(Socket passedSocket) {
+		// Bind input/output to the socket
+		try {
+			receive = new DataInputStream(passedSocket.getInputStream());
+		} catch (IOException e1) {
+			log.error("Failed to setup RECEIVE input stream");
+		}
+		try {
+			send = new DataOutputStream(passedSocket.getOutputStream());
+		} catch (IOException e) {
+			log.error("Failed to setup SEND output stream");
+		}
+	}
+
+	/**
+	 * Tears down IO connected to socket
+	 */
+	public void BringDown() {
+		// Close opened IO interfaces
+		try {
+			receive.close();
+		} catch (IOException e) {
+			log.error("Failed to close RECIEVE");
+		}
+		try {
+			send.close();
+		} catch (IOException e) {
+			log.error("Failed to close SEND");
+		}
+	}
+
+	/**
+	 * Sends data over socket DATA TYPE: string UTF safe
+	 * 
+	 * @param data
+	 */
+	public void Send(String data) {
+		try {
+			send.writeUTF(data);
+		} catch (IOException e1) {
+			log.error("Failed to SEND data STRING");
+		}
+		try {
+			send.flush();
+		} catch (IOException e) {
+			log.error("Failed to flush SEND buffer");
+		}
+	}
+
+	/**
+	 * Sends data over socket DATA TYPE: byte[]
+	 * 
+	 * @param data
+	 */
+	public void Send(byte[] data) {
+		try {
+			send.write(data);
+			if (VERBOSE) {
+				log.info("Wrote [" + data.length + "] bytes.");
+			}
+		} catch (IOException e1) {
+			log.error("Failed to SEND data byte[]");
+		}
+		try {
+			send.flush();
+		} catch (IOException e) {
+			log.error("Failed to flush SEND buffer");
+		}
+	}
+
+	/**
+	 * Receives data over socket DATA TYPE: string UTF safe
+	 * 
+	 * @param data
+	 */
+	public String Receive() {
+		String fetched = null;
+		try {
+			fetched = receive.readUTF();
+		} catch (IOException e1) {
+			log.error("Failed to RECEIVE data STRING");
+			fetched = null;
+		}
+		return fetched;
+	}
+
+	/**
+	 * Receives data over socket DATA TYPE: byte[]
+	 * 
+	 * @param data
+	 */
+	public byte[] ReceiveByte() {
+		// Prep
+		int read = 0;
+		byte[] fetched = null;
+
+		// Wait (block) for data
+		try {
+			while (receive.available() == 0) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					log.warn("Failed to sleep while waiting for data over the network.");
+				}
+			}
+		} catch (IOException e2) {
+			log.warn("Failed to determine if data would/was arriving on the network so we could wait for it.");
+		}
+
+		// Data has arrived
+		try {
+			fetched = new byte[receive.available()];
+			try {
+				read = receive.read(fetched);
+				if (VERBOSE) {
+					log.info("Read [" + read + "] bytes.");
+				}
+			} catch (IOException e1) {
+				log.error("Failed to RECEIVE data STRING");
+				fetched = null;
+			}
+		} catch (IOException e) {
+			log.error("Failed to determine size of inbound data in bytes");
+		} finally {
+			if (read <= 0) {
+				log.warn("Failed to read anything from the input stream.");
+			}
+		}
+		return fetched;
+	}
+
+	/**
+	 * Receives data over socket DATA TYPE: byte[]
+	 * 
+	 * @param data
+	 */
+	public byte[] ReceiveByteACK() {
+		// Prep
+		int read = 0;
+		byte[] fetched = null;
+
+		// Wait (block) for data
+		try {
+			while (receive.available() == 0) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					log.warn("Failed to sleep while waiting for data over the network.");
+				}
+			}
+		} catch (IOException e2) {
+			log.warn("Failed to determine if data would/was arriving on the network so we could wait for it.");
+		}
+
+		// Data has arrived
+		try {
+			fetched = new byte[32];
+			try {
+				read = receive.read(fetched, 0, 32);
+				if (VERBOSE) {
+					log.info("Read [" + read + "] bytes.");
+				}
+			} catch (IOException e1) {
+				log.error("Failed to RECEIVE data STRING");
+				fetched = null;
+			}
+		} finally {
+			if (read <= 0) {
+				log.warn("Failed to read anything from the input stream.");
+			}
+		}
+		return fetched;
+	}
+}
