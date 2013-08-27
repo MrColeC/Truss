@@ -1,2 +1,8 @@
 .metadata
 .git
+/build
+/target
+.classpath
+.project
+.settings/
+.DS_Store
