@@ -9,57 +9,51 @@ import org.slf4j.LoggerFactory;
  * @author Cole Christie
  * 
  */
-public class TLog {
+public class Logging {
 	private Logger Log;
 	private int SetLevel;
 
 	/**
 	 * CONSTRCUTOR
+	 * 
+	 * Pass it the log level to set the verbosty of allowed loggin
+	 * Options are: INFO, WARN, ERROR, FATAL, OFF
+	 * Default is FATAL
 	 */
-	public TLog(String loglevel) {
+	public Logging(String loglevel) {
 		// Setup logger via slf4j
-		Log = LoggerFactory.getLogger(Main.class);
-		
+		Log = LoggerFactory.getLogger("MyLog");
+
 		// Send passed value to upper case
 		String compare = loglevel.toUpperCase();
-		
-		//Set log level to passed paramaters (if it can be mapped)
-		if (compare.startsWith("INFO"))
-		{
+
+		// Set log level to passed paramaters (if it can be mapped)
+		if (compare.startsWith("INFO")) {
 			// All messgaes
 			SetLevel = 4;
-		}
-		else if(compare.startsWith("WARN"))
-		{
+		} else if (compare.startsWith("WARN")) {
 			// Less than info
 			SetLevel = 3;
-		}
-		else if(compare.startsWith("ERROR"))
-		{
+		} else if (compare.startsWith("ERROR")) {
 			// Less than warn
 			SetLevel = 2;
-		}
-		else if(compare.startsWith("OFF"))
-		{
+		} else if (compare.startsWith("OFF")) {
 			// No messages
 			SetLevel = 0;
-		}
-		else
-		{
+		} else {
 			// Critcail fauilures only (default)
 			SetLevel = 1;
 		}
-		
+
 		// This will only show up IF the logging is set to INFO level (4), so
-		// it is pointless to make more of these alerts for the other levels 
-		out("info","Logging set to INFO")
+		// it is pointless to make more of these alerts for the other levels
+		out("info", "Logging set to INFO");
 	}
 
 	/**
-	 * Listens for new connections and off loads them to new threads
-	 * 
-	 * @param passedSession
-	 * @param passedServer
+	 * Supports multi-level logging with programmatic "silencing"
+	 * @param level
+	 * @param msg
 	 */
 	public void out(String level, String msg) {
 		// The messages level
@@ -67,9 +61,9 @@ public class TLog {
 		// Send passed value to upper case
 		String compare = level.toUpperCase();
 
-		// Set log level to passed paramaters (if it can be mapped)
+		// Set log level to passed parameters (if it can be mapped)
 		if (compare.startsWith("INFO")) {
-			// All messgaes
+			// All messages
 			severity = 4;
 		} else if (compare.startsWith("WARN")) {
 			// Less than info
@@ -78,13 +72,24 @@ public class TLog {
 			// Less than warn
 			severity = 2;
 		} else {
-			// Critcail fauilures only (default)
+			// Critical failures only (default)
 			severity = 1;
 		}
 		
 		if (severity <= SetLevel)
 		{
-			log.info("Truss");
+			if (severity == 4) {
+				// Log via info utility
+				Log.info(msg);
+			}
+			else if (severity == 3) {
+				// Log via warning utility
+				Log.warn(msg);				
+			}
+			else {
+				// Log via error utility
+				Log.error(msg);
+			}	
 		}
 	}
 }
