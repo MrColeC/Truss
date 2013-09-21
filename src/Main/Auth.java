@@ -3,7 +3,6 @@ package Main;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -16,14 +15,13 @@ import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
-import org.slf4j.Logger;
 
 /**
  * 
  * @author Cole Christie Purpose: Provides simple authentication interface
  */
 public class Auth {
-	private static Logger log;
+	private static Logging mylog;
 	private static String psk;
 
 	/**
@@ -32,9 +30,9 @@ public class Auth {
 	 * 
 	 * @param passedLog
 	 */
-	public Auth(Logger passedLog) {
+	public Auth(Logging passedLog) {
 		psk = null;
-		log = passedLog;
+		mylog = passedLog;
 
 		// Load Shiro
 		try {
@@ -42,12 +40,12 @@ public class Auth {
 					"classpath:shiro.ini");
 			SecurityManager securityManager = factory.getInstance();
 			SecurityUtils.setSecurityManager(securityManager);
-			log.info("Apache Shiro activated");
+			mylog.out("INFO","Apache Shiro activated");
 		} catch (ConfigurationException err) {
-			log.warn("Failed to instantiate Apache Shiro\n" + err);
+			mylog.out("FATAL","Failed to instantiate Apache Shiro\n" + err);
 			System.exit(0);
 		} catch (NoClassDefFoundError err) {
-			log.warn("Failed to instantiate Apache Shiro\n" + err);
+			mylog.out("FATAL","Failed to instantiate Apache Shiro\n" + err);
 			System.exit(0);
 		}
 	}
@@ -70,7 +68,7 @@ public class Auth {
 		try {
 			user = br.readLine();
 		} catch (IOException ioe) {
-			log.warn("Failed to capture USERNAME input.");
+			mylog.out("ERROR","Failed to capture USERNAME input.");
 		}
 
 		// Capture password
@@ -78,7 +76,7 @@ public class Auth {
 		try {
 			pw = br.readLine();
 		} catch (IOException ioe) {
-			log.warn("Failed to capture PASSWORD input.");
+			mylog.out("ERROR","Failed to capture PASSWORD input.");
 		}
 		String[] Credentials = { user, pw }; // Cast return
 
@@ -87,7 +85,7 @@ public class Auth {
 		try {
 			psk = br.readLine();
 		} catch (IOException ioe) {
-			log.warn("Failed to capture PSK input.");
+			mylog.out("ERROR","Failed to capture PSK input.");
 		}
 
 		return Credentials;
@@ -126,25 +124,25 @@ public class Auth {
 		}
 
 		// Log subject used
-		log.info("Using [" + currentUser.getPrincipal() + "] credentials.");
+		mylog.out("INFO","Using [" + currentUser.getPrincipal() + "] credentials.");
 
 		// Check permissions
 		if (currentUser.hasRole("nothing")) {
-			log.warn("Account has NO PRIVLEGES");
+			mylog.out("WARN","Account has NO PRIVLEGES");
 		} else {
 			if (currentUser.hasRole("secureTarget")) {
-				log.info("Jobs can be RECIEVED");
-				log.info("PRIVATE jobs can be calculated");
+				mylog.out("INFO","Jobs can be RECIEVED");
+				mylog.out("INFO","PRIVATE jobs can be calculated");
 			} else if (currentUser.hasRole("insecureTarget")) {
-				log.info("Jobs can be RECIEVED");
-				log.info("PUBLIC jobs can be calculated");
+				mylog.out("INFO","Jobs can be RECIEVED");
+				mylog.out("INFO","PUBLIC jobs can be calculated");
 			} else if (currentUser.hasRole("sourceTarget")) {
-				log.info("Job classification system ENABLED");
-				log.info("Jobs can be SENT");
-				log.info("Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO","Job classification system ENABLED");
+				mylog.out("INFO","Jobs can be SENT");
+				mylog.out("INFO","Workers can be BOUND (Authenticated & Authorized)");
 			} else if (currentUser.hasRole("resultTarget")) {
-				log.info("Completed jobs (WORK) can be RECIEVED");
-				log.info("Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO","Completed jobs (WORK) can be RECIEVED");
+				mylog.out("INFO","Workers can be BOUND (Authenticated & Authorized)");
 			}
 		}
 		return currentUser;
@@ -154,8 +152,8 @@ public class Auth {
 	 * Exits the application when called
 	 */
 	private void failedLogin() {
-		log.warn("Login DENIED");
-		log.info("Loader Framework terminated");
+		mylog.out("FATAL","Login DENIED");
+		mylog.out("FATAL","Loader Framework terminated");
 		System.exit(0);
 	}
 
