@@ -8,8 +8,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import org.slf4j.Logger;
-
 /**
  * Provides networking support to securely bind to a port to listen or connect
  * to a remote port for communication
@@ -18,7 +16,7 @@ import org.slf4j.Logger;
  * 
  */
 public class Networking {
-	private Logger log;
+	private Logging mylog;
 	private ServerSocket serverSocket;
 	private Socket ClientSocket;
 	private DataInputStream receive;
@@ -30,33 +28,33 @@ public class Networking {
 	/**
 	 * CONSTRUCTOR Basic version
 	 */
-	public Networking(Logger passedLog) {
-		log = passedLog;
+	public Networking(Logging passedLog) {
+		mylog = passedLog;
 	}
 
 	/**
 	 * CONSTRUCTOR Server version
 	 */
-	public Networking(Logger passedLog, int port) {
-		log = passedLog;
+	public Networking(Logging passedLog, int port) {
+		mylog = passedLog;
 		BindServer(port);
 	}
 
 	/**
 	 * CONSTRUCTOR Client version
 	 */
-	public Networking(Logger passedLog, int passedPort, String target) {
+	public Networking(Logging passedLog, int passedPort, String target) {
 		int port = 40000;
 		if ((passedPort > 1024) && (passedPort <= 65535)) {
 			port = passedPort;
 		}
-		log = passedLog;
+		mylog = passedLog;
 		try {
 			ClientSocket = new Socket(target, port);
 		} catch (UnknownHostException e) {
-			log.error("Unknown host [" + target + "]");
+			mylog.out("ERROR","Unknown host [" + target + "]");
 		} catch (IOException e) {
-			log.error("Unable to connect to target server and/or port");
+			mylog.out("ERROR","Unable to connect to target server and/or port");
 		}
 	}
 
@@ -80,10 +78,10 @@ public class Networking {
 		try {
 			serverSocket = new ServerSocket(socket);
 		} catch (IOException e) {
-			log.warn("Could not listen on port. Port probably in use.");
+			mylog.out("FATAL","Could not listen on port. Port probably in use.");
 			System.exit(0);
 		}
-		log.info("Server launched on port " + socket);
+		mylog.out("INFO","Server launched on port " + socket);
 	}
 
 	/**
@@ -96,13 +94,13 @@ public class Networking {
 		try {
 			newClient = serverSocket.accept();
 		} catch (IOException e) {
-			log.error("Error: Failed to establish connection with the new client.");
+			mylog.out("ERROR","Error: Failed to establish connection with the new client.");
 		}
 
 		// Logging
 		SocketAddress theirAddress = newClient.getRemoteSocketAddress();
 		SocketAddress myAddress = newClient.getLocalSocketAddress();
-		log.info("A client from [" + theirAddress + "] has connected to ["
+		mylog.out("INFO","A client from [" + theirAddress + "] has connected to ["
 				+ myAddress + "] and has established a new session.");
 
 		return newClient;
@@ -118,12 +116,12 @@ public class Networking {
 		try {
 			receive = new DataInputStream(passedSocket.getInputStream());
 		} catch (IOException e1) {
-			log.error("Failed to setup RECEIVE input stream");
+			mylog.out("ERROR","Failed to setup RECEIVE input stream");
 		}
 		try {
 			send = new DataOutputStream(passedSocket.getOutputStream());
 		} catch (IOException e) {
-			log.error("Failed to setup SEND output stream");
+			mylog.out("ERROR","Failed to setup SEND output stream");
 		}
 	}
 
@@ -135,12 +133,12 @@ public class Networking {
 		try {
 			receive.close();
 		} catch (IOException e) {
-			log.error("Failed to close RECIEVE");
+			mylog.out("ERROR","Failed to close RECIEVE");
 		}
 		try {
 			send.close();
 		} catch (IOException e) {
-			log.error("Failed to close SEND");
+			mylog.out("ERROR","Failed to close SEND");
 		}
 	}
 
@@ -153,12 +151,12 @@ public class Networking {
 		try {
 			send.writeUTF(data);
 		} catch (IOException e1) {
-			log.error("Failed to SEND data STRING");
+			mylog.out("ERROR","Failed to SEND data STRING");
 		}
 		try {
 			send.flush();
 		} catch (IOException e) {
-			log.error("Failed to flush SEND buffer");
+			mylog.out("ERROR","Failed to flush SEND buffer");
 		}
 	}
 
@@ -171,15 +169,15 @@ public class Networking {
 		try {
 			send.write(data);
 			if (VERBOSE) {
-				log.info("Wrote [" + data.length + "] bytes.");
+				mylog.out("INFO","Wrote [" + data.length + "] bytes.");
 			}
 		} catch (IOException e1) {
-			log.error("Failed to SEND data byte[]");
+			mylog.out("ERROR","Failed to SEND data byte[]");
 		}
 		try {
 			send.flush();
 		} catch (IOException e) {
-			log.error("Failed to flush SEND buffer");
+			mylog.out("ERROR","Failed to flush SEND buffer");
 		}
 	}
 
@@ -193,7 +191,7 @@ public class Networking {
 		try {
 			fetched = receive.readUTF();
 		} catch (IOException e1) {
-			log.error("Failed to RECEIVE data STRING");
+			mylog.out("ERROR","Failed to RECEIVE data STRING");
 			fetched = null;
 		}
 		return fetched;
@@ -215,11 +213,11 @@ public class Networking {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
-					log.warn("Failed to sleep while waiting for data over the network.");
+					mylog.out("WARN","Failed to sleep while waiting for data over the network.");
 				}
 			}
 		} catch (IOException e2) {
-			log.warn("Failed to determine if data would/was arriving on the network so we could wait for it.");
+			mylog.out("WARN","Failed to determine if data would/was arriving on the network so we could wait for it.");
 		}
 
 		// Data has arrived
@@ -228,17 +226,17 @@ public class Networking {
 			try {
 				read = receive.read(fetched);
 				if (VERBOSE) {
-					log.info("Read [" + read + "] bytes.");
+					mylog.out("INFO","Read [" + read + "] bytes.");
 				}
 			} catch (IOException e1) {
-				log.error("Failed to RECEIVE data STRING");
+				mylog.out("ERROR","Failed to RECEIVE data STRING");
 				fetched = null;
 			}
 		} catch (IOException e) {
-			log.error("Failed to determine size of inbound data in bytes");
+			mylog.out("ERROR","Failed to determine size of inbound data in bytes");
 		} finally {
 			if (read <= 0) {
-				log.warn("Failed to read anything from the input stream.");
+				mylog.out("WARN","Failed to read anything from the input stream.");
 			}
 		}
 		return fetched;
@@ -260,11 +258,11 @@ public class Networking {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
-					log.warn("Failed to sleep while waiting for data over the network.");
+					mylog.out("ERROR","Failed to sleep while waiting for data over the network.");
 				}
 			}
 		} catch (IOException e2) {
-			log.warn("Failed to determine if data would/was arriving on the network so we could wait for it.");
+			mylog.out("ERROR","Failed to determine if data would/was arriving on the network so we could wait for it.");
 		}
 
 		// Data has arrived
@@ -273,15 +271,15 @@ public class Networking {
 			try {
 				read = receive.read(fetched, 0, 32);
 				if (VERBOSE) {
-					log.info("Read [" + read + "] bytes.");
+					mylog.out("INFO","Read [" + read + "] bytes.");
 				}
 			} catch (IOException e1) {
-				log.error("Failed to RECEIVE data STRING");
+				mylog.out("ERROR","Failed to RECEIVE data STRING");
 				fetched = null;
 			}
 		} finally {
 			if (read <= 0) {
-				log.warn("Failed to read anything from the input stream.");
+				mylog.out("ERROR","Failed to read anything from the input stream.");
 			}
 		}
 		return fetched;

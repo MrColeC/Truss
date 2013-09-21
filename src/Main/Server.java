@@ -1,9 +1,7 @@
 package Main;
 
 import java.net.Socket;
-
 import org.apache.shiro.session.Session;
-import org.slf4j.Logger;
 
 /**
  * Provides support for originating work and handing it out as well as receiving
@@ -13,7 +11,7 @@ import org.slf4j.Logger;
  * 
  */
 public class Server {
-	private Logger log;
+	private Logging mylog;
 	private Networking network;
 	@SuppressWarnings("unused")
 	private Session ServerSession;
@@ -22,9 +20,9 @@ public class Server {
 	/**
 	 * CONSTRCUTOR
 	 */
-	public Server(Logger passedLog, Auth passedSubject) {
-		log = passedLog;
-		network = new Networking(log, 40000);
+	public Server(Logging passedLog, Auth passedSubject) {
+		mylog = passedLog;
+		network = new Networking(mylog, 40000);
 		subject = passedSubject;
 	}
 
@@ -41,7 +39,7 @@ public class Server {
 			// Get a new connection
 			Socket socket = network.ListenForNewConnection();
 			UIDcounter++;
-			new ServerThread(subject, log, socket, passedServer, UIDcounter).start();
+			new ServerThread(subject, mylog, socket, passedServer, UIDcounter).start();
 		}
 	}
 }

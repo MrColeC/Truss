@@ -26,7 +26,7 @@ public class Main {
 	 * TRUSS Main
 	 * 
 	 */
-	public static void main() {
+	public static void main(String[] args) {
 		// Collect any passed arguments
 		String loglevel = System.getProperty("loglevel");
 		

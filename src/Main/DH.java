@@ -11,11 +11,8 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
-
-import org.slf4j.Logger;
 
 /**
  * Handles Diffie Hellman Exchange to generate a shared secret
@@ -27,7 +24,7 @@ import org.slf4j.Logger;
  *         /Java/0490__Security/DiffieHellmanKeyAgreement.htm
  */
 public class DH {
-	private Logger log;
+	private Logging mylog;
 	private BigInteger prime;
 	private BigInteger base;
 	private BigInteger sharedSecret;
@@ -39,8 +36,8 @@ public class DH {
 	/**
 	 * CONTRUCTOR Generates a PRIME and a BASE
 	 */
-	public DH(Logger passedLog) {
-		log = passedLog;
+	public DH(Logging passedLog) {
+		mylog = passedLog;
 
 		GeneratePrime(1024);
 		GenerateBase(128);
@@ -51,9 +48,9 @@ public class DH {
 	/**
 	 * CONTRUCTOR USES a pre-calculated prime and base
 	 */
-	public DH(Logger passedLog, String passedPrime, int radixPrime,
+	public DH(Logging passedLog, String passedPrime, int radixPrime,
 			String passedBase, int radixBase) {
-		log = passedLog;
+		mylog = passedLog;
 		prime = new BigInteger(passedPrime, radixPrime);
 		base = new BigInteger(passedBase, radixBase);
 	}
@@ -161,7 +158,7 @@ public class DH {
 			pubKey = KeyFactory.getInstance("DH").generatePublic(
 					new X509EncodedKeySpec(source));
 		} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-			log.error("Failed to build a public key from the received byte array.");
+			mylog.out("ERROR","Failed to build a public key from the received byte array.");
 		}
 		return pubKey;
 	}
@@ -178,12 +175,12 @@ public class DH {
 		try {
 			keyGen = KeyPairGenerator.getInstance("DH");
 		} catch (NoSuchAlgorithmException e) {
-			log.error("There is no DH algorithm available.");
+			mylog.out("ERROR","There is no DH algorithm available.");
 		}
 		try {
 			keyGen.initialize(dhParameters, new SecureRandom());
 		} catch (InvalidAlgorithmParameterException e) {
-			log.error("Unable to intialize Key Generator.");
+			mylog.out("ERROR","Unable to intialize Key Generator.");
 		}
 
 		// Setup keying agreement
@@ -191,14 +188,14 @@ public class DH {
 		try {
 			keyAgree = KeyAgreement.getInstance("DH");
 		} catch (NoSuchAlgorithmException e) {
-			log.error("Unable to instantiate Key Agreement.");
+			mylog.out("ERROR","Unable to instantiate Key Agreement.");
 		}
 		keyPair = keyGen.generateKeyPair();
 
 		try {
 			keyAgree.init(keyPair.getPrivate());
 		} catch (InvalidKeyException e) {
-			log.error("Unable to calculate a private key for DH.");
+			mylog.out("ERROR","Unable to calculate a private key for DH.");
 		}
 	}
 
@@ -209,7 +206,7 @@ public class DH {
 		try {
 			keyAgree.doPhase(partnersKey, true);
 		} catch (InvalidKeyException | IllegalStateException e) {
-			log.error("Unable to complete keying agreement.");
+			mylog.out("ERROR","Unable to complete keying agreement.");
 		}
 
 		// Generate shared Secret

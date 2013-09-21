@@ -9,7 +9,6 @@ import javax.crypto.SecretKeyFactory;
 import org.apache.shiro.codec.CodecSupport;
 import org.apache.shiro.crypto.AesCipherService;
 import org.apache.shiro.crypto.CryptoException;
-import org.slf4j.Logger;
 
 /**
  * Handles basic encryption decryption
@@ -18,16 +17,16 @@ import org.slf4j.Logger;
  * 
  */
 public class Crypto {
-	private Logger log;
+	private Logging mylog;
 	private AesCipherService cipher;
 	private byte[] KeyBytes;
 
 	/**
 	 * CONSTRUCTOR
 	 */
-	public Crypto(Logger passedLog, String password) {
+	public Crypto(Logging passedLog, String password) {
 		// Setup log
-		log = passedLog;
+		mylog = passedLog;
 
 		// Setup cipher
 		cipher = new AesCipherService();
@@ -39,14 +38,14 @@ public class Crypto {
 		try {
 			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		} catch (NoSuchAlgorithmException e) {
-			log.error("PBKDF2 is MISSING");
+			mylog.out("ERROR","PBKDF2 is MISSING");
 		}
 		KeySpec keyspec = new PBEKeySpec(password.toCharArray(), salt, 10, 128);
 		Key key = null;
 		try {
 			key = factory.generateSecret(keyspec);
 		} catch (InvalidKeySpecException e) {
-			log.error("Failed to generate secret key");
+			mylog.out("ERROR","Failed to generate secret key");
 		}
 		KeyBytes = key.getEncoded();
 
@@ -54,7 +53,7 @@ public class Crypto {
 		int keySize = cipher.getKeySize();
 		String cryptoAlg = cipher.getAlgorithmName();
 		String cryptoMode = cipher.getModeName();
-		log.info("Using " + keySize + " bit key with " + cryptoAlg + " in "
+		mylog.out("INFO","Using " + keySize + " bit key with " + cryptoAlg + " in "
 				+ cryptoMode + " mode.");
 	}
 
@@ -68,7 +67,7 @@ public class Crypto {
 		try {
 			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		} catch (NoSuchAlgorithmException e) {
-			log.error("PBKDF2 is MISSING");
+			mylog.out("ERROR","PBKDF2 is MISSING");
 		}
 		KeySpec keyspec = new PBEKeySpec(newPassword.toCharArray(), salt, 10,
 				128);
@@ -76,10 +75,10 @@ public class Crypto {
 		try {
 			key = factory.generateSecret(keyspec);
 		} catch (InvalidKeySpecException e) {
-			log.error("Failed to generate secret key");
+			mylog.out("ERROR","Failed to generate secret key");
 		}
 		KeyBytes = key.getEncoded();
-		log.info("Encryption rekeyed");
+		mylog.out("INFO","Encryption rekeyed");
 	}
 
 	/**
@@ -138,7 +137,7 @@ public class Crypto {
 			decrypted = CodecSupport.toString((cipher.decrypt(encryptedText,
 					KeyBytes).getBytes()));
 		} catch (CryptoException err) {
-			log.warn("Failed to decrypt the message. Likely bad PSK.");
+			mylog.out("WARN","Failed to decrypt the message. Likely bad PSK.");
 		}
 		return decrypted;
 	}
@@ -154,7 +153,7 @@ public class Crypto {
 		try {
 			decrypted = (cipher.decrypt(encryptedText, KeyBytes).getBytes());
 		} catch (CryptoException err) {
-			log.warn("Failed to decrypt the message. Likely bad PSK.");
+			mylog.out("WARN","Failed to decrypt the message. Likely bad PSK.");
 		}
 		return decrypted;
 	}
@@ -163,8 +162,8 @@ public class Crypto {
 	 * Test Diffie Hellman code
 	 */
 	public void testDH() {
-		DH sideA = new DH(log);
-		DH sideB = new DH(log, sideA.GetPrime(16), 16, sideA.GetBase(16), 16);
+		DH sideA = new DH(mylog);
+		DH sideB = new DH(mylog, sideA.GetPrime(16), 16, sideA.GetBase(16), 16);
 		sideA.DHPhase1();
 		sideB.DHPhase1();
 		sideA.DHPhase2(sideB.GetPublicKey());

@@ -4,5 +4,6 @@ Main/Auth.class
 Main/Networking.class
 Main/Main.class
 Main/Client.class
+Main/Logging.class
 Main/Server.class
 Main/DH.class
