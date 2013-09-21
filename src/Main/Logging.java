@@ -25,7 +25,11 @@ public class Logging {
 		Log = LoggerFactory.getLogger("MyLog");
 
 		// Send passed value to upper case
-		String compare = loglevel.toUpperCase();
+		String compare = "FATAL";
+		if (!loglevel.isEmpty()) {
+			compare = loglevel.toUpperCase();	
+		}
+		
 
 		// Set log level to passed paramaters (if it can be mapped)
 		if (compare.startsWith("INFO")) {

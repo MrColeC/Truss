@@ -26,7 +26,7 @@ public class Auth {
 
 	/**
 	 * CONSTRUCTOR Sets up Shiro (pulls configuration from hard coded INI file
-	 * currently
+	 * currently)
 	 * 
 	 * @param passedLog
 	 */
@@ -40,12 +40,12 @@ public class Auth {
 					"classpath:shiro.ini");
 			SecurityManager securityManager = factory.getInstance();
 			SecurityUtils.setSecurityManager(securityManager);
-			mylog.out("INFO","Apache Shiro activated");
+			mylog.out("INFO", "Apache Shiro activated");
 		} catch (ConfigurationException err) {
-			mylog.out("FATAL","Failed to instantiate Apache Shiro\n" + err);
+			mylog.out("FATAL", "Failed to instantiate Apache Shiro\n" + err);
 			System.exit(0);
 		} catch (NoClassDefFoundError err) {
-			mylog.out("FATAL","Failed to instantiate Apache Shiro\n" + err);
+			mylog.out("FATAL", "Failed to instantiate Apache Shiro\n" + err);
 			System.exit(0);
 		}
 	}
@@ -68,7 +68,7 @@ public class Auth {
 		try {
 			user = br.readLine();
 		} catch (IOException ioe) {
-			mylog.out("ERROR","Failed to capture USERNAME input.");
+			mylog.out("ERROR", "Failed to capture USERNAME input.");
 		}
 
 		// Capture password
@@ -76,7 +76,7 @@ public class Auth {
 		try {
 			pw = br.readLine();
 		} catch (IOException ioe) {
-			mylog.out("ERROR","Failed to capture PASSWORD input.");
+			mylog.out("ERROR", "Failed to capture PASSWORD input.");
 		}
 		String[] Credentials = { user, pw }; // Cast return
 
@@ -85,7 +85,7 @@ public class Auth {
 		try {
 			psk = br.readLine();
 		} catch (IOException ioe) {
-			mylog.out("ERROR","Failed to capture PSK input.");
+			mylog.out("ERROR", "Failed to capture PSK input.");
 		}
 
 		return Credentials;
@@ -100,14 +100,16 @@ public class Auth {
 	public Subject Login(String username, String password) {
 		// Create subject identity
 		Subject currentUser = SecurityUtils.getSubject();
-
+		
 		// Authenticate user
 		if (!currentUser.isAuthenticated()) {
 			try {
 				UsernamePasswordToken token = new UsernamePasswordToken(
 						username, password);
 				token.setRememberMe(true); // Create token (SSO)
+				mylog.out("FATAL", "3");
 				currentUser.login(token);
+				mylog.out("FATAL", "4");
 			} catch (UnknownAccountException err) {
 				// Bad user name
 				failedLogin();
@@ -124,25 +126,28 @@ public class Auth {
 		}
 
 		// Log subject used
-		mylog.out("INFO","Using [" + currentUser.getPrincipal() + "] credentials.");
+		mylog.out("INFO", "Using [" + currentUser.getPrincipal()
+				+ "] credentials.");
 
 		// Check permissions
 		if (currentUser.hasRole("nothing")) {
-			mylog.out("WARN","Account has NO PRIVLEGES");
+			mylog.out("WARN", "Account has NO PRIVLEGES");
 		} else {
 			if (currentUser.hasRole("secureTarget")) {
-				mylog.out("INFO","Jobs can be RECIEVED");
-				mylog.out("INFO","PRIVATE jobs can be calculated");
+				mylog.out("INFO", "Jobs can be RECIEVED");
+				mylog.out("INFO", "PRIVATE jobs can be calculated");
 			} else if (currentUser.hasRole("insecureTarget")) {
-				mylog.out("INFO","Jobs can be RECIEVED");
-				mylog.out("INFO","PUBLIC jobs can be calculated");
+				mylog.out("INFO", "Jobs can be RECIEVED");
+				mylog.out("INFO", "PUBLIC jobs can be calculated");
 			} else if (currentUser.hasRole("sourceTarget")) {
-				mylog.out("INFO","Job classification system ENABLED");
-				mylog.out("INFO","Jobs can be SENT");
-				mylog.out("INFO","Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO", "Job classification system ENABLED");
+				mylog.out("INFO", "Jobs can be SENT");
+				mylog.out("INFO",
+						"Workers can be BOUND (Authenticated & Authorized)");
 			} else if (currentUser.hasRole("resultTarget")) {
-				mylog.out("INFO","Completed jobs (WORK) can be RECIEVED");
-				mylog.out("INFO","Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO", "Completed jobs (WORK) can be RECIEVED");
+				mylog.out("INFO",
+						"Workers can be BOUND (Authenticated & Authorized)");
 			}
 		}
 		return currentUser;
@@ -152,8 +157,8 @@ public class Auth {
 	 * Exits the application when called
 	 */
 	private void failedLogin() {
-		mylog.out("FATAL","Login DENIED");
-		mylog.out("FATAL","Loader Framework terminated");
+		mylog.out("FATAL", "Login DENIED");
+		mylog.out("FATAL", "Loader Framework terminated");
 		System.exit(0);
 	}
 

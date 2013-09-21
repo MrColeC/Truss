@@ -29,6 +29,9 @@ public class Main {
 	public static void main(String[] args) {
 		// Collect any passed arguments
 		String loglevel = System.getProperty("loglevel");
+		if (loglevel == null) {
+			loglevel = "FATAL";
+		}
 		
 		// Activate log
 		Logging mylog = new Logging(loglevel);
@@ -44,8 +47,8 @@ public class Main {
 		// Server - source of work
 		// Public/Private calculator - performs work
 		// Drop off point - receives completed work
-		String[] INPUT = subject.GetCredential();
-		Subject currentUser = subject.Login(INPUT[0], INPUT[1]);
+		String[] UserInput = subject.GetCredential();
+		Subject currentUser = subject.Login(UserInput[0], UserInput[1]);
 		Session session = subject.EstablishSession(currentUser);
 
 		// Set session timeout
