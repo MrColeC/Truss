@@ -31,16 +31,13 @@ public class Main {
 		String loglevel = System.getProperty("loglevel");
 		
 		// Activate log
-		TLog log = new TLog(loglevel);
+		Logging mylog = new Logging(loglevel);
 		
 		// Start of Execution
-		log.info("Truss");
-
-		// Activate Logger (SLF4J)
-		log.info("Logging enabled");
+		mylog.out("INFO","Truss Launched");
 
 		// Activate Shiro
-		Auth subject = new Auth(log);
+		Auth subject = new Auth(mylog);
 
 		// Use credentials to authenticate/authorize this instance
 		// This is used to determine if this invocation is a:
@@ -60,10 +57,10 @@ public class Main {
 		long TimeDay = (TimeMin / 1440);
 		// If time is better expressed in minutes or days
 		if (TimeDay > 0) {
-			log.info("The session will time out in " + TimeRemaining + "ms ("
+			mylog.out("INFO","The session will time out in " + TimeRemaining + "ms ("
 					+ TimeDay + " day(s))");
 		} else {
-			log.info("The session will time out in " + TimeRemaining + "ms ("
+			mylog.out("INFO","The session will time out in " + TimeRemaining + "ms ("
 					+ TimeMin + " minutes)");
 		}
 
@@ -72,26 +69,26 @@ public class Main {
 		if (purpose == "server") {
 			session.setAttribute("workGiven", "0");
 			// Launch server (sender)
-			Server server = new Server(log, subject);
+			Server server = new Server(mylog, subject);
 			server.LaunchServer(session, server);
 		} else if (purpose == "dropoff") {
 			session.setAttribute("workRecieved", "0");
 			// Launch server (receiver)
-			Server server = new Server(log, subject);
+			Server server = new Server(mylog, subject);
 			server.LaunchServer(session, server);
 		} else if (purpose == "private") {
 			session.setAttribute("totalJobs", "0");
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (public mode)
-			Client client = new Client(log, subject);
+			Client client = new Client(mylog, subject);
 			client.StartClient(40000, "127.0.0.1");
 		} else if (purpose == "public") {
 			session.setAttribute("totalJobs", "0");
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (private mode)
-			Client client = new Client(log, subject);
+			Client client = new Client(mylog, subject);
 			client.StartClient(40000, "127.0.0.1");
 		} else {
 			// Unknown type or failed authentication
@@ -101,7 +98,7 @@ public class Main {
 		currentUser.logout();
 
 		// End of Execution
-		log.info("Loader Framework terminated");
+		mylog.out("INFO","Loader Framework terminated");
 		System.exit(0);
 	}
 }
