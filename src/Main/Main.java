@@ -2,14 +2,16 @@ package Main;
 
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Cole Christie
- * 		   CS 6262 - Network Security Class Project First Version of Loader
- *         Framework for the RCSB PDB @ UCSD
+ * @author Cole Christie CS 6266 - Masters in Information Security - Capstone
+ *         Project
+ * 
+ *         Description: TRUSS is a middleware framework that support simple jobs
+ *         distribtuion and collection in a secure manner over unsecure
+ *         heterogenous networks. Further, is it intended to be minimalistic in
+ *         order to reduce overhead and complexitiy.
  * 
  */
 public class Main {
@@ -17,15 +19,20 @@ public class Main {
 	/**
 	 * Creates simple logging framework
 	 */
-	private static final transient Logger log = LoggerFactory
-			.getLogger(Main.class);
+	//private static final transient Logger log = LoggerFactory
+	//		.getLogger(Main.class);
 
 	/**
-	 * Main of Loader Framework
-	 * Authenticates run time purpose and diverts invocations to desired code base
-	 * @param args
+	 * TRUSS Main
+	 * 
 	 */
-	public static void main(String[] args) {
+	public static void main() {
+		// Collect any passed arguments
+		String loglevel = System.getProperty("loglevel");
+		
+		// Activate log
+		TLog log = new TLog(loglevel);
+		
 		// Start of Execution
 		log.info("Truss");
 
@@ -44,23 +51,20 @@ public class Main {
 		Subject currentUser = subject.Login(INPUT[0], INPUT[1]);
 		Session session = subject.EstablishSession(currentUser);
 
-		//Set session timeout
+		// Set session timeout
 		session.setTimeout(86400000);
-		
+
 		// Query session expiration
 		long TimeRemaining = session.getTimeout();
 		long TimeMin = (TimeRemaining / 1000) / 60;
 		long TimeDay = (TimeMin / 1440);
-		//If time is better expressed in minutes or days
-		if (TimeDay > 0)
-		{
+		// If time is better expressed in minutes or days
+		if (TimeDay > 0) {
 			log.info("The session will time out in " + TimeRemaining + "ms ("
 					+ TimeDay + " day(s))");
-		}
-		else
-		{
+		} else {
 			log.info("The session will time out in " + TimeRemaining + "ms ("
-					+ TimeMin + " minutes)");	
+					+ TimeMin + " minutes)");
 		}
 
 		// Leverage session to launch purpose driven code
