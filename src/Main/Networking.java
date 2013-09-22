@@ -52,9 +52,9 @@ public class Networking {
 		try {
 			ClientSocket = new Socket(target, port);
 		} catch (UnknownHostException e) {
-			mylog.out("ERROR","Unknown host [" + target + "]");
+			mylog.out("FATAL","Unknown host [" + target + "]");
 		} catch (IOException e) {
-			mylog.out("ERROR","Unable to connect to target server and/or port");
+			mylog.out("FATAL","Unable to connect to target server and/or port");
 		}
 	}
 

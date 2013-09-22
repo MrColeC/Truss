@@ -51,6 +51,19 @@ public class Auth {
 	}
 
 	/**
+	 * Sets the private PSK to a passed value
+	 * @param PassedPSK
+	 */
+	public void SetPSK(String PassedPSK) {
+		if (PassedPSK.isEmpty())
+		{
+			mylog.out("FATAL", "PreShared Key CANNOT be set to empty/null.");
+			System.exit(0);
+		}
+		psk = PassedPSK;
+	}
+	
+	/**
 	 * Establishes credentials based upon passed or provided input
 	 * 
 	 * @return
@@ -100,16 +113,14 @@ public class Auth {
 	public Subject Login(String username, String password) {
 		// Create subject identity
 		Subject currentUser = SecurityUtils.getSubject();
-		
+
 		// Authenticate user
 		if (!currentUser.isAuthenticated()) {
 			try {
 				UsernamePasswordToken token = new UsernamePasswordToken(
 						username, password);
 				token.setRememberMe(true); // Create token (SSO)
-				mylog.out("FATAL", "3");
 				currentUser.login(token);
-				mylog.out("FATAL", "4");
 			} catch (UnknownAccountException err) {
 				// Bad user name
 				failedLogin();

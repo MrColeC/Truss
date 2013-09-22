@@ -19,8 +19,8 @@ public class Main {
 	/**
 	 * Creates simple logging framework
 	 */
-	//private static final transient Logger log = LoggerFactory
-	//		.getLogger(Main.class);
+	// private static final transient Logger log = LoggerFactory
+	// .getLogger(Main.class);
 
 	/**
 	 * TRUSS Main
@@ -28,16 +28,32 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		// Collect any passed arguments
-		String loglevel = System.getProperty("loglevel");
-		if (loglevel == null) {
-			loglevel = "FATAL";
+		String Ploglevel = System.getProperty("loglevel");
+		if (Ploglevel == null) {
+			// Default to FATAL log level
+			Ploglevel = "FATAL";
 		}
-		
+		String Pusername = System.getProperty("user");
+		if (Pusername == null) {
+			// Default to empty string - force interactive user prompt
+			Pusername = "";
+		}
+		String Ppass = System.getProperty("pass");
+		if (Ppass == null) {
+			// Default to empty string - force interactive user prompt
+			Ppass = "";
+		}
+		String Pkey = System.getProperty("key");
+		if (Pkey == null) {
+			// Default to empty string - force interactive user prompt
+			Pkey = "";
+		}
+
 		// Activate log
-		Logging mylog = new Logging(loglevel);
-		
+		Logging mylog = new Logging(Ploglevel);
+
 		// Start of Execution
-		mylog.out("INFO","Truss Launched");
+		mylog.out("INFO", "Truss Launched");
 
 		// Activate Shiro
 		Auth subject = new Auth(mylog);
@@ -47,8 +63,17 @@ public class Main {
 		// Server - source of work
 		// Public/Private calculator - performs work
 		// Drop off point - receives completed work
-		String[] UserInput = subject.GetCredential();
-		Subject currentUser = subject.Login(UserInput[0], UserInput[1]);
+		Subject currentUser;
+		if ((Pusername.isEmpty()) || (Ppass.isEmpty()) || (Pkey.isEmpty()))
+		{
+			String[] UserInput = subject.GetCredential();
+			currentUser = subject.Login(UserInput[0], UserInput[1]);
+		}
+		else
+		{
+			subject.SetPSK(Pkey);
+			currentUser = subject.Login(Pusername, Ppass);
+		}
 		Session session = subject.EstablishSession(currentUser);
 
 		// Set session timeout
@@ -60,11 +85,11 @@ public class Main {
 		long TimeDay = (TimeMin / 1440);
 		// If time is better expressed in minutes or days
 		if (TimeDay > 0) {
-			mylog.out("INFO","The session will time out in " + TimeRemaining + "ms ("
-					+ TimeDay + " day(s))");
+			mylog.out("INFO", "The session will time out in " + TimeRemaining
+					+ "ms (" + TimeDay + " day(s))");
 		} else {
-			mylog.out("INFO","The session will time out in " + TimeRemaining + "ms ("
-					+ TimeMin + " minutes)");
+			mylog.out("INFO", "The session will time out in " + TimeRemaining
+					+ "ms (" + TimeMin + " minutes)");
 		}
 
 		// Leverage session to launch purpose driven code
@@ -101,7 +126,7 @@ public class Main {
 		currentUser.logout();
 
 		// End of Execution
-		mylog.out("INFO","Loader Framework terminated");
+		mylog.out("INFO", "Loader Framework terminated");
 		System.exit(0);
 	}
 }
