@@ -68,3 +68,5 @@ target/classes/Main/Server.class
 target/classes/Main/ServerThread.class
 
 target/classes/Main/ServerThread.class
+
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
