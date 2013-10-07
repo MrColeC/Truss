@@ -46,6 +46,8 @@ target
 .settings/
 .DS_Store
 *.class
+bin
+bin/
 
 target/classes/Main/Auth.class
 
