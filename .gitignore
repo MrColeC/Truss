@@ -36,7 +36,8 @@
 ehthumbs.db
 Thumbs.db
 
-# Other
+# Other Junk
+######################
 .metadata
 .git
 build
@@ -46,25 +47,13 @@ target
 .settings/
 .DS_Store
 *.class
-
 target/classes/Main/Auth.class
-
 target/classes/Main/Main.class
-
 target/classes/Main/Networking.class
-
 target/classes/Main/Networking.class
-
-*.class
-
 target/classes/Main/Client.class
-
 target/classes/Main/Crypto.class
-
 target/classes/Main/DH.class
-
 target/classes/Main/Server.class
-
 target/classes/Main/ServerThread.class
-
 target/classes/Main/ServerThread.class
