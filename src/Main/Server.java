@@ -20,9 +20,9 @@ public class Server {
 	/**
 	 * CONSTRCUTOR
 	 */
-	public Server(Logging passedLog, Auth passedSubject) {
+	public Server(Logging passedLog, Auth passedSubject, int PortNumber) {
 		mylog = passedLog;
-		network = new Networking(mylog, 40000);
+		network = new Networking(mylog, PortNumber);
 		subject = passedSubject;
 	}
 

@@ -34,7 +34,7 @@ public class Client {
 	 */
 	public void StartClient(int passedPort, String passedTarget) {
 		// Start up client networking
-		network = new Networking(mylog, passedPort, "127.0.0.1");
+		network = new Networking(mylog, passedPort, passedTarget);
 		// Bring the created socket into this scope
 		Socket MySock = network.PassBackClient();
 		// Bind I/O to the socket

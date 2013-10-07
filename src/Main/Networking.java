@@ -71,9 +71,13 @@ public class Networking {
 	 * Binds to a port to listen for new connections
 	 */
 	private void BindServer(int passedSocket) {
-		int socket = 40000;
+		int socket = 8080;
 		if ((passedSocket > 1024) && (passedSocket <= 65535)) {
 			socket = passedSocket;
+		}
+		else
+		{
+			mylog.out("WARN","Passed port number is out of bounds or in privledged space, defaulting to 8080.");
 		}
 		try {
 			serverSocket = new ServerSocket(socket);
@@ -81,7 +85,7 @@ public class Networking {
 			mylog.out("FATAL","Could not listen on port. Port probably in use.");
 			System.exit(0);
 		}
-		mylog.out("INFO","Server launched on port " + socket);
+		mylog.out("INFO","Now listening on port " + socket);
 	}
 
 	/**

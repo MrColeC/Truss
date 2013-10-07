@@ -48,6 +48,34 @@ public class Main {
 			// Default to empty string - force interactive user prompt
 			Pkey = "";
 		}
+		String Pbind = System.getProperty("bind");
+		if (Pbind == null) {
+			// Default to binding to port 8080 (as a server or dropoff)
+			// This is also checked and overrode in Networking.java
+			Pbind = "8080";
+		}
+		String Psport = System.getProperty("sport");
+		if (Psport == null) {
+			// Default to connecting to the server on port 8080
+			Psport = "8080";
+		}
+		String Pdport = System.getProperty("dport");
+		if (Pdport == null) {
+			// Default to connecting to the drop off on port 8080
+			Pdport = "8080";
+		}
+		String Psip = System.getProperty("sip");
+		if (Psip == null) {
+			// Default to connecting to the server on ip 127.0.0.1 (server is on
+			// the same machine as client
+			Psip = "127.0.0.1";
+		}
+		String Pdip = System.getProperty("dip");
+		if (Pdip == null) {
+			// Default to connecting to the server on ip 127.0.0.1 (server is on
+			// the same machine as client
+			Pdip = "127.0.0.1";
+		}
 
 		// Activate log
 		Logging mylog = new Logging(Ploglevel);
@@ -64,13 +92,10 @@ public class Main {
 		// Public/Private calculator - performs work
 		// Drop off point - receives completed work
 		Subject currentUser;
-		if ((Pusername.isEmpty()) || (Ppass.isEmpty()) || (Pkey.isEmpty()))
-		{
+		if ((Pusername.isEmpty()) || (Ppass.isEmpty()) || (Pkey.isEmpty())) {
 			String[] UserInput = subject.GetCredential();
 			currentUser = subject.Login(UserInput[0], UserInput[1]);
-		}
-		else
-		{
+		} else {
 			subject.SetPSK(Pkey);
 			currentUser = subject.Login(Pusername, Ppass);
 		}
@@ -97,12 +122,12 @@ public class Main {
 		if (purpose == "server") {
 			session.setAttribute("workGiven", "0");
 			// Launch server (sender)
-			Server server = new Server(mylog, subject);
+			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));
 			server.LaunchServer(session, server);
 		} else if (purpose == "dropoff") {
 			session.setAttribute("workRecieved", "0");
 			// Launch server (receiver)
-			Server server = new Server(mylog, subject);
+			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));
 			server.LaunchServer(session, server);
 		} else if (purpose == "private") {
 			session.setAttribute("totalJobs", "0");
@@ -110,14 +135,14 @@ public class Main {
 			session.setAttribute("totalDone", "0");
 			// Launch client code (public mode)
 			Client client = new Client(mylog, subject);
-			client.StartClient(40000, "127.0.0.1");
+			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to the server
 		} else if (purpose == "public") {
 			session.setAttribute("totalJobs", "0");
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (private mode)
 			Client client = new Client(mylog, subject);
-			client.StartClient(40000, "127.0.0.1");
+			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to the server
 		} else {
 			// Unknown type or failed authentication
 		}
