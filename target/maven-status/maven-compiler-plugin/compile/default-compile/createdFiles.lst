@@ -5,5 +5,7 @@ Main\Crypto.class
 Main\DH.class
 Main\Auth.class
 Main\Main.class
+Main\JobManagement.class
 Main\Logging.class
+Main\Jobs.class
 Main\Client.class
