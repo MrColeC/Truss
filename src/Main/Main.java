@@ -5,13 +5,14 @@ import org.apache.shiro.subject.Subject;
 
 /**
  * 
- * @author Cole Christie CS 6266 - Masters in Information Security - Capstone
- *         Project
+ * @author Cole Christie
+ * 
+ *         CS 6266 - Masters in Information Security
  * 
  *         Description: TRUSS is a middleware framework that support simple jobs
- *         distribtuion and collection in a secure manner over unsecure
- *         heterogenous networks. Further, is it intended to be minimalistic in
- *         order to reduce overhead and complexitiy.
+ *         distribution and collection in a secure manner over insecure
+ *         heterogeneous networks. Further, is it intended to be minimalistic in
+ *         order to reduce overhead and complexity.
  * 
  */
 public class Main {
@@ -135,14 +136,16 @@ public class Main {
 			session.setAttribute("totalDone", "0");
 			// Launch client code (public mode)
 			Client client = new Client(mylog, subject);
-			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to the server
+			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to
+																// the server
 		} else if (purpose == "public") {
 			session.setAttribute("totalJobs", "0");
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (private mode)
 			Client client = new Client(mylog, subject);
-			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to the server
+			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to
+																// the server
 		} else {
 			// Unknown type or failed authentication
 		}
