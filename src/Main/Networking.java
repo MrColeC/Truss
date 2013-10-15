@@ -75,15 +75,12 @@ public class Networking {
 		if ((passedSocket > 1024) && (passedSocket <= 65535)) {
 			socket = passedSocket;
 		} else {
-			mylog.out(
-					"WARN",
-					"Passed port number is out of bounds or in privledged space, defaulting to 8080.");
+			mylog.out("WARN", "Passed port number is out of bounds or in privledged space, defaulting to 8080.");
 		}
 		try {
 			serverSocket = new ServerSocket(socket);
 		} catch (IOException e) {
-			mylog.out("FATAL",
-					"Could not listen on port. Port probably in use.");
+			mylog.out("FATAL", "Could not listen on port. Port probably in use.");
 			System.exit(0);
 		}
 		mylog.out("INFO", "Now listening on port " + socket);
@@ -99,15 +96,13 @@ public class Networking {
 		try {
 			newClient = serverSocket.accept();
 		} catch (IOException e) {
-			mylog.out("ERROR",
-					"Error: Failed to establish connection with the new client.");
+			mylog.out("ERROR", "Error: Failed to establish connection with the new client.");
 		}
 
 		// Logging
 		SocketAddress theirAddress = newClient.getRemoteSocketAddress();
 		SocketAddress myAddress = newClient.getLocalSocketAddress();
-		mylog.out("INFO", "A client from [" + theirAddress
-				+ "] has connected to [" + myAddress
+		mylog.out("INFO", "A client from [" + theirAddress + "] has connected to [" + myAddress
 				+ "] and has established a new session.");
 
 		return newClient;
@@ -222,14 +217,11 @@ public class Networking {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
-					mylog.out("WARN",
-							"Failed to sleep while waiting for data over the network.");
+					mylog.out("WARN", "Failed to sleep while waiting for data over the network.");
 				}
 			}
 		} catch (IOException e2) {
-			mylog.out(
-					"WARN",
-					"Failed to determine if data would/was arriving on the network so we could wait for it.");
+			mylog.out("WARN", "Failed to determine if data would/was arriving on the network so we could wait for it.");
 		}
 
 		// Data has arrived
@@ -245,12 +237,10 @@ public class Networking {
 				fetched = null;
 			}
 		} catch (IOException e) {
-			mylog.out("ERROR",
-					"Failed to determine size of inbound data in bytes");
+			mylog.out("ERROR", "Failed to determine size of inbound data in bytes");
 		} finally {
 			if (read <= 0) {
-				mylog.out("WARN",
-						"Failed to read anything from the input stream.");
+				mylog.out("WARN", "Failed to read anything from the input stream.");
 			}
 		}
 		return fetched;
@@ -272,14 +262,11 @@ public class Networking {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
-					mylog.out("ERROR",
-							"Failed to sleep while waiting for data over the network.");
+					mylog.out("ERROR", "Failed to sleep while waiting for data over the network.");
 				}
 			}
 		} catch (IOException e2) {
-			mylog.out(
-					"ERROR",
-					"Failed to determine if data would/was arriving on the network so we could wait for it.");
+			mylog.out("ERROR", "Failed to determine if data would/was arriving on the network so we could wait for it.");
 		}
 
 		// Data has arrived
@@ -296,8 +283,7 @@ public class Networking {
 			}
 		} finally {
 			if (read <= 0) {
-				mylog.out("ERROR",
-						"Failed to read anything from the input stream.");
+				mylog.out("ERROR", "Failed to read anything from the input stream.");
 			}
 		}
 		return fetched;

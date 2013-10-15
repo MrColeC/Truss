@@ -48,6 +48,7 @@ public class Jobs {
 
 	/**
 	 * Returns the work string
+	 * 
 	 * @return
 	 */
 	public String GetWork() {
@@ -56,6 +57,7 @@ public class Jobs {
 
 	/**
 	 * Sets the work string
+	 * 
 	 * @param PassedWork
 	 */
 	public void SetWork(String PassedWork) {
@@ -64,6 +66,7 @@ public class Jobs {
 
 	/**
 	 * Returns who was issued this job
+	 * 
 	 * @return
 	 */
 	public String GetIussed() {
@@ -72,6 +75,7 @@ public class Jobs {
 
 	/**
 	 * Sets who was issued this job
+	 * 
 	 * @param PassedIssuedTo
 	 */
 	public void SetIssued(String PassedIssuedTo) {
@@ -80,6 +84,7 @@ public class Jobs {
 
 	/**
 	 * Returns the time the job was issued (in nano seconds)
+	 * 
 	 * @return
 	 */
 	public long GetTimeIssued() {
@@ -95,6 +100,7 @@ public class Jobs {
 
 	/**
 	 * Get the number of nano seconds that have elapsed since the job was issued
+	 * 
 	 * @return
 	 */
 	public long GetElpased() {
