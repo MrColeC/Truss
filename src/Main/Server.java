@@ -53,7 +53,7 @@ public class Server extends Thread {
 	}
 
 	/**
-	 * Threads the listening agent so it is seperate from the Servers UI
+	 * Threads the listening agent so it is separate from the Servers UI
 	 */
 	public void run() {
 		// Seed client numeric labeling
