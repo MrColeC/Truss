@@ -43,19 +43,14 @@ public class Client {
 		// Prep and begin interface
 		String UserInput = null;
 		String ServerResponse = null;
-		System.out
-				.println("======================================================================");
-		System.out.println("Connected to server [" + passedTarget
-				+ "] on port [" + passedPort + "]");
+		System.out.println("======================================================================");
+		System.out.println("Connected to server [" + passedTarget + "] on port [" + passedPort + "]");
 		System.out.println("Commands are:");
-		System.out
-				.println("QUIT - Closes connection with the server and quits");
-		System.out
-				.println("REKEY - Rekeys encryption between the client and the server");
-		System.out
-				.println("* - Anything else is sent to the server and echo'ed back");
-		System.out
-				.println("======================================================================");
+		System.out.println("QUIT - Closes connection with the server and quits");
+		System.out.println("REKEY - Rekeys encryption between the client and the server");
+		System.out.println("JOB - Requests a job from the server");
+		System.out.println("* - Anything else is sent to the server and echo'ed back");
+		System.out.println("======================================================================");
 
 		// Activate crypto
 		crypt = new Crypto(mylog, subject.GetPSK());
@@ -67,13 +62,10 @@ public class Client {
 		byte[] fetched = network.ReceiveByte(); // Receive return response
 		String dec = crypt.decrypt(fetched); // Decrypt
 		if (dec.equals(rawTest + "<S>")) {
-			mylog.out("INFO",
-					"Functional bi-directional encryption established.");
+			mylog.out("INFO", "Functional bi-directional encryption established.");
 		} else {
-			mylog.out("ERROR",
-					"Failed to establish a functional encrypted channel!");
-			mylog.out("ERROR", "Expected [" + rawTest + "<S>"
-					+ "] but recieved [" + dec + "]");
+			mylog.out("ERROR", "Failed to establish a functional encrypted channel!");
+			mylog.out("ERROR", "Expected [" + rawTest + "<S>" + "] but recieved [" + dec + "]");
 			network.BringDown();
 			try {
 				MySock.close();
@@ -93,9 +85,7 @@ public class Client {
 		int MaxBeforeREKEY = 100;
 		int Current = 0;
 		boolean serverUp = true;
-		while ((UserInput != null)
-				&& (UserInput.compareToIgnoreCase("quit") != 0)
-				&& (MySock.isConnected())) {
+		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0) && (MySock.isConnected())) {
 			network.Send(crypt.encrypt(UserInput));
 			fetched = network.ReceiveByte();
 			ServerResponse = crypt.decrypt(fetched);
@@ -111,6 +101,9 @@ public class Client {
 				UserInput = "Rekey executed.";
 				DHrekey();
 				Current = 0;
+			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
+				UserInput = "Job requested.";
+				// TODO Implement this feature
 			}
 
 			// Check for forced rekey interval
@@ -145,8 +138,7 @@ public class Client {
 		System.out.print("> ");
 		System.out.flush();
 		String data = null;
-		BufferedReader inputHandle = new BufferedReader(new InputStreamReader(
-				System.in));
+		BufferedReader inputHandle = new BufferedReader(new InputStreamReader(System.in));
 		boolean wait = true;
 		while (wait) {
 			try {
@@ -160,15 +152,13 @@ public class Client {
 					}
 				}
 			} catch (IOException err) {
-				mylog.out("ERROR",
-						"Failed to check if buffered input was ready [" + err
-								+ "]");
+				mylog.out("ERROR", "Failed to check if buffered input was ready [" + err + "]");
 			}
 		}
 		try {
 			data = inputHandle.readLine();
 		} catch (IOException err) {
-			mylog.out("ERROR","Failed to collect user input [" + err + "]");
+			mylog.out("ERROR", "Failed to collect user input [" + err + "]");
 		}
 		return data;
 	}
@@ -201,7 +191,7 @@ public class Client {
 		SendACK(); // Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<REKEY-STARTING>") != 0) {
-			mylog.out("ERROR","Server has failed to acknowledge re-keying!");
+			mylog.out("ERROR", "Server has failed to acknowledge re-keying!");
 		}
 
 		// Phase 1 of DH
@@ -218,7 +208,7 @@ public class Client {
 		SendACK(); // Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<PubKey-GOOD>") != 0) {
-			mylog.out("ERROR","Server has failed to acknowledge client public key!");
+			mylog.out("ERROR", "Server has failed to acknowledge client public key!");
 		}
 
 		// Receive server public DH key
@@ -227,7 +217,7 @@ public class Client {
 		SendACK(); // Send ACK(); //Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<PUBLICKEY>") != 0) {
-			mylog.out("ERROR","Server has failed to send its public key!");
+			mylog.out("ERROR", "Server has failed to send its public key!");
 		} else {
 			fetched = network.ReceiveByte();
 			SendACK(); // Send ACK(); //Send ACK
@@ -250,9 +240,8 @@ public class Client {
 	 */
 	private void SendACK() {
 		network.Send(crypt.encrypt("<ACK>"));
-		if (crypt.decrypt(network.ReceiveByteACK())
-				.compareToIgnoreCase("<ACK>") != 0) {
-			mylog.out("ERROR","Partner failed to ACK");
+		if (crypt.decrypt(network.ReceiveByteACK()).compareToIgnoreCase("<ACK>") != 0) {
+			mylog.out("ERROR", "Partner failed to ACK");
 		}
 	}
 
@@ -260,9 +249,8 @@ public class Client {
 	 * Provides message synchronization
 	 */
 	private void RecieveACK() {
-		if (crypt.decrypt(network.ReceiveByteACK())
-				.compareToIgnoreCase("<ACK>") != 0) {
-			mylog.out("ERROR","Partner failed to ACK");
+		if (crypt.decrypt(network.ReceiveByteACK()).compareToIgnoreCase("<ACK>") != 0) {
+			mylog.out("ERROR", "Partner failed to ACK");
 		}
 		network.Send(crypt.encrypt("<ACK>"));
 	}
