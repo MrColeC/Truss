@@ -1,7 +1,6 @@
 package Main;
 
 import java.net.Socket;
-import org.apache.shiro.session.Session;
 
 /**
  * Provides support for originating work and handing it out as well as receiving
@@ -10,36 +9,60 @@ import org.apache.shiro.session.Session;
  * @author Cole Christie
  * 
  */
-public class Server {
+public class Server extends Thread {
 	private Logging mylog;
 	private Networking network;
-	@SuppressWarnings("unused")
-	private Session ServerSession;
 	private Auth subject;
+	private int PortUsed;
 
 	/**
 	 * CONSTRCUTOR
 	 */
 	public Server(Logging passedLog, Auth passedSubject, int PortNumber) {
 		mylog = passedLog;
+		PortUsed = PortNumber;
 		network = new Networking(mylog, PortNumber);
 		subject = passedSubject;
 	}
 
 	/**
-	 * Listens for new connections and off loads them to new threads
-	 * 
-	 * @param passedSession
-	 * @param passedServer
+	 * Launches the server and provides the UI
 	 */
-	public void LaunchServer(Session passedSession, Server passedServer) {
-		ServerSession = passedSession;
+	public void LaunchServer() {
+		// Prepare
+		String UserInput = null;
+
+		// Display the UI boilerplate
+		System.out.println("======================================================================");
+		System.out.println("Welcome. This server is accepint connections on port [" + PortUsed + "]");
+		System.out.println("Commands are:");
+		System.out.println("QUIT - Closes connection with the server and quits");
+		System.out.println("* - Anything else is just echo'ed back");
+		System.out.println("======================================================================");
+
+		// Enter the UI loop
+		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0)) {
+			System.out.println("You entered:" + UserInput);
+			UserInput = "";
+		}
+		System.exit(0);
+	}
+
+	/**
+	 * Threads the listening agent so it is seperate from the Servers UI
+	 */
+	public void run() {
+		// Seed client numeric labeling
 		int UIDcounter = 0;
+
+		// Setup master thread communication
+		Object JobLock = new Object();
+
 		while (1 > 0) {
-			// Get a new connection
+			// Block until a new connection is made
 			Socket socket = network.ListenForNewConnection();
 			UIDcounter++;
-			new ServerThread(subject, mylog, socket, passedServer, UIDcounter).start();
+			new ServerThread(subject, mylog, socket, UIDcounter, JobLock).start();
 		}
 	}
 }

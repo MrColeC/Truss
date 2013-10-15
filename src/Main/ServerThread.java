@@ -13,31 +13,30 @@ import java.net.Socket;
 public class ServerThread extends Thread {
 	private Logging mylog;
 	private Socket socket;
-	@SuppressWarnings("unused")
-	private Server server;
 	private Networking network;
 	private Auth subject;
 	private int UID;
 	private Crypto crypt;
+	private Object JobLock;
 
 	/**
-	 * CONSTRUCTOR
+	 * CONSTRUCTOR for Server Worker Thread
 	 */
-	public ServerThread(Auth passedSubject, Logging passedLog,
-			Socket passedSocket, Server passedServer, int passedUID) {
+	public ServerThread(Auth passedSubject, Logging passedLog, Socket passedSocket, int passedUID,
+			Object passedLock) {
 		mylog = passedLog;
 		socket = passedSocket;
-		server = passedServer;
 		network = new Networking(mylog);
 		subject = passedSubject;
 		UID = passedUID;
+		JobLock = passedLock;
 	}
 
 	/**
 	 * Server thread Enables multi-client support
 	 */
 	public void run() {
-		mylog.out("INFO","Establishing session with client number [" + UID + "]");
+		mylog.out("INFO", "Establishing session with client number [" + UID + "]");
 
 		// Bind I/O to the socket
 		network.BringUp(socket);
@@ -50,7 +49,7 @@ public class ServerThread extends Thread {
 		byte[] fetched = network.ReceiveByte();
 		String dec = crypt.decrypt(fetched);
 		String craftReturn = dec + "<S>";
-		mylog.out("INFO","Validating encryption with handshake.");
+		mylog.out("INFO", "Validating encryption with handshake.");
 		byte[] returnData = crypt.encrypt(craftReturn);
 		network.Send(returnData);
 
@@ -59,7 +58,7 @@ public class ServerThread extends Thread {
 			// Collect data sent over the network
 			fetched = network.ReceiveByte();
 			if (fetched == null) {
-				mylog.out("WARN","Client disconnected abruptly");
+				mylog.out("WARN", "Client disconnected abruptly");
 				break;
 			}
 
@@ -68,11 +67,16 @@ public class ServerThread extends Thread {
 
 			// Case sensitive actions based upon data received
 			if (fromClient == null) {
-				mylog.out("WARN","Client disconnected abruptly");
+				mylog.out("WARN", "Client disconnected abruptly");
 				break;
 			} else if (fromClient.compareToIgnoreCase("quit") == 0) {
-				mylog.out("INFO","Client disconnected gracefully");
+				mylog.out("INFO", "Client disconnected gracefully");
 				break;
+			} else if (fromClient.compareToIgnoreCase("job") == 0) {
+				mylog.out("INFO", "Client reuested a job.");
+				synchronized (JobLock) {
+					// TODO Implement sending a job
+				}
 			} else if (fromClient.compareToIgnoreCase("<REKEY>") == 0) {
 				SendACK(); // Send ACK
 				String prime = null;
@@ -85,7 +89,7 @@ public class ServerThread extends Thread {
 					prime = fromNetwork();
 					SendACK(); // Send ACK
 				} else {
-					mylog.out("ERROR","Failed proper DH handshake over the network (failed to receive PRIME).");
+					mylog.out("ERROR", "Failed proper DH handshake over the network (failed to receive PRIME).");
 				}
 
 				// Grab 2nd value (should be handshake for BASE)
@@ -95,7 +99,7 @@ public class ServerThread extends Thread {
 					base = fromNetwork();
 					SendACK(); // Send ACK
 				} else {
-					mylog.out("ERROR","Failed proper DH handshake over the network (failed to receive BASE).");
+					mylog.out("ERROR", "Failed proper DH handshake over the network (failed to receive BASE).");
 				}
 
 				// Use received values to start DH
@@ -120,7 +124,7 @@ public class ServerThread extends Thread {
 					network.Send(returnData);
 					RecieveACK(); // Wait for ACK
 				} else {
-					mylog.out("ERROR","Failed to receieve client public key.");
+					mylog.out("ERROR", "Failed to receieve client public key.");
 				}
 
 				// Send server public key to client
@@ -131,7 +135,7 @@ public class ServerThread extends Thread {
 				fromClient = fromNetwork();
 				SendACK(); // Send ACK
 				if (fromClient.compareToIgnoreCase("<PubKey-GOOD>") != 0) {
-					mylog.out("ERROR","Client has failed to acknowledge server public key!");
+					mylog.out("ERROR", "Client has failed to acknowledge server public key!");
 				}
 
 				// Use server DH public key to generate shared secret
@@ -143,10 +147,17 @@ public class ServerThread extends Thread {
 				crypt.ReKey(myDH.GetSharedSecret(10));
 
 			} else {
-				mylog.out("INFO","Received from client [" + fromClient + "]");
+				mylog.out("INFO", "Received from client [" + fromClient + "]");
 				craftReturn = "<S>" + fromClient;
 				returnData = crypt.encrypt(craftReturn);
 				network.Send(returnData);
+			}
+			try {
+				Thread.sleep(1000); // Have the thread sleep for 1 second to
+									// lower CPU load on the server
+			} catch (InterruptedException e) {
+				mylog.out("ERROR", "Failed to have the thread sleep.");
+				e.printStackTrace();
 			}
 		}
 
@@ -157,12 +168,13 @@ public class ServerThread extends Thread {
 		try {
 			socket.close();
 		} catch (IOException e) {
-			mylog.out("ERROR","Failed to close SOCKET within SERVER THREAD");
+			mylog.out("ERROR", "Failed to close SOCKET within SERVER THREAD");
 		}
 	}
 
 	/**
 	 * Reads a string from the network
+	 * 
 	 * @return
 	 */
 	private String fromNetwork() {
@@ -170,13 +182,13 @@ public class ServerThread extends Thread {
 
 		byte[] initialValue = network.ReceiveByte();
 		if (initialValue == null) {
-			mylog.out("WARN","Client disconnected abruptly");
+			mylog.out("WARN", "Client disconnected abruptly");
 		}
 		decryptedValue = crypt.decrypt(initialValue);
 		if (decryptedValue == null) {
-			mylog.out("WARN","Client disconnected abruptly");
+			mylog.out("WARN", "Client disconnected abruptly");
 		} else if (decryptedValue.compareToIgnoreCase("quit") == 0) {
-			mylog.out("WARN","Client disconnected abruptly");
+			mylog.out("WARN", "Client disconnected abruptly");
 		}
 
 		return decryptedValue;
@@ -184,6 +196,7 @@ public class ServerThread extends Thread {
 
 	/**
 	 * Read bytes from the network
+	 * 
 	 * @return
 	 */
 	private byte[] fromNetworkByte() {
@@ -191,11 +204,11 @@ public class ServerThread extends Thread {
 
 		byte[] initialValue = network.ReceiveByte();
 		if (initialValue == null) {
-			mylog.out("WARN","Client disconnected abruptly");
+			mylog.out("WARN", "Client disconnected abruptly");
 		}
 		decryptedValue = crypt.decryptByte(initialValue);
 		if (decryptedValue == null) {
-			mylog.out("WARN","Client disconnected abruptly");
+			mylog.out("WARN", "Client disconnected abruptly");
 		}
 
 		return decryptedValue;
@@ -206,9 +219,8 @@ public class ServerThread extends Thread {
 	 */
 	private void SendACK() {
 		network.Send(crypt.encrypt("<ACK>"));
-		if (crypt.decrypt(network.ReceiveByteACK())
-				.compareToIgnoreCase("<ACK>") != 0) {
-			mylog.out("ERROR","Partner failed to ACK");
+		if (crypt.decrypt(network.ReceiveByteACK()).compareToIgnoreCase("<ACK>") != 0) {
+			mylog.out("ERROR", "Partner failed to ACK");
 		}
 	}
 
@@ -216,9 +228,8 @@ public class ServerThread extends Thread {
 	 * Provides message synchronization
 	 */
 	private void RecieveACK() {
-		if (crypt.decrypt(network.ReceiveByteACK())
-				.compareToIgnoreCase("<ACK>") != 0) {
-			mylog.out("ERROR","Partner failed to ACK");
+		if (crypt.decrypt(network.ReceiveByteACK()).compareToIgnoreCase("<ACK>") != 0) {
+			mylog.out("ERROR", "Partner failed to ACK");
 		}
 		network.Send(crypt.encrypt("<ACK>"));
 	}

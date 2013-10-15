@@ -111,11 +111,9 @@ public class Main {
 		long TimeDay = (TimeMin / 1440);
 		// If time is better expressed in minutes or days
 		if (TimeDay > 0) {
-			mylog.out("INFO", "The session will time out in " + TimeRemaining
-					+ "ms (" + TimeDay + " day(s))");
+			mylog.out("INFO", "The session will time out in " + TimeRemaining + "ms (" + TimeDay + " day(s))");
 		} else {
-			mylog.out("INFO", "The session will time out in " + TimeRemaining
-					+ "ms (" + TimeMin + " minutes)");
+			mylog.out("INFO", "The session will time out in " + TimeRemaining + "ms (" + TimeMin + " minutes)");
 		}
 
 		// Leverage session to launch purpose driven code
@@ -124,12 +122,14 @@ public class Main {
 			session.setAttribute("workGiven", "0");
 			// Launch server (sender)
 			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));
-			server.LaunchServer(session, server);
+			server.start();
+			server.LaunchServer();
 		} else if (purpose == "dropoff") {
 			session.setAttribute("workRecieved", "0");
 			// Launch server (receiver)
 			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));
-			server.LaunchServer(session, server);
+			server.start();
+			server.LaunchServer();
 		} else if (purpose == "private") {
 			session.setAttribute("totalJobs", "0");
 			session.setAttribute("totalPending", "0");
