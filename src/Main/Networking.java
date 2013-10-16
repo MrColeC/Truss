@@ -189,9 +189,37 @@ public class Networking {
 	 * Receives data over socket DATA TYPE: string UTF safe
 	 * 
 	 * @param data
+	 * @throws InterruptedException
 	 */
-	public String Receive() {
+	public String Receive() throws InterruptedException {
 		String fetched = null;
+		int measure = 0;
+
+		// Try to see if there is somthing to read BEFORE blocking to read
+		// If there is nothing to receive yet, wait 1/2 a second and try again
+		// for the next 5 seconds (10 times)
+
+		for (int loop = 0; loop < 10; loop++) {
+			try {
+				measure = receive.available();
+			} catch (IOException e) {
+				mylog.out("ERROR", "Failed to mesure for RECEIVE data STRING");
+			}
+
+			if (measure == 0) {
+				Thread.sleep(500);
+			} else {
+				break;
+			}
+		}
+
+		// Even after waiting, we could not get any data - as such we will not
+		// block "forever" in a listening state
+		if (measure == 0) {
+			return fetched;
+		}
+
+		// If we are here, then we SHOULD be able to read somthing
 		try {
 			fetched = receive.readUTF();
 		} catch (IOException e1) {
