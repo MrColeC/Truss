@@ -98,6 +98,7 @@ public class Client {
 			// If this is the client receiving a job from the server
 			if (flagJob) {
 				System.out.println("JobIn:[" + ServerResponse + "]");
+				flagJob = false;
 			} else {
 				System.out.println(ServerResponse);
 			}
