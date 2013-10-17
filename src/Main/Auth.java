@@ -164,7 +164,7 @@ public class Auth {
 	 */
 	private void failedLogin() {
 		mylog.out("FATAL", "Login DENIED");
-		mylog.out("FATAL", "Loader Framework terminated");
+		mylog.out("FATAL", "Application terminated");
 		System.exit(0);
 	}
 
