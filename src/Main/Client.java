@@ -85,6 +85,7 @@ public class Client {
 		int MaxBeforeREKEY = 100;
 		int Current = 0;
 		boolean serverUp = true;
+		boolean flagJob = false;
 		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0) && (MySock.isConnected())) {
 			network.Send(crypt.encrypt(UserInput));
 			fetched = network.ReceiveByte();
@@ -94,15 +95,21 @@ public class Client {
 				serverUp = false;
 				break;
 			}
-			System.out.println(ServerResponse);
+			// If this is the client receiving a job from the server
+			if (flagJob) {
+				System.out.println("JobIn:[" + ServerResponse + "]");
+			} else {
+				System.out.println(ServerResponse);
+			}
 			UserInput = readUI();
 			// Check input for special commands
 			if ((UserInput.compareToIgnoreCase("rekey") == 0) && serverUp) {
 				UserInput = "Rekey executed.";
 				DHrekey();
 				Current = 0;
-			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {				
+			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
 				// TODO Implement this feature
+				flagJob = true;
 			}
 
 			// Check for forced rekey interval
