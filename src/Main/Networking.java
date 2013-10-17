@@ -21,6 +21,7 @@ public class Networking {
 	private Socket ClientSocket;
 	private DataInputStream receive;
 	private DataOutputStream send;
+	private int IdleLimit;
 
 	// If verbose byte level network logging should be displayed
 	private static boolean VERBOSE = false;
@@ -30,6 +31,7 @@ public class Networking {
 	 */
 	public Networking(Logging passedLog) {
 		mylog = passedLog;
+		IdleLimit = 10000; // 10 seconds
 	}
 
 	/**
@@ -38,6 +40,7 @@ public class Networking {
 	public Networking(Logging passedLog, int port) {
 		mylog = passedLog;
 		BindServer(port);
+		IdleLimit = 86400000; // 1 day
 	}
 
 	/**
@@ -56,6 +59,7 @@ public class Networking {
 		} catch (IOException e) {
 			mylog.out("FATAL", "Unable to connect to target server and/or port");
 		}
+		IdleLimit = 10000; // 10 seconds
 	}
 
 	/**
@@ -210,7 +214,6 @@ public class Networking {
 		// Prep
 		int read = 0;
 		byte[] fetched = null;
-		int limitTO = 10000; // 10 seconds
 		int sleepFOR = 25; // a very small fraction of a second
 		int sleeptFOR = 0; // sleep counter
 
@@ -223,8 +226,7 @@ public class Networking {
 					mylog.out("WARN", "Failed to sleep while waiting for data over the network.");
 				}
 				sleeptFOR += sleepFOR;
-				if (sleeptFOR >= limitTO)
-				{
+				if (sleeptFOR >= IdleLimit) {
 					mylog.out("WARN", "We did not receive a response.");
 					break;
 				}
