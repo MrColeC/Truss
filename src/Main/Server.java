@@ -17,6 +17,8 @@ public class Server extends Thread {
 	private Networking network;
 	private Auth subject;
 	private int PortUsed;
+	private Object JobLock;
+	private JobManagement MasterJobQueue;
 
 	/**
 	 * CONSTRCUTOR
@@ -26,6 +28,9 @@ public class Server extends Thread {
 		PortUsed = PortNumber;
 		network = new Networking(mylog, PortNumber);
 		subject = passedSubject;
+		// Setup master thread communication
+		JobLock = new Object();
+		MasterJobQueue = new JobManagement();
 	}
 
 	/**
@@ -40,16 +45,33 @@ public class Server extends Thread {
 		System.out.println("Welcome. This server is accepting connections on port [" + PortUsed + "]");
 		System.out.println("Commands are:");
 		System.out.println("QUIT - Closes connection with the server and quits");
-		System.out.println("* - Anything else is just echo'ed back");
+		System.out.println("SW   - Generates a sample set of jobs that can be sent to Windows clients");
+		System.out.println("SL   - Generates a sample set of jobs that can be sent to Linux/UNIX clients");
+		System.out.println("LOAD - Loads a list of pre-defined jobs from a file");
+		System.out.println("*    - Anything else is just echo'ed back");
 		System.out.println("======================================================================");
 
 		// Enter the UI loop
 		UserInput = readUI();
 		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0)) {
-			System.out.println("You entered:" + UserInput);
-			UserInput = readUI();
+			if (UserInput.compareToIgnoreCase("sw") == 0) {
+				// Load a sample set of jobs for WINDOWS clients
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SW");
+			} else if (UserInput.compareToIgnoreCase("sl") == 0) {
+				// Load a sample set of jobs for LINUX/UNIX clients
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SL");
+			} else if (UserInput.compareToIgnoreCase("load") == 0) {
+				// Load a set of jobs from a text file located on this system
+				String filename = "";
+				//TODO - Get filename from prompt 
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD",filename);
+			} else {
+				// Base case - echo back what was typed in
+				System.out.println("Server Console:" + UserInput);
+			}
+			UserInput = readUI(); // Prompt agian for user input
 		}
-		
+		// Code exits upon "quit" which then proceeds to end the code
 	}
 
 	/**
@@ -59,17 +81,15 @@ public class Server extends Thread {
 		// Seed client numeric labeling
 		int UIDcounter = 0;
 
-		// Setup master thread communication
-		Object JobLock = new Object();
-
+		// Listen for new connections indefinitely
 		while (1 > 0) {
 			// Block until a new connection is made
 			Socket socket = network.ListenForNewConnection();
 			UIDcounter++;
-			new ServerThread(subject, mylog, socket, UIDcounter, JobLock).start();
+			new ServerThread(subject, mylog, socket, UIDcounter, JobLock, MasterJobQueue).start();
 		}
 	}
-	
+
 	/**
 	 * Reads input provided by the user, returns a string
 	 * 

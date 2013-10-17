@@ -18,18 +18,86 @@ public class ServerThread extends Thread {
 	private int UID;
 	private Crypto crypt;
 	private Object JobLock;
+	private JobManagement JobQueue;
 
 	/**
 	 * CONSTRUCTOR for Server Worker Thread
 	 */
-	public ServerThread(Auth passedSubject, Logging passedLog, Socket passedSocket, int passedUID,
-			Object passedLock) {
+	public ServerThread(Auth passedSubject, Logging passedLog, Socket passedSocket, int passedUID, Object passedLock,
+			JobManagement passedJobQueue) {
 		mylog = passedLog;
 		socket = passedSocket;
 		network = new Networking(mylog);
 		subject = passedSubject;
 		UID = passedUID;
 		JobLock = passedLock;
+		JobQueue = passedJobQueue;
+	}
+
+	/**
+	 * CONSTRUCTOR for Server Management Thread
+	 */
+	public ServerThread(Logging passedLog, Object passedLock, JobManagement passedJobQueue) {
+		mylog = passedLog;
+		JobLock = passedLock;
+		JobQueue = passedJobQueue;
+	}
+
+	/**
+	 * Runs the Job loading framework based upon the execution request passed to
+	 * it (string argument). Returns the count (int) of the number of jobs that
+	 * were loaded.
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public void JobLoader(String type) {
+		synchronized (JobLock) {
+			if (type.compareToIgnoreCase("sw") == 0) {
+				JobQueue.SampleWindows();
+				mylog.out("INFO", "Loaded 10 sample jobs (Windows).");
+			} else if (type.compareToIgnoreCase("sl") == 0) {
+				JobQueue.SampleLinux();
+				mylog.out("INFO", "Loaded 10 sample jobs (Linux/UNIX).");
+			}
+		}
+	}
+
+	/**
+	 * Runs the Job loading framework based upon the execution request passed to
+	 * it (string argument). Returns the count (int) of the number of jobs that
+	 * were loaded.
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public void JobLoader(String type, String filename) {
+		int QtyJobsLoaded = 0;
+		synchronized (JobLock) {
+			if (type.compareToIgnoreCase("load") == 0) {
+				try {
+					QtyJobsLoaded = JobQueue.Load(filename);
+				} catch (IOException e) {
+					mylog.out("ERROR", "Failed to load jobs from file [" + filename + "]");
+				}
+				mylog.out("INFO", "Loaded [" + QtyJobsLoaded + "] jobs.");
+			}
+		}
+	}
+
+	/**
+	 * Assigns a job to the client in the system and returns a string that has
+	 * the requested jobs instructions
+	 * 
+	 * @param clientID
+	 * @return
+	 */
+	public String AssignJob(String clientID) {
+		String job = "";
+		synchronized (JobLock) {
+			job = JobQueue.Assign(clientID);
+		}
+		return job;
 	}
 
 	/**
