@@ -189,37 +189,9 @@ public class Networking {
 	 * Receives data over socket DATA TYPE: string UTF safe
 	 * 
 	 * @param data
-	 * @throws InterruptedException
 	 */
-	public String Receive() throws InterruptedException {
+	public String Receive() {
 		String fetched = null;
-		int measure = 0;
-
-		// Try to see if there is somthing to read BEFORE blocking to read
-		// If there is nothing to receive yet, wait 1/2 a second and try again
-		// for the next 5 seconds (10 times)
-
-		for (int loop = 0; loop < 10; loop++) {
-			try {
-				measure = receive.available();
-			} catch (IOException e) {
-				mylog.out("ERROR", "Failed to mesure for RECEIVE data STRING");
-			}
-
-			if (measure == 0) {
-				Thread.sleep(500);
-			} else {
-				break;
-			}
-		}
-
-		// Even after waiting, we could not get any data - as such we will not
-		// block "forever" in a listening state
-		if (measure == 0) {
-			return fetched;
-		}
-
-		// If we are here, then we SHOULD be able to read somthing
 		try {
 			fetched = receive.readUTF();
 		} catch (IOException e1) {
@@ -238,14 +210,23 @@ public class Networking {
 		// Prep
 		int read = 0;
 		byte[] fetched = null;
+		int limitTO = 10000; // 10 seconds
+		int sleepFOR = 25; // a very small fraction of a second
+		int sleeptFOR = 0; // sleep counter
 
 		// Wait (block) for data
 		try {
 			while (receive.available() == 0) {
 				try {
-					Thread.sleep(1);
+					Thread.sleep(sleepFOR);
 				} catch (InterruptedException e) {
 					mylog.out("WARN", "Failed to sleep while waiting for data over the network.");
+				}
+				sleeptFOR += sleepFOR;
+				if (sleeptFOR >= limitTO)
+				{
+					mylog.out("WARN", "We did not receive a response.");
+					break;
 				}
 			}
 		} catch (IOException e2) {
@@ -268,6 +249,7 @@ public class Networking {
 			mylog.out("ERROR", "Failed to determine size of inbound data in bytes");
 		} finally {
 			if (read <= 0) {
+				fetched = null;
 				mylog.out("WARN", "Failed to read anything from the input stream.");
 			}
 		}
