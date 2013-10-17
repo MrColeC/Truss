@@ -21,7 +21,7 @@ public class Logging {
 	 */
 	public Logging(String loglevel) {
 		// Setup logger via slf4j
-		Log = LoggerFactory.getLogger("MyLog");
+		Log = LoggerFactory.getLogger("TRUSS");
 
 		// Send passed value to upper case
 		String compare = "FATAL";
