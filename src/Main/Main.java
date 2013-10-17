@@ -16,13 +16,6 @@ import org.apache.shiro.subject.Subject;
  * 
  */
 public class Main {
-
-	/**
-	 * Creates simple logging framework
-	 */
-	// private static final transient Logger log = LoggerFactory
-	// .getLogger(Main.class);
-
 	/**
 	 * TRUSS Main
 	 * 
