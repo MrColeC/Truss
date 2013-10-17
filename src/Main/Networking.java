@@ -227,7 +227,7 @@ public class Networking {
 				}
 				sleeptFOR += sleepFOR;
 				if (sleeptFOR >= IdleLimit) {
-					mylog.out("WARN", "We did not receive a response.");
+					mylog.out("WARN", "Conection has timed out from inactvitiy. Limit of [" + IdleLimit + "ms].");
 					break;
 				}
 			}
