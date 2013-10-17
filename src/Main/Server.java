@@ -49,7 +49,7 @@ public class Server extends Thread {
 			System.out.println("You entered:" + UserInput);
 			UserInput = readUI();
 		}
-		System.exit(0);
+		
 	}
 
 	/**
