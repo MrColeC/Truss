@@ -144,6 +144,9 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "Client reuested a job.");
 				synchronized (JobLock) {
 					// TODO Implement sending a job
+					String work = JobQueue.Assign("Test Cat");
+					returnData = crypt.encrypt(work);
+					network.Send(returnData);
 				}
 			} else if (fromClient.compareToIgnoreCase("<REKEY>") == 0) {
 				SendACK(); // Send ACK
