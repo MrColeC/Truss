@@ -101,8 +101,7 @@ public class Client {
 				UserInput = "Rekey executed.";
 				DHrekey();
 				Current = 0;
-			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
-				UserInput = "Job requested.";
+			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {				
 				// TODO Implement this feature
 			}
 
