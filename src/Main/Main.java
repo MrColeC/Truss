@@ -154,7 +154,7 @@ public class Main {
 		currentUser.logout();
 
 		// End of Execution
-		mylog.out("INFO", "Loader Framework terminated");
+		mylog.out("INFO", "Application terminated");
 		System.exit(0);
 	}
 }
