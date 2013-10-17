@@ -46,10 +46,10 @@ public class Client {
 		System.out.println("======================================================================");
 		System.out.println("Connected to server [" + passedTarget + "] on port [" + passedPort + "]");
 		System.out.println("Commands are:");
-		System.out.println("QUIT - Closes connection with the server and quits");
+		System.out.println("QUIT  - Closes connection with the server and quits");
 		System.out.println("REKEY - Rekeys encryption between the client and the server");
-		System.out.println("JOB - Requests a job from the server");
-		System.out.println("* - Anything else is sent to the server and echo'ed back");
+		System.out.println("JOB   - Requests a job from the server");
+		System.out.println("*     - Anything else is sent to the server and echo'ed back");
 		System.out.println("======================================================================");
 
 		// Activate crypto
