@@ -31,7 +31,7 @@ public class Networking {
 	 */
 	public Networking(Logging passedLog) {
 		mylog = passedLog;
-		IdleLimit = 10000; // 10 seconds
+		IdleLimit = 14400000; // 4 hours
 	}
 
 	/**
