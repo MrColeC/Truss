@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 /**
  * Simple job management class. Supports reading jobs (one per line) from a
- * file. Also supports issueing those jobs to clients and a simple expiration
+ * file. Also supports issuing those jobs to clients and a simple expiration
  * system.
  * 
  * @author Cole Christie
@@ -35,7 +35,8 @@ public class JobManagement {
 	 * @param filepath
 	 * @throws IOException
 	 */
-	public void Load(String filepath) throws IOException {
+	public int Load(String filepath) throws IOException {
+		int AddeCounter = 0;
 		Path path = Paths.get(filepath);
 		try (Scanner scanner = new Scanner(path, ENCODING.name())) {
 			while (scanner.hasNextLine()) {
@@ -44,9 +45,11 @@ public class JobManagement {
 				if (line != null && !line.isEmpty()) {
 					Jobs jobUnit = new Jobs(line);
 					jobqueue.add(jobUnit);
+					AddeCounter++;
 				}
 			}
 		}
+		return AddeCounter;
 	}
 
 	/**
