@@ -130,13 +130,21 @@ public class Crypto {
 	 * @return
 	 */
 	public String decrypt(byte[] encryptedText) {
-		String decrypted = "Failed2DECRYPT";
-		try {
-			decrypted = CodecSupport.toString((cipher.decrypt(encryptedText, KeyBytes).getBytes()));
-		} catch (CryptoException err) {
-			mylog.out("WARN", "Failed to decrypt the message. Likely bad PSK.");
+		if (encryptedText != null) {
+			String decrypted = "Failed2DECRYPT";
+			try {
+				decrypted = CodecSupport.toString((cipher.decrypt(encryptedText, KeyBytes).getBytes()));
+			} catch (CryptoException err) {
+				mylog.out("WARN", "Failed to decrypt the message. Likely bad PSK.");
+			}
+			return decrypted;
 		}
-		return decrypted;
+		else
+		{
+			mylog.out("WARN", "Null value passed to decryption, ignoring.");
+			return null;
+		}
+		
 	}
 
 	/**
