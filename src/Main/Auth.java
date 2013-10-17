@@ -36,8 +36,7 @@ public class Auth {
 
 		// Load Shiro
 		try {
-			Factory<SecurityManager> factory = new IniSecurityManagerFactory(
-					"classpath:shiro.ini");
+			Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
 			SecurityManager securityManager = factory.getInstance();
 			SecurityUtils.setSecurityManager(securityManager);
 			mylog.out("INFO", "Apache Shiro activated");
@@ -52,17 +51,17 @@ public class Auth {
 
 	/**
 	 * Sets the private PSK to a passed value
+	 * 
 	 * @param PassedPSK
 	 */
 	public void SetPSK(String PassedPSK) {
-		if (PassedPSK.isEmpty())
-		{
+		if (PassedPSK.isEmpty()) {
 			mylog.out("FATAL", "PreShared Key CANNOT be set to empty/null.");
 			System.exit(0);
 		}
 		psk = PassedPSK;
 	}
-	
+
 	/**
 	 * Establishes credentials based upon passed or provided input
 	 * 
@@ -117,8 +116,7 @@ public class Auth {
 		// Authenticate user
 		if (!currentUser.isAuthenticated()) {
 			try {
-				UsernamePasswordToken token = new UsernamePasswordToken(
-						username, password);
+				UsernamePasswordToken token = new UsernamePasswordToken(username, password);
 				token.setRememberMe(true); // Create token (SSO)
 				currentUser.login(token);
 			} catch (UnknownAccountException err) {
@@ -137,8 +135,7 @@ public class Auth {
 		}
 
 		// Log subject used
-		mylog.out("INFO", "Using [" + currentUser.getPrincipal()
-				+ "] credentials.");
+		mylog.out("INFO", "Using [" + currentUser.getPrincipal() + "] credentials.");
 
 		// Check permissions
 		if (currentUser.hasRole("nothing")) {
@@ -153,12 +150,10 @@ public class Auth {
 			} else if (currentUser.hasRole("sourceTarget")) {
 				mylog.out("INFO", "Job classification system ENABLED");
 				mylog.out("INFO", "Jobs can be SENT");
-				mylog.out("INFO",
-						"Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO", "Workers can be BOUND (Authenticated & Authorized)");
 			} else if (currentUser.hasRole("resultTarget")) {
 				mylog.out("INFO", "Completed jobs (WORK) can be RECIEVED");
-				mylog.out("INFO",
-						"Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO", "Workers can be BOUND (Authenticated & Authorized)");
 			}
 		}
 		return currentUser;
@@ -169,7 +164,7 @@ public class Auth {
 	 */
 	private void failedLogin() {
 		mylog.out("FATAL", "Login DENIED");
-		mylog.out("FATAL", "Loader Framework terminated");
+		mylog.out("FATAL", "Application terminated");
 		System.exit(0);
 	}
 

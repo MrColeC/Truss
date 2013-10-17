@@ -1,7 +1,9 @@
 package Main;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
-import org.apache.shiro.session.Session;
 
 /**
  * Provides support for originating work and handing it out as well as receiving
@@ -10,36 +12,116 @@ import org.apache.shiro.session.Session;
  * @author Cole Christie
  * 
  */
-public class Server {
+public class Server extends Thread {
 	private Logging mylog;
 	private Networking network;
-	@SuppressWarnings("unused")
-	private Session ServerSession;
 	private Auth subject;
+	private int PortUsed;
+	private Object JobLock;
+	private JobManagement MasterJobQueue;
 
 	/**
 	 * CONSTRCUTOR
 	 */
-	public Server(Logging passedLog, Auth passedSubject) {
+	public Server(Logging passedLog, Auth passedSubject, int PortNumber) {
 		mylog = passedLog;
-		network = new Networking(mylog, 40000);
+		PortUsed = PortNumber;
+		network = new Networking(mylog, PortNumber);
 		subject = passedSubject;
+		// Setup master thread communication
+		JobLock = new Object();
+		MasterJobQueue = new JobManagement();
 	}
 
 	/**
-	 * Listens for new connections and off loads them to new threads
-	 * 
-	 * @param passedSession
-	 * @param passedServer
+	 * Launches the server and provides the UI
 	 */
-	public void LaunchServer(Session passedSession, Server passedServer) {
-		ServerSession = passedSession;
+	public void LaunchServer() {
+		// Prepare
+		String UserInput = null;
+
+		// Display the UI boilerplate
+		System.out.println("======================================================================");
+		System.out.println("Welcome. This server is accepting connections on port [" + PortUsed + "]");
+		System.out.println("Commands are:");
+		System.out.println("QUIT - Closes connection with the server and quits");
+		System.out.println("SW   - Generates a sample set of jobs that can be sent to Windows clients");
+		System.out.println("SL   - Generates a sample set of jobs that can be sent to Linux/UNIX clients");
+		System.out.println("LOAD - Loads a list of pre-defined jobs from a file");
+		System.out.println("*    - Anything else is just echo'ed back");
+		System.out.println("======================================================================");
+
+		// Enter the UI loop
+		UserInput = readUI();
+		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0)) {
+			if (UserInput.compareToIgnoreCase("sw") == 0) {
+				// Load a sample set of jobs for WINDOWS clients
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SW");
+			} else if (UserInput.compareToIgnoreCase("sl") == 0) {
+				// Load a sample set of jobs for LINUX/UNIX clients
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SL");
+			} else if (UserInput.compareToIgnoreCase("load") == 0) {
+				// Load a set of jobs from a text file located on this system
+				String filename = "";
+				//TODO - Get filename from prompt 
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD",filename);
+			} else {
+				// Base case - echo back what was typed in
+				System.out.println("Server Console:" + UserInput);
+			}
+			UserInput = readUI(); // Prompt agian for user input
+		}
+		// Code exits upon "quit" which then proceeds to end the code
+	}
+
+	/**
+	 * Threads the listening agent so it is separate from the Servers UI
+	 */
+	public void run() {
+		// Seed client numeric labeling
 		int UIDcounter = 0;
+
+		// Listen for new connections indefinitely
 		while (1 > 0) {
-			// Get a new connection
+			// Block until a new connection is made
 			Socket socket = network.ListenForNewConnection();
 			UIDcounter++;
-			new ServerThread(subject, mylog, socket, passedServer, UIDcounter).start();
+			new ServerThread(subject, mylog, socket, UIDcounter, JobLock, MasterJobQueue).start();
 		}
+	}
+
+	/**
+	 * Reads input provided by the user, returns a string
+	 * 
+	 * @return
+	 */
+	private String readUI() {
+		System.out.flush();
+		System.out.print("> ");
+		System.out.flush();
+		String data = null;
+		BufferedReader inputHandle = new BufferedReader(new InputStreamReader(System.in));
+		boolean wait = true;
+		while (wait) {
+			try {
+				if (inputHandle.ready()) {
+					wait = false;
+				} else {
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						mylog.out("ERROR", "Failed to sleep");
+					}
+				}
+			} catch (IOException err) {
+				mylog.out("ERROR", "Failed to check if buffered input was ready [" + err + "]");
+			}
+		}
+		try {
+			data = inputHandle.readLine();
+		} catch (IOException err) {
+			mylog.out("ERROR", "Failed to collect user input [" + err + "]");
+		}
+		return data;
 	}
 }

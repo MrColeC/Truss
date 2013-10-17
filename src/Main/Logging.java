@@ -16,20 +16,18 @@ public class Logging {
 	/**
 	 * CONSTRCUTOR
 	 * 
-	 * Pass it the log level to set the verbosty of allowed loggin
-	 * Options are: INFO, WARN, ERROR, FATAL, OFF
-	 * Default is FATAL
+	 * Pass it the log level to set the verbosty of allowed loggin Options are:
+	 * INFO, WARN, ERROR, FATAL, OFF Default is FATAL
 	 */
 	public Logging(String loglevel) {
 		// Setup logger via slf4j
-		Log = LoggerFactory.getLogger("MyLog");
+		Log = LoggerFactory.getLogger("TRUSS");
 
 		// Send passed value to upper case
 		String compare = "FATAL";
 		if (!loglevel.isEmpty()) {
-			compare = loglevel.toUpperCase();	
+			compare = loglevel.toUpperCase();
 		}
-		
 
 		// Set log level to passed paramaters (if it can be mapped)
 		if (compare.startsWith("INFO")) {
@@ -56,6 +54,7 @@ public class Logging {
 
 	/**
 	 * Supports multi-level logging with programmatic "silencing"
+	 * 
 	 * @param level
 	 * @param msg
 	 */
@@ -79,21 +78,18 @@ public class Logging {
 			// Critical failures only (default)
 			severity = 1;
 		}
-		
-		if (severity <= SetLevel)
-		{
+
+		if (severity <= SetLevel) {
 			if (severity == 4) {
 				// Log via info utility
 				Log.info(msg);
-			}
-			else if (severity == 3) {
+			} else if (severity == 3) {
 				// Log via warning utility
-				Log.warn(msg);				
-			}
-			else {
+				Log.warn(msg);
+			} else {
 				// Log via error utility
 				Log.error(msg);
-			}	
+			}
 		}
 	}
 }

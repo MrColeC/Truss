@@ -38,14 +38,14 @@ public class Crypto {
 		try {
 			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		} catch (NoSuchAlgorithmException e) {
-			mylog.out("ERROR","PBKDF2 is MISSING");
+			mylog.out("ERROR", "PBKDF2 is MISSING");
 		}
 		KeySpec keyspec = new PBEKeySpec(password.toCharArray(), salt, 10, 128);
 		Key key = null;
 		try {
 			key = factory.generateSecret(keyspec);
 		} catch (InvalidKeySpecException e) {
-			mylog.out("ERROR","Failed to generate secret key");
+			mylog.out("ERROR", "Failed to generate secret key");
 		}
 		KeyBytes = key.getEncoded();
 
@@ -53,12 +53,12 @@ public class Crypto {
 		int keySize = cipher.getKeySize();
 		String cryptoAlg = cipher.getAlgorithmName();
 		String cryptoMode = cipher.getModeName();
-		mylog.out("INFO","Using " + keySize + " bit key with " + cryptoAlg + " in "
-				+ cryptoMode + " mode.");
+		mylog.out("INFO", "Using " + keySize + " bit key with " + cryptoAlg + " in " + cryptoMode + " mode.");
 	}
 
 	/**
 	 * Rekey's the encryption channel with a new secret key
+	 * 
 	 * @param newPassword
 	 */
 	public void ReKey(String newPassword) {
@@ -67,18 +67,17 @@ public class Crypto {
 		try {
 			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		} catch (NoSuchAlgorithmException e) {
-			mylog.out("ERROR","PBKDF2 is MISSING");
+			mylog.out("ERROR", "PBKDF2 is MISSING");
 		}
-		KeySpec keyspec = new PBEKeySpec(newPassword.toCharArray(), salt, 10,
-				128);
+		KeySpec keyspec = new PBEKeySpec(newPassword.toCharArray(), salt, 10, 128);
 		Key key = null;
 		try {
 			key = factory.generateSecret(keyspec);
 		} catch (InvalidKeySpecException e) {
-			mylog.out("ERROR","Failed to generate secret key");
+			mylog.out("ERROR", "Failed to generate secret key");
 		}
 		KeyBytes = key.getEncoded();
-		mylog.out("INFO","Encryption rekeyed");
+		mylog.out("INFO", "Encryption rekeyed");
 	}
 
 	/**
@@ -109,8 +108,7 @@ public class Crypto {
 	 * @return
 	 */
 	public byte[] encrypt(String plainText) {
-		byte[] encrypted = cipher.encrypt(CodecSupport.toBytes(plainText),
-				KeyBytes).getBytes();
+		byte[] encrypted = cipher.encrypt(CodecSupport.toBytes(plainText), KeyBytes).getBytes();
 		return encrypted;
 	}
 
@@ -132,14 +130,21 @@ public class Crypto {
 	 * @return
 	 */
 	public String decrypt(byte[] encryptedText) {
-		String decrypted = "Failed2DECRYPT";
-		try {
-			decrypted = CodecSupport.toString((cipher.decrypt(encryptedText,
-					KeyBytes).getBytes()));
-		} catch (CryptoException err) {
-			mylog.out("WARN","Failed to decrypt the message. Likely bad PSK.");
+		if (encryptedText != null) {
+			String decrypted = "Failed2DECRYPT";
+			try {
+				decrypted = CodecSupport.toString((cipher.decrypt(encryptedText, KeyBytes).getBytes()));
+			} catch (CryptoException err) {
+				mylog.out("WARN", "Failed to decrypt the message. Likely bad PSK.");
+			}
+			return decrypted;
 		}
-		return decrypted;
+		else
+		{
+			mylog.out("WARN", "Null value passed to decryption, ignoring.");
+			return null;
+		}
+		
 	}
 
 	/**
@@ -153,7 +158,7 @@ public class Crypto {
 		try {
 			decrypted = (cipher.decrypt(encryptedText, KeyBytes).getBytes());
 		} catch (CryptoException err) {
-			mylog.out("WARN","Failed to decrypt the message. Likely bad PSK.");
+			mylog.out("WARN", "Failed to decrypt the message. Likely bad PSK.");
 		}
 		return decrypted;
 	}
