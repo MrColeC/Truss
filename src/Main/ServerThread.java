@@ -147,6 +147,7 @@ public class ServerThread extends Thread {
 					String work = JobQueue.Assign("Test Cat");
 					returnData = crypt.encrypt(work);
 					network.Send(returnData);
+					mylog.out("INFO", "Sent this job to the client[" + work + "]");
 				}
 			} else if (fromClient.compareToIgnoreCase("<REKEY>") == 0) {
 				SendACK(); // Send ACK
