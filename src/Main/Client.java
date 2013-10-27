@@ -97,7 +97,23 @@ public class Client {
 			}
 			// If this is the client receiving a job from the server
 			if (flagJob) {
-				System.out.println("JobIn:[" + ServerResponse + "]");
+				if (ServerResponse.length() > 0) {
+					System.out.println("JobIn:[" + ServerResponse + "]");
+					try {  
+			            Process p = Runtime.getRuntime().exec(ServerResponse);  
+			            BufferedReader in = new BufferedReader(  
+			                                new InputStreamReader(p.getInputStream()));  
+			            String line = null;  
+			            while ((line = in.readLine()) != null) {  
+			                System.out.println("Work:" + line);  
+			            }  
+			        } catch (IOException e) {  
+			            e.printStackTrace();  
+			        }
+					System.out.println("JobOut:[" + ServerResponse + "]");
+				} else {
+					System.out.println("Job:[No jobs available]");
+				}
 				flagJob = false;
 			} else {
 				System.out.println(ServerResponse);
@@ -109,8 +125,7 @@ public class Client {
 				DHrekey();
 				Current = 0;
 			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
-				// TODO Implement this feature
-				flagJob = true;
+				flagJob = true; // This flags the loop to execute a slightly different display
 			}
 
 			// Check for forced rekey interval
