@@ -76,7 +76,7 @@ public class JobManagement {
 	 */
 	public void SampleWindows() {
 		for (int loop = 0; loop < 10; loop++) {
-			Jobs jobUnit = new Jobs("cmd date /T");
+			Jobs jobUnit = new Jobs("date /T");
 			jobqueue.add(jobUnit);
 		}
 	}
