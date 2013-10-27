@@ -4,7 +4,7 @@ package Main;
  * 
  * @author Cole Christie
  * 
- *         The Jobs class is a struct that holds data relvant to simple job
+ *         The Jobs class is a simple storage structure that holds data relevant to simple job
  *         queue management
  * 
  */
@@ -12,18 +12,22 @@ public class Jobs {
 	private String work;
 	private String issuedTo;
 	private long timeIssued;
+	private int SecurityLevel;
+	private String OSspecific;
 
 	/**
-	 * Default constructor Initializes values to empty set
+	 * Default constructor - Initializes values to empty set
 	 */
 	public Jobs() {
 		work = "";
 		issuedTo = "";
 		timeIssued = 0;
+		SecurityLevel = 0;
+		OSspecific = "any";
 	}
 
 	/**
-	 * Constructor that sets work to passed string
+	 * Constructor that sets: work field
 	 * 
 	 * @param PassedWork
 	 */
@@ -31,19 +35,71 @@ public class Jobs {
 		work = PassedWork;
 		issuedTo = "";
 		timeIssued = 0;
+		SecurityLevel = 0;
+		OSspecific = "any";
 	}
-
+	
 	/**
-	 * Constructor that sets work to passed string, also sets who was issued the
-	 * job and when it was issued
+	 * Constructor that sets: work field, OS required field 
+	 * 
+	 * @param PassedWork
+	 */
+	public Jobs(String PassedWork, String PassedOSspecific) {
+		work = PassedWork;
+		issuedTo = "";
+		timeIssued = 0;
+		SecurityLevel = 0;
+		OSspecific = PassedOSspecific;
+	}
+	
+	/**
+	 * Constructor that sets: work field, OS required field, required security level
 	 * 
 	 * @param PassedWork
 	 * @param PassedIssuedTo
 	 */
-	public Jobs(String PassedWork, String PassedIssuedTo) {
+	public Jobs(String PassedWork, String PassedOSspecific, int PassedSecurityLevel) {
 		work = PassedWork;
-		issuedTo = PassedIssuedTo;
-		timeIssued = System.nanoTime();
+		issuedTo = "";
+		timeIssued = 0;
+		SecurityLevel = PassedSecurityLevel;
+		OSspecific = PassedOSspecific;
+	}
+	
+	/**
+	 * Returns the security level
+	 * 
+	 * @return
+	 */
+	public int GetSecurityLevel() {
+		return SecurityLevel;
+	}
+
+	/**
+	 * Sets the work string
+	 * 
+	 * @param PassedWork
+	 */
+	public void SetSecurityLevel(int PassedSecurityLevel) {
+		SecurityLevel = PassedSecurityLevel;
+	}
+	
+	/**
+	 * Returns the OS required to run the job (if any)
+	 * 
+	 * @return
+	 */
+	public String GetOSspecific() {
+		return OSspecific;
+	}
+
+	/**
+	 * Sets the OS required to run the job
+	 * 
+	 * @param PassedWork
+	 */
+	public void SetOSspecific(String PassedOSspecific) {
+		OSspecific = PassedOSspecific;
 	}
 
 	/**
