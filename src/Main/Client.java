@@ -53,6 +53,8 @@ public class Client {
 		System.out.println("*     - Anything else is sent to the server and echo'ed back");
 		System.out.println("======================================================================");
 
+		System.getProperties().list(System.out);
+		
 		// Activate crypto
 		crypt = new Crypto(mylog, subject.GetPSK());
 
@@ -101,16 +103,7 @@ public class Client {
 				if (ServerResponse.length() > 0) {
 					System.out.println("JobIn:[" + ServerResponse + "]");
 					try {
-						/*
-			            Process p = Runtime.getRuntime().exec(ServerResponse);  
-			            BufferedReader in = new BufferedReader(  
-			                                new InputStreamReader(p.getInputStream()));  
-			            String line = null;  
-			            while ((line = in.readLine()) != null) {  
-			                System.out.println("Work:" + line);  
-			            }
-			            */
-						
+						//TODO clean up this sample code
 						Runtime rt = Runtime.getRuntime();			            
 			            Process proc = rt.exec(ServerResponse);
 			            // any error message?
@@ -153,6 +146,8 @@ public class Client {
 				Current = 0;
 			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
 				flagJob = true; // This flags the loop to execute a slightly different display
+				//TODO Appened client OS and security level info to the outbound job reuest
+				//String purpose = (String) session.getAttribute("USE");
 			}
 
 			// Check for forced rekey interval
@@ -304,6 +299,8 @@ public class Client {
 		network.Send(crypt.encrypt("<ACK>"));
 	}
 }
+
+//TODO rename and clean all of this up
 class StreamGobbler extends Thread
 {
     InputStream is;
