@@ -47,6 +47,7 @@ public class Server extends Thread {
 		System.out.println("QUIT - Closes connection with the server and quits");
 		System.out.println("SW   - Generates a sample set of jobs that can be sent to Windows clients");
 		System.out.println("SL   - Generates a sample set of jobs that can be sent to Linux/UNIX clients");
+		System.out.println("SA   - Generates a sample set of jobs that can be sent to any client");
 		System.out.println("LOAD - Loads a list of pre-defined jobs from a file");
 		System.out.println("CUQ  - Clears our (empties) the queue of unassigned jobs");
 		System.out.println("CAQ  - Clears our (empties) the queue of assigned jobs");
@@ -58,11 +59,14 @@ public class Server extends Thread {
 		UserInput = readUI();
 		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0)) {
 			if (UserInput.compareToIgnoreCase("sw") == 0) {
-				// Load a sample set of jobs for WINDOWS clients
+				// Load a sample set of jobs to WINDOWS clients
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SW");
 			} else if (UserInput.compareToIgnoreCase("sl") == 0) {
-				// Load a sample set of jobs for LINUX/UNIX clients
+				// Load a sample set of jobs to LINUX/UNIX clients
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SL");
+			} else if (UserInput.compareToIgnoreCase("sa") == 0) {
+				// Load a sample set of jobs to any client
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SA");
 			} else if (UserInput.compareToIgnoreCase("cuq") == 0) {
 				// Clears out the unassigned queue
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("CUQ");
