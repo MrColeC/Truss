@@ -48,6 +48,8 @@ public class Client {
 		// Prep and begin interface
 		String UserInput = null;
 		String ServerResponse = null;
+		//TODO move this to a function
+		//TODO allow "help" to re-print this screen
 		System.out.println("======================================================================");
 		System.out.println("Connected to server [" + passedTarget + "] on port [" + passedPort + "]");
 		System.out.println("Commands are:");

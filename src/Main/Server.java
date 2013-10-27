@@ -41,6 +41,8 @@ public class Server extends Thread {
 		String UserInput = null;
 
 		// Display the UI boilerplate
+		// TODO move this to a function
+		// TODO allow "help" to re-print this screen
 		System.out.println("======================================================================");
 		System.out.println("Welcome. This server is accepting connections on port [" + PortUsed + "]");
 		System.out.println("Commands are:");
@@ -79,8 +81,8 @@ public class Server extends Thread {
 			} else if (UserInput.compareToIgnoreCase("load") == 0) {
 				// Load a set of jobs from a text file located on this system
 				String filename = "";
-				//TODO - Get filename from prompt 
-				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD",filename);
+				// TODO - Get filename from prompt
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD", filename);
 			} else {
 				// Base case - echo back what was typed in
 				System.out.println("Server Console:" + UserInput);
