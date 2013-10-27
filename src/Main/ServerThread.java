@@ -148,6 +148,8 @@ public class ServerThread extends Thread {
 					returnData = crypt.encrypt(work);
 					network.Send(returnData);
 					mylog.out("INFO", "JobOut:[" + work + "]");
+					mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are left in the queue");
+					mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
 				}
 			} else if (fromClient.compareToIgnoreCase("<REKEY>") == 0) {
 				SendACK(); // Send ACK
