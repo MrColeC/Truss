@@ -2,6 +2,7 @@ package Main;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
@@ -99,14 +100,40 @@ public class Client {
 			if (flagJob) {
 				if (ServerResponse.length() > 0) {
 					System.out.println("JobIn:[" + ServerResponse + "]");
-					try {  
+					try {
+						/*
 			            Process p = Runtime.getRuntime().exec(ServerResponse);  
 			            BufferedReader in = new BufferedReader(  
 			                                new InputStreamReader(p.getInputStream()));  
 			            String line = null;  
 			            while ((line = in.readLine()) != null) {  
 			                System.out.println("Work:" + line);  
-			            }  
+			            }
+			            */
+						
+						Runtime rt = Runtime.getRuntime();			            
+			            Process proc = rt.exec(ServerResponse);
+			            // any error message?
+			            StreamGobbler errorGobbler = new 
+			                StreamGobbler(proc.getErrorStream(), "ERROR");            
+			            
+			            // any output?
+			            StreamGobbler outputGobbler = new 
+			                StreamGobbler(proc.getInputStream(), "OUTPUT");
+			                
+			            // kick them off
+			            errorGobbler.start();
+			            outputGobbler.start();
+			                                    
+			            // any error???
+			            int exitVal = 0;
+						try {
+							exitVal = proc.waitFor();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			            System.out.println("ExitValue: " + exitVal);   
 			        } catch (IOException e) {  
 			            e.printStackTrace();  
 			        }
@@ -276,4 +303,30 @@ public class Client {
 		}
 		network.Send(crypt.encrypt("<ACK>"));
 	}
+}
+class StreamGobbler extends Thread
+{
+    InputStream is;
+    String type;
+    
+    StreamGobbler(InputStream is, String type)
+    {
+        this.is = is;
+        this.type = type;
+    }
+    
+    public void run()
+    {
+        try
+        {
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line=null;
+            while ( (line = br.readLine()) != null)
+                System.out.println(type + ">" + line);    
+            } catch (IOException ioe)
+              {
+                ioe.printStackTrace();  
+              }
+    }
 }
