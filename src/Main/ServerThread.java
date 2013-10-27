@@ -58,6 +58,9 @@ public class ServerThread extends Thread {
 			} else if (type.compareToIgnoreCase("sl") == 0) {
 				JobQueue.SampleLinux();
 				mylog.out("INFO", "Loaded 10 sample jobs (Linux/UNIX).");
+			} else if (type.compareToIgnoreCase("sa") == 0) {
+				JobQueue.Sample();
+				mylog.out("INFO", "Loaded 10 sample jobs (Any OS).");
 			} else if (type.compareToIgnoreCase("cuq") == 0) {
 				JobQueue.ClearUnsentQueue();
 				mylog.out("INFO", "Unassigned job queue reset.");
@@ -68,6 +71,7 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are left in the queue");
 				mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
 			}
+			//TODO ad "load" option
 		}
 	}
 
@@ -149,9 +153,10 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "Client disconnected gracefully");
 				break;
 			} else if (fromClient.compareToIgnoreCase("job") == 0) {
+				//TODO Support parsing META info from in bound JOB request
 				mylog.out("INFO", "Client reuested a job.");
 				synchronized (JobLock) {
-					// TODO Implement sending a job
+					// TODO Add WHO the job was sent to (not test cat)
 					String work = JobQueue.Assign("Test Cat");
 					returnData = crypt.encrypt(work);
 					network.Send(returnData);
