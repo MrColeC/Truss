@@ -28,17 +28,20 @@ public class JobManagement {
 		jobqueue = new ArrayList<Jobs>();
 		jobsent = new ArrayList<Jobs>();
 	}
-	
+
 	/**
 	 * Returns the number of jobs yet to be assigned
+	 * 
 	 * @return
 	 */
 	public int UnassignedCount() {
 		return jobqueue.size();
 	}
-	
+
 	/**
-	 * Returns the number of jobs that have been assigned, but not yet acknowledged as complete
+	 * Returns the number of jobs that have been assigned, but not yet
+	 * acknowledged as complete
+	 * 
 	 * @return
 	 */
 	public int AssignedCount() {
@@ -73,7 +76,7 @@ public class JobManagement {
 	 */
 	public void SampleWindows() {
 		for (int loop = 0; loop < 10; loop++) {
-			Jobs jobUnit = new Jobs("date /T");
+			Jobs jobUnit = new Jobs("cmd date /T");
 			jobqueue.add(jobUnit);
 		}
 	}
@@ -108,5 +111,19 @@ public class JobManagement {
 		} else {
 			return "";
 		}
+	}
+
+	/**
+	 * Clears the queue of jobs that have NOT already been sent to clients
+	 */
+	public void ClearUnsentQueue() {
+		jobqueue.clear();
+	}
+	
+	/**
+	 * Clears the queue of jobs that HAVE already been sent to clients
+	 */
+	public void ClearSentQueue() {
+		jobsent.clear();
 	}
 }

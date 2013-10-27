@@ -45,8 +45,7 @@ public class ServerThread extends Thread {
 
 	/**
 	 * Runs the Job loading framework based upon the execution request passed to
-	 * it (string argument). Returns the count (int) of the number of jobs that
-	 * were loaded.
+	 * it (string argument).
 	 * 
 	 * @param type
 	 * @return
@@ -59,6 +58,12 @@ public class ServerThread extends Thread {
 			} else if (type.compareToIgnoreCase("sl") == 0) {
 				JobQueue.SampleLinux();
 				mylog.out("INFO", "Loaded 10 sample jobs (Linux/UNIX).");
+			} else if (type.compareToIgnoreCase("cuq") == 0) {
+				JobQueue.ClearUnsentQueue();
+				mylog.out("INFO", "Unassigned job queue reset.");
+			} else if (type.compareToIgnoreCase("caq") == 0) {
+				JobQueue.ClearSentQueue();
+				mylog.out("INFO", "Assigned job queue reset.");
 			}
 		}
 	}
