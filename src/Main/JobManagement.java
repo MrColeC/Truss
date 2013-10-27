@@ -45,7 +45,7 @@ public class JobManagement {
 	 * @return
 	 */
 	public int AssignedCount() {
-		return jobqueue.size();
+		return jobsent.size();
 	}
 
 	/**
