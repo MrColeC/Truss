@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import org.apache.shiro.session.Session;
+
 /**
  * Provides an extensible framework to do public and private calculations Can be
  * extended to provide degrees within this black or white type casting
@@ -18,13 +20,15 @@ public class Client {
 	private Networking network;
 	private Auth subject;
 	private Crypto crypt;
+	private Session clientSession;
 
 	/**
 	 * s CONSTRUCTOR
 	 */
-	public Client(Logging passedLog, Auth passedSubject) {
+	public Client(Logging passedLog, Auth passedSubject, Session passedSession) {
 		mylog = passedLog;
 		subject = passedSubject;
+		clientSession = passedSession;
 	}
 
 	/**
@@ -144,8 +148,11 @@ public class Client {
 				Current = 0;
 			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
 				flagJob = true; // This flags the loop to execute a slightly different display
-				//TODO Appened client OS and security level info to the outbound job reuest
-				//String purpose = (String) session.getAttribute("USE");
+				//TODO Append client OS and security level info to the outbound job reuest
+				String OS = (String) clientSession.getAttribute("OS");
+				int SecLev = (int) clientSession.getAttribute("SecurityLevel");
+				UserInput = UserInput + ":" + "Bob" + ":" + OS + ":" + SecLev;
+				
 			}
 
 			// Check for forced rekey interval
