@@ -182,14 +182,20 @@ public class Auth {
 		if (targetSubject.hasRole("nothing")) {
 			session.setAttribute("USE", "");
 		} else {
+			//TODO Set the OS info into an attribute here
 			if (targetSubject.hasRole("secureTarget")) {
 				session.setAttribute("USE", "private");
+				session.setAttribute("SecurityLevel", "2");				
+				session.setAttribute("OS", "ANY");
 			} else if (targetSubject.hasRole("insecureTarget")) {
 				session.setAttribute("USE", "public");
+				session.setAttribute("SecurityLevel", "1");
 			} else if (targetSubject.hasRole("sourceTarget")) {
 				session.setAttribute("USE", "server");
+				session.setAttribute("SecurityLevel", "0");
 			} else if (targetSubject.hasRole("resultTarget")) {
 				session.setAttribute("USE", "dropoff");
+				session.setAttribute("SecurityLevel", "0");
 			}
 		}
 		// Return created and annotated session
