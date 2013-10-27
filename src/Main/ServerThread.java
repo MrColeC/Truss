@@ -152,9 +152,9 @@ public class ServerThread extends Thread {
 			} else if (fromClient.compareToIgnoreCase("quit") == 0) {
 				mylog.out("INFO", "Client disconnected gracefully");
 				break;
-			} else if (fromClient.compareToIgnoreCase("job") == 0) {
+			} else if (fromClient.compareToIgnoreCase("job") >= 0) {
 				//TODO Support parsing META info from in bound JOB request
-				mylog.out("INFO", "Client reuested a job.");
+				mylog.out("INFO", "Client reuested a job. [" + fromClient + "]");
 				synchronized (JobLock) {
 					// TODO Add WHO the job was sent to (not test cat)
 					String work = JobQueue.Assign("Test Cat");
