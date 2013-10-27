@@ -181,12 +181,15 @@ public class Auth {
 		// Determine the rough use of the session, store it for easy access
 		if (targetSubject.hasRole("nothing")) {
 			session.setAttribute("USE", "");
+			session.setAttribute("SecurityLevel", "0");
+			session.setAttribute("OS", "AuthFailed");
 		} else {
-			//TODO Set the OS info into an attribute here
+			// In common
+			session.setAttribute("OS", System.getProperty("os.name").toString());
+			// Authorization specific
 			if (targetSubject.hasRole("secureTarget")) {
 				session.setAttribute("USE", "private");
-				session.setAttribute("SecurityLevel", "2");				
-				session.setAttribute("OS", "ANY");
+				session.setAttribute("SecurityLevel", "2");
 			} else if (targetSubject.hasRole("insecureTarget")) {
 				session.setAttribute("USE", "public");
 				session.setAttribute("SecurityLevel", "1");
