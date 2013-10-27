@@ -28,6 +28,22 @@ public class JobManagement {
 		jobqueue = new ArrayList<Jobs>();
 		jobsent = new ArrayList<Jobs>();
 	}
+	
+	/**
+	 * Returns the number of jobs yet to be assigned
+	 * @return
+	 */
+	public int UnassignedCount() {
+		return jobqueue.size();
+	}
+	
+	/**
+	 * Returns the number of jobs that have been assigned, but not yet acknowledged as complete
+	 * @return
+	 */
+	public int AssignedCount() {
+		return jobqueue.size();
+	}
 
 	/**
 	 * Reads a list of jobs (one per line) from a file
