@@ -52,8 +52,6 @@ public class Client {
 		System.out.println("JOB   - Requests a job from the server");
 		System.out.println("*     - Anything else is sent to the server and echo'ed back");
 		System.out.println("======================================================================");
-
-		System.getProperties().list(System.out);
 		
 		// Activate crypto
 		crypt = new Crypto(mylog, subject.GetPSK());
