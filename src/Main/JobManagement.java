@@ -109,7 +109,7 @@ public class JobManagement {
 	 * @return
 	 */
 	public String Assign(String clientsName) {
-		// TODO Reactor this to support only returning jobs the client CAN (OS)
+		// TODO Refactor this to support only returning jobs the client CAN (OS)
 		// and is ALLOWED (Security Level) to do
 		int size = jobqueue.size();
 		if (size > 0) {

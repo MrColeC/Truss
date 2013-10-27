@@ -71,7 +71,7 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are left in the queue");
 				mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
 			}
-			// TODO ad "load" option
+			// TODO add "load" option
 		}
 	}
 
@@ -171,7 +171,6 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "Client disconnected gracefully");
 				break;
 			} else if (jobRequest) {
-				// TODO Support parsing META info from in bound JOB request
 				mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecuriyLevel
 						+ "] reuested a job for [" + ClientOS + "]");
 				synchronized (JobLock) {

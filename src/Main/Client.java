@@ -125,7 +125,6 @@ public class Client {
 						try {
 							exitVal = proc.waitFor();
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 			            System.out.println("ExitValue: " + exitVal);   
@@ -147,12 +146,11 @@ public class Client {
 				DHrekey();
 				Current = 0;
 			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
-				flagJob = true; // This flags the loop to execute a slightly different display
-				//TODO Append client OS and security level info to the outbound job reuest
+				flagJob = true; // This flags the loop to execute a slightly different display				
 				String OS = (String) clientSession.getAttribute("OS");
 				String SecLev = (String) clientSession.getAttribute("SecurityLevel");
 				UserInput = UserInput + ":" + "Bob" + ":" + OS + ":" + SecLev;
-				
+				//TODO Pass a REAL client ID (my IP?)
 			}
 
 			// Check for forced rekey interval
