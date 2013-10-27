@@ -71,7 +71,7 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are left in the queue");
 				mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
 			}
-			//TODO ad "load" option
+			// TODO ad "load" option
 		}
 	}
 
@@ -145,16 +145,35 @@ public class ServerThread extends Thread {
 			// Decrypt sent data
 			fromClient = crypt.decrypt(fetched);
 
-			// Case sensitive actions based upon data received
+			// Precalculate meta data from passed arguments (for job
+			// distribution)
+			boolean jobRequest = false;
+			String ClientName = "";
+			String ClientOS = "";
+			int ClientSecuriyLevel = 0;
 			if (fromClient == null) {
 				mylog.out("WARN", "Client disconnected abruptly");
 				break;
-			} else if (fromClient.compareToIgnoreCase("quit") == 0) {
+			} else {
+				// Only if the client did not abruptly disconnect, and only if
+				// the following abstract conditions are met
+				if (fromClient.toLowerCase().contains("job")) {
+					String[] CHOP = fromClient.split(":");
+					jobRequest = true;
+					ClientName = CHOP[1];
+					ClientOS = CHOP[2];
+					ClientSecuriyLevel = Integer.parseInt(CHOP[3]);
+				}
+			}
+
+			// Case sensitive actions based upon data received
+			if (fromClient.compareToIgnoreCase("quit") == 0) {
 				mylog.out("INFO", "Client disconnected gracefully");
 				break;
-			} else if (fromClient.compareToIgnoreCase("job") >= 0) {
-				//TODO Support parsing META info from in bound JOB request
-				mylog.out("INFO", "Client reuested a job. [" + fromClient + "]");
+			} else if (jobRequest) {
+				// TODO Support parsing META info from in bound JOB request
+				mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecuriyLevel
+						+ "] reuested a job for [" + ClientOS + "]");
 				synchronized (JobLock) {
 					// TODO Add WHO the job was sent to (not test cat)
 					String work = JobQueue.Assign("Test Cat");
