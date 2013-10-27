@@ -128,7 +128,7 @@ public class Main {
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (public mode)
-			Client client = new Client(mylog, subject);
+			Client client = new Client(mylog, subject, session);
 			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to
 																// the server
 		} else if (purpose == "public") {
@@ -136,7 +136,7 @@ public class Main {
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (private mode)
-			Client client = new Client(mylog, subject);
+			Client client = new Client(mylog, subject, session);
 			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to
 																// the server
 		} else {
