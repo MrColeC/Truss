@@ -76,7 +76,7 @@ public class JobManagement {
 	 */
 	public void SampleWindows() {
 		for (int loop = 0; loop < 10; loop++) {
-			Jobs jobUnit = new Jobs("cmd /C date /T");
+			Jobs jobUnit = new Jobs("cmd /C time /T", "Windows");
 			jobqueue.add(jobUnit);
 		}
 	}
@@ -86,7 +86,17 @@ public class JobManagement {
 	 */
 	public void SampleLinux() {
 		for (int loop = 0; loop < 10; loop++) {
-			Jobs jobUnit = new Jobs("date");
+			Jobs jobUnit = new Jobs("date", "Linux");
+			jobqueue.add(jobUnit);
+		}
+	}
+
+	/**
+	 * Populates the job queue with 10 sample jobs for ANY OS
+	 */
+	public void Sample() {
+		for (int loop = 0; loop < 10; loop++) {
+			Jobs jobUnit = new Jobs("java -version");
 			jobqueue.add(jobUnit);
 		}
 	}
@@ -99,6 +109,8 @@ public class JobManagement {
 	 * @return
 	 */
 	public String Assign(String clientsName) {
+		// TODO Reactor this to support only returning jobs the client CAN (OS)
+		// and is ALLOWED (Security Level) to do
 		int size = jobqueue.size();
 		if (size > 0) {
 			Jobs jobUnit = jobqueue.get(0); // Pull the data at spot 0
@@ -119,7 +131,7 @@ public class JobManagement {
 	public void ClearUnsentQueue() {
 		jobqueue.clear();
 	}
-	
+
 	/**
 	 * Clears the queue of jobs that HAVE already been sent to clients
 	 */
