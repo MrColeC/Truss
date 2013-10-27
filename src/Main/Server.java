@@ -50,6 +50,7 @@ public class Server extends Thread {
 		System.out.println("LOAD - Loads a list of pre-defined jobs from a file");
 		System.out.println("CUQ  - Clears our (empties) the queue of unassigned jobs");
 		System.out.println("CAQ  - Clears our (empties) the queue of assigned jobs");
+		System.out.println("LIST - Displays the count of the assigned and unassigned job queues jobs");
 		System.out.println("*    - Anything else is just echo'ed back");
 		System.out.println("======================================================================");
 
@@ -65,9 +66,12 @@ public class Server extends Thread {
 			} else if (UserInput.compareToIgnoreCase("cuq") == 0) {
 				// Clears out the unassigned queue
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("CUQ");
-			} else if (UserInput.compareToIgnoreCase("sl") == 0) {
+			} else if (UserInput.compareToIgnoreCase("caq") == 0) {
 				// Clears out the assigned queue
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("CAQ");
+			} else if (UserInput.compareToIgnoreCase("list") == 0) {
+				// Clears out the assigned queue
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LIST");
 			} else if (UserInput.compareToIgnoreCase("load") == 0) {
 				// Load a set of jobs from a text file located on this system
 				String filename = "";

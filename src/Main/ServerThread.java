@@ -64,6 +64,9 @@ public class ServerThread extends Thread {
 			} else if (type.compareToIgnoreCase("caq") == 0) {
 				JobQueue.ClearSentQueue();
 				mylog.out("INFO", "Assigned job queue reset.");
+			} else if (type.compareToIgnoreCase("list") == 0) {
+				mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are left in the queue");
+				mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
 			}
 		}
 	}
