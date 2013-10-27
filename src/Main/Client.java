@@ -150,7 +150,7 @@ public class Client {
 				flagJob = true; // This flags the loop to execute a slightly different display
 				//TODO Append client OS and security level info to the outbound job reuest
 				String OS = (String) clientSession.getAttribute("OS");
-				int SecLev = (int) clientSession.getAttribute("SecurityLevel");
+				String SecLev = (String) clientSession.getAttribute("SecurityLevel");
 				UserInput = UserInput + ":" + "Bob" + ":" + OS + ":" + SecLev;
 				
 			}
