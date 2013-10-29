@@ -32,6 +32,19 @@ public class Client {
 	}
 
 	/**
+	 * This displays the CLI menu and advertised commands
+	 */
+	private void DisplayMenu() {
+		System.out.println("======================================================================");
+		System.out.println("Commands are:");
+		System.out.println("QUIT  - Closes connection with the server and quits");
+		System.out.println("REKEY - Rekeys encryption between the client and the server");
+		System.out.println("JOB   - Requests a job from the server");
+		System.out.println("*     - Anything else is sent to the server and echo'ed back");
+		System.out.println("======================================================================");
+	}
+
+	/**
 	 * Handles the creation and main thread of client activity
 	 * 
 	 * @param passedPort
@@ -45,20 +58,18 @@ public class Client {
 		// Bind I/O to the socket
 		network.BringUp(MySock);
 
-		// Prep and begin interface
+		// Prepare the interface
 		String UserInput = null;
 		String ServerResponse = null;
-		//TODO move this to a function
-		//TODO allow "help" to re-print this screen
-		System.out.println("======================================================================");
+
+		// Load client identification data
+		String OS = (String) clientSession.getAttribute("OS");
+		String SecLev = (String) clientSession.getAttribute("SecurityLevel");
+
+		// Display the UI boilerplate
+		DisplayMenu();
 		System.out.println("Connected to server [" + passedTarget + "] on port [" + passedPort + "]");
-		System.out.println("Commands are:");
-		System.out.println("QUIT  - Closes connection with the server and quits");
-		System.out.println("REKEY - Rekeys encryption between the client and the server");
-		System.out.println("JOB   - Requests a job from the server");
-		System.out.println("*     - Anything else is sent to the server and echo'ed back");
-		System.out.println("======================================================================");
-		
+
 		// Activate crypto
 		crypt = new Crypto(mylog, subject.GetPSK());
 
@@ -93,46 +104,71 @@ public class Client {
 		int Current = 0;
 		boolean serverUp = true;
 		boolean flagJob = false;
+		boolean noSend = false;
 		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0) && (MySock.isConnected())) {
-			network.Send(crypt.encrypt(UserInput));
-			fetched = network.ReceiveByte();
-			ServerResponse = crypt.decrypt(fetched);
-			if (ServerResponse == null) {
-				mylog.out("WARN", "Server disconected");
-				serverUp = false;
-				break;
+			if (!noSend) {
+				network.Send(crypt.encrypt(UserInput));
+				fetched = network.ReceiveByte();
+				ServerResponse = crypt.decrypt(fetched);
+				if (ServerResponse == null) {
+					mylog.out("WARN", "Server disconected");
+					serverUp = false;
+					break;
+				}
+			} else {
+				// We did not send anything to the server this time, but we will
+				// reset the boolean flag so we will next time
+				noSend = false;
 			}
+
 			// If this is the client receiving a job from the server
 			if (flagJob) {
 				if (ServerResponse.length() > 0) {
+					// Print out the job the server has passed us (the client)
 					System.out.println("JobIn:[" + ServerResponse + "]");
+
+					// Adjust the job so it can properly run (Windows clients
+					// require some padding at the front)
+					if (OS.contains("Windows")) {
+						// Pad the job with the required Windows shell
+						ServerResponse = "cmd /C " + ServerResponse;
+					}
+
 					try {
-						//TODO clean up this sample code
-						Runtime rt = Runtime.getRuntime();			            
-			            Process proc = rt.exec(ServerResponse);
-			            // any error message?
-			            StreamGobbler errorGobbler = new 
-			                StreamGobbler(proc.getErrorStream(), "ERROR");            
-			            
-			            // any output?
-			            StreamGobbler outputGobbler = new 
-			                StreamGobbler(proc.getInputStream(), "OUTPUT");
-			                
-			            // kick them off
-			            errorGobbler.start();
-			            outputGobbler.start();
-			                                    
-			            // any error???
-			            int exitVal = 0;
+						/*
+						 * Some of the code in this section is from the
+						 * following URL http://www.javaworld
+						 * .com/jw-12-2000/jw-1229-traps.html?page=4
+						 * 
+						 * It provides a simple way of calling external code
+						 * while still capturing all of the output (STD and
+						 * STDERR)
+						 * 
+						 * @author Michael C. Daconta
+						 */
+						Runtime rt = Runtime.getRuntime();
+						Process proc = rt.exec(ServerResponse);
+						// any error message?
+						StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+
+						// any output?
+						StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+						// kick them off
+						errorGobbler.start();
+						outputGobbler.start();
+
+						// any error???
+						int exitVal = 0;
 						try {
 							exitVal = proc.waitFor();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-			            System.out.println("ExitValue: " + exitVal);   
-			        } catch (IOException e) {  
-			            e.printStackTrace();  
-			        }
+						System.out.println("ExitValue: " + exitVal);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					System.out.println("JobOut:[" + ServerResponse + "]");
 				} else {
 					System.out.println("Job:[No jobs available]");
@@ -147,12 +183,14 @@ public class Client {
 				UserInput = "Rekey executed.";
 				DHrekey();
 				Current = 0;
-			} else if ((UserInput.compareToIgnoreCase("job") == 0) && serverUp) {
-				flagJob = true; // This flags the loop to execute a slightly different display				
-				String OS = (String) clientSession.getAttribute("OS");
-				String SecLev = (String) clientSession.getAttribute("SecurityLevel");
+			} else if (UserInput.compareToIgnoreCase("job") == 0) {
+				flagJob = true; // Flags the use of a slightly different display
 				UserInput = UserInput + ":" + "Bob" + ":" + OS + ":" + SecLev;
-				//TODO Pass a REAL client ID (my IP?)
+				// TODO Pass a REAL client ID (my IP?)
+			} else if (UserInput.compareToIgnoreCase("help") == 0) {
+				noSend = true; // Do not send anything, the help request stays
+								// local
+				DisplayMenu();
 			}
 
 			// Check for forced rekey interval
@@ -305,30 +343,34 @@ public class Client {
 	}
 }
 
-//TODO rename and clean all of this up
-class StreamGobbler extends Thread
-{
-    InputStream is;
-    String type;
-    
-    StreamGobbler(InputStream is, String type)
-    {
-        this.is = is;
-        this.type = type;
-    }
-    
-    public void run()
-    {
-        try
-        {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String line=null;
-            while ( (line = br.readLine()) != null)
-                System.out.println(type + ">" + line);    
-            } catch (IOException ioe)
-              {
-                ioe.printStackTrace();  
-              }
-    }
+/**
+ * This code is from the following URL
+ * http://www.javaworld.com/jw-12-2000/jw-1229-traps.html?page=4
+ * 
+ * It is useful in catching all of the output of an executed sub-process and has
+ * not been altered from its initial state
+ * 
+ * @author Michael C. Daconta
+ * 
+ */
+class StreamGobbler extends Thread {
+	InputStream is;
+	String type;
+
+	StreamGobbler(InputStream is, String type) {
+		this.is = is;
+		this.type = type;
+	}
+
+	public void run() {
+		try {
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
+			while ((line = br.readLine()) != null)
+				System.out.println(type + ">" + line);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 }

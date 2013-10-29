@@ -32,17 +32,11 @@ public class Server extends Thread {
 		JobLock = new Object();
 		MasterJobQueue = new JobManagement();
 	}
-
+	
 	/**
-	 * Launches the server and provides the UI
+	 * This displays the CLI menu and advertised commands
 	 */
-	public void LaunchServer() {
-		// Prepare
-		String UserInput = null;
-
-		// Display the UI boilerplate
-		// TODO move this to a function
-		// TODO allow "help" to re-print this screen
+	private void DisplayMenu() {
 		System.out.println("======================================================================");
 		System.out.println("Welcome. This server is accepting connections on port [" + PortUsed + "]");
 		System.out.println("Commands are:");
@@ -56,6 +50,17 @@ public class Server extends Thread {
 		System.out.println("LIST - Displays the count of the assigned and unassigned job queues jobs");
 		System.out.println("*    - Anything else is just echo'ed back");
 		System.out.println("======================================================================");
+	}
+
+	/**
+	 * Launches the server and provides the UI
+	 */
+	public void LaunchServer() {
+		// Prepare
+		String UserInput = null;
+
+		// Display the UI boilerplate
+		DisplayMenu();
 
 		// Enter the UI loop
 		UserInput = readUI();
@@ -83,6 +88,9 @@ public class Server extends Thread {
 				String filename = "";
 				// TODO - Get filename from prompt
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD", filename);
+			} else if (UserInput.compareToIgnoreCase("help") == 0) {
+				// Display the UI boilerplate
+				DisplayMenu();
 			} else {
 				// Base case - echo back what was typed in
 				System.out.println("Server Console:" + UserInput);
