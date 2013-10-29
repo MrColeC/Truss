@@ -40,6 +40,7 @@ public class Client {
 		System.out.println("QUIT  - Closes connection with the server and quits");
 		System.out.println("REKEY - Rekeys encryption between the client and the server");
 		System.out.println("JOB   - Requests a job from the server");
+		System.out.println("HELP  - Displays this menu");
 		System.out.println("*     - Anything else is sent to the server and echo'ed back");
 		System.out.println("======================================================================");
 	}

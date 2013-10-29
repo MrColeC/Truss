@@ -48,6 +48,7 @@ public class Server extends Thread {
 		System.out.println("CUQ  - Clears our (empties) the queue of unassigned jobs");
 		System.out.println("CAQ  - Clears our (empties) the queue of assigned jobs");
 		System.out.println("LIST - Displays the count of the assigned and unassigned job queues jobs");
+		System.out.println("HELP - Displays this menu");
 		System.out.println("*    - Anything else is just echo'ed back");
 		System.out.println("======================================================================");
 	}
