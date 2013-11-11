@@ -94,7 +94,7 @@ public class Server extends Thread {
 				DisplayMenu();
 			} else {
 				// Base case - echo back what was typed in
-				System.out.println("Server Console:" + UserInput);
+				System.out.println("Unknown Command [" + UserInput + "]. Try using 'help'.");
 			}
 			UserInput = readUI(); // Prompt agian for user input
 		}
