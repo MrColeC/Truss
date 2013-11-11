@@ -179,15 +179,15 @@ public class Client {
 			} else {
 				System.out.println(ServerResponse);
 			}
-			UserInput = readUI();
+			UserInput = readUI().toLowerCase();
 			// Check input for special commands
 			if ((UserInput.contains("rekey")) && serverUp) {
 				UserInput = "Rekey executed.";
 				DHrekey();
-				Current = 0;				
+				Current = 0;
 			} else if (UserInput.contains("job")) {
 				flagJob = true; // Flags the use of a slightly different display
-				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;				
+				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;
 			} else if (UserInput.contains("help")) {
 				noSend = true; // Do not send anything, the help request stays
 								// local
