@@ -32,25 +32,37 @@ public class Server extends Thread {
 		JobLock = new Object();
 		MasterJobQueue = new JobManagement();
 	}
-	
+
 	/**
 	 * This displays the CLI menu and advertised commands
 	 */
-	private void DisplayMenu() {
-		System.out.println("======================================================================");
-		System.out.println("Welcome. This server is accepting connections on port [" + PortUsed + "]");
-		System.out.println("Commands are:");
-		System.out.println("QUIT - Closes connection with the server and quits");
-		System.out.println("SW   - Generates a sample set of jobs that can be sent to Windows clients");
-		System.out.println("SL   - Generates a sample set of jobs that can be sent to Linux/UNIX clients");
-		System.out.println("SA   - Generates a sample set of jobs that can be sent to any client");
-		System.out.println("LOAD - Loads a list of pre-defined jobs from a file");
-		System.out.println("CUQ  - Clears our (empties) the queue of unassigned jobs");
-		System.out.println("CAQ  - Clears our (empties) the queue of assigned jobs");
-		System.out.println("LIST - Displays the count of the assigned and unassigned job queues jobs");
-		System.out.println("HELP - Displays this menu");
-		System.out.println("*    - Anything else is just echo'ed back");
-		System.out.println("======================================================================");
+	private void DisplayMenu(String Mode) {
+		if (Mode.compareToIgnoreCase("Server") == 0) {
+			System.out.println("======================================================================");
+			System.out.println("Welcome. This server is accepting connections on port [" + PortUsed + "]");
+			System.out.println("Commands are:");
+			System.out.println("QUIT - Closes connection with the server and quits");
+			System.out.println("SW   - Generates a sample set of jobs that can be sent to Windows clients");
+			System.out.println("SL   - Generates a sample set of jobs that can be sent to Linux/UNIX clients");
+			System.out.println("SA   - Generates a sample set of jobs that can be sent to any client");
+			System.out.println("LOAD - Loads a list of pre-defined jobs from a file");
+			System.out.println("CUQ  - Clears our (empties) the queue of unassigned jobs");
+			System.out.println("CAQ  - Clears our (empties) the queue of assigned jobs");
+			System.out.println("LIST - Displays the count of the assigned and unassigned job queues jobs");
+			System.out.println("HELP - Displays this menu");
+			System.out.println("*    - Anything else is just echo'ed back");
+			System.out.println("======================================================================");
+		} else if (Mode.compareToIgnoreCase("DropOff") == 0) {
+			System.out.println("======================================================================");
+			System.out.println("Welcome. This server is accepting connections on port [" + PortUsed + "]");
+			System.out.println("Commands are:");
+			System.out.println("QUIT - Closes connection with the server and quits");
+			System.out.println("SAVE - Flushes the job results cache to a file");
+			System.out.println("LIST - Displays the count of completed jobs in the job results cache ");
+			System.out.println("HELP - Displays this menu");
+			System.out.println("*    - Anything else is just echo'ed back");
+			System.out.println("======================================================================");
+		}
 	}
 
 	/**
@@ -61,7 +73,7 @@ public class Server extends Thread {
 		String UserInput = null;
 
 		// Display the UI boilerplate
-		DisplayMenu();
+		DisplayMenu("Server");
 
 		// Enter the UI loop
 		UserInput = readUI();
@@ -88,10 +100,50 @@ public class Server extends Thread {
 				// Load a set of jobs from a text file located on this system
 				String filename = "";
 				// TODO - Get filename from prompt
+				// TODO - Implement parsing the file into the job queue
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD", filename);
 			} else if (UserInput.compareToIgnoreCase("help") == 0) {
 				// Display the UI boilerplate
-				DisplayMenu();
+				DisplayMenu("Server");
+			} else {
+				// Base case - echo back what was typed in
+				System.out.println("Unknown Command [" + UserInput + "]. Try using 'help'.");
+			}
+			UserInput = readUI(); // Prompt agian for user input
+		}
+		// Code exits upon "quit" which then proceeds to end the code
+	}
+
+	/**
+	 * Launches the server and provides the UI
+	 */
+	public void LaunchDropOff() {
+		// Prepare
+		String UserInput = null;
+
+		// Display the UI boilerplate
+		DisplayMenu("DropOff");
+
+		// Enter the UI loop
+		UserInput = readUI();
+		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0)) {
+			if (UserInput.compareToIgnoreCase("sw") == 0) {
+				// Load a sample set of jobs to WINDOWS clients
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SW");
+			} else if (UserInput.compareToIgnoreCase("list") == 0) {
+				// Displays the list of jobs currently being held in the buffer
+				// TODO Only have it show the data relevant to the DropOff
+				// server
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LIST");
+			} else if (UserInput.compareToIgnoreCase("save") == 0) {
+				// Flush the buffer to a file
+				String filename = "";
+				// TODO - Get filename from prompt
+				// TODO - Implement flushing the queue to a file
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SAVE", filename);
+			} else if (UserInput.compareToIgnoreCase("help") == 0) {
+				// Display the UI boilerplate
+				DisplayMenu("DropOff");
 			} else {
 				// Base case - echo back what was typed in
 				System.out.println("Unknown Command [" + UserInput + "]. Try using 'help'.");
