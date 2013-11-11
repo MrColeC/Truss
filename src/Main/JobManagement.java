@@ -154,7 +154,7 @@ public class JobManagement {
 				}
 			}
 			scan++;
-		}
+		}		
 		return 0;
 	}
 
