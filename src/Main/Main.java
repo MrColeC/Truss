@@ -124,23 +124,23 @@ public class Main {
 			// Launch server (receiver)
 			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));
 			server.start();
-			server.LaunchServer();
+			server.LaunchDropOff();
 		} else if (purpose == "private") {
 			session.setAttribute("totalJobs", "0");
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (public mode)
 			Client client = new Client(mylog, subject, session);
-			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to
-																// the server
+			// Connect to the server
+			client.StartClient(Integer.parseInt(Psport), Psip, Integer.parseInt(Pdport), Pdip);
 		} else if (purpose == "public") {
 			session.setAttribute("totalJobs", "0");
 			session.setAttribute("totalPending", "0");
 			session.setAttribute("totalDone", "0");
 			// Launch client code (private mode)
 			Client client = new Client(mylog, subject, session);
-			client.StartClient(Integer.parseInt(Psport), Psip); // Connect to
-																// the server
+			// Connect to the server
+			client.StartClient(Integer.parseInt(Psport), Psip, Integer.parseInt(Pdport), Pdip);
 		} else {
 			// Unknown type or failed authentication
 		}
