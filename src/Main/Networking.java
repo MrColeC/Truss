@@ -107,7 +107,7 @@ public class Networking {
 		SocketAddress theirAddress = newClient.getRemoteSocketAddress();
 		SocketAddress myAddress = newClient.getLocalSocketAddress();
 		String ClientIP = theirAddress.toString();
-		ClientIP.replace("/", "");
+		ClientIP = ClientIP.replace("/", "");
 		mylog.out("INFO", "A client from [" + ClientIP + "] has connected to [" + myAddress.toString()
 				+ "] and has established a new session.");
 

@@ -122,7 +122,7 @@ public class ServerThread extends Thread {
 		// Load and save the cleints IP and port for future UUID creation
 		SocketAddress theirAddress = socket.getRemoteSocketAddress();
 		String ClientIP = theirAddress.toString();
-		ClientIP.replace("/", "");
+		ClientIP = ClientIP.replace("/", "");
 		
 		// Bind I/O to the socket
 		network.BringUp(socket);
