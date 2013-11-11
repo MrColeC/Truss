@@ -148,11 +148,15 @@ public class JobManagement {
 			// Look for matching OS or jobs that can be ran under any OS
 			if ((looking.GetOSspecific().toLowerCase().contains(OS.toLowerCase()))
 					|| (looking.GetOSspecific().toLowerCase().contains("any"))) {
+				System.out.println("Found an OS match [" + looking.GetOSspecific().toLowerCase() + "]");
 				// Make sure the security level is acceptable
 				if (looking.GetSecurityLevel() <= SecLev) {
+					System.out.println("Found a SecLev match [" + looking.GetSecurityLevel() + "]");
 					return scan;
 				}
+				System.out.println("SecLev was no good [" + looking.GetSecurityLevel() + "]");
 			}
+			System.out.println("Still looking for an OS match [" + looking.GetOSspecific().toLowerCase() + "]");
 			scan++;
 		}		
 		return 0;
