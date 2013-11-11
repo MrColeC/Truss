@@ -109,14 +109,12 @@ public class JobManagement {
 	 * @return
 	 */
 	public String Assign(String clientsName, String OS, int SecLev) {
-		// TODO Refactor this to support only returning jobs the client CAN (OS)
-		// and is ALLOWED (Security Level) to do
 		int size = jobqueue.size();
 		if (size > 0) {
 			int fetch = 0;
-			if ((OS.equalsIgnoreCase("Windows")) || (OS.equalsIgnoreCase("Linux"))) {
-				fetch = JobSearch(OS,SecLev);
-				
+			if ((OS.toLowerCase().contains("windows")) || (OS.toLowerCase().contains("Linux"))) {
+				fetch = JobSearch(OS, SecLev);
+
 				// If fetch is still 0 than no jobs exist for that OS type
 				if (fetch == 0) {
 					return "";
@@ -148,14 +146,15 @@ public class JobManagement {
 		while (scan < size) {
 			Jobs looking = jobqueue.get(scan);
 			// Look for matching OS or jobs that can be ran under any OS
-			if ((looking.GetOSspecific().equalsIgnoreCase(OS)) || (looking.GetOSspecific().equalsIgnoreCase("any"))) {
+			if ((looking.GetOSspecific().toLowerCase().contains(OS.toLowerCase()))
+					|| (looking.GetOSspecific().toLowerCase().contains("any"))) {
 				// Make sure the security level is acceptable
 				if (looking.GetSecurityLevel() <= SecLev) {
 					return scan;
 				}
 			}
 			scan++;
-		}		
+		}
 		return 0;
 	}
 
