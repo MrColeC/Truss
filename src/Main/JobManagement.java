@@ -143,6 +143,14 @@ public class JobManagement {
 	private int JobSearch(String OS, int SecLev) {
 		int size = jobqueue.size();
 		int scan = 0;
+		
+		//Simplify searches (remove anything extra that was passed
+		if (OS.toLowerCase().contains("windows")) {
+			OS = "windows";
+		} else if(OS.toLowerCase().contains("linux")) {
+			OS = "linux";
+		}	
+		
 		while (scan < size) {
 			Jobs looking = jobqueue.get(scan);
 			// Look for matching OS or jobs that can be ran under any OS
