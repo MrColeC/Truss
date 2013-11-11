@@ -117,13 +117,16 @@ public class ServerThread extends Thread {
 	 * Server thread Enables multi-client support
 	 */
 	public void run() {
+		// UID is just an iterator from the server side
+		// It has no bearing on anything besides the raw question
+		// "How many have connected to this single runtime?"
 		mylog.out("INFO", "Establishing session with client number [" + UID + "]");
 
 		// Load and save the cleints IP and port for future UUID creation
 		SocketAddress theirAddress = socket.getRemoteSocketAddress();
 		String ClientIP = theirAddress.toString();
 		ClientIP = ClientIP.replace("/", "");
-		
+
 		// Bind I/O to the socket
 		network.BringUp(socket);
 
