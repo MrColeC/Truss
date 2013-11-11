@@ -108,7 +108,9 @@ public class Networking {
 		SocketAddress myAddress = newClient.getLocalSocketAddress();
 		String ClientIP = theirAddress.toString();
 		ClientIP = ClientIP.replace("/", "");
-		mylog.out("INFO", "A client from [" + ClientIP + "] has connected to [" + myAddress.toString()
+		String MyIP = myAddress.toString();
+		MyIP = MyIP.replace("/", "");
+		mylog.out("INFO", "A client from [" + ClientIP + "] has connected to [" + MyIP
 				+ "] and has established a new session.");
 
 		return newClient;
