@@ -70,6 +70,7 @@ public class Main {
 			// the same machine as client
 			Pdip = "127.0.0.1";
 		}
+		//TODO Add fully automated versions of the client
 
 		// Activate log
 		Logging mylog = new Logging(Ploglevel);
@@ -118,6 +119,7 @@ public class Main {
 			server.start();
 			server.LaunchServer();
 		} else if (purpose == "dropoff") {
+			//TODO Actually implement job drop off
 			session.setAttribute("workRecieved", "0");
 			// Launch server (receiver)
 			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));

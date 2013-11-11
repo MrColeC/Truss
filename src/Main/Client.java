@@ -186,6 +186,7 @@ public class Client {
 				DHrekey();
 				Current = 0;
 			} else if (UserInput.contains("job")) {
+				//TODO Initial job requests are missign the meta data?
 				flagJob = true; // Flags the use of a slightly different display
 				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;
 			} else if (UserInput.contains("help")) {
