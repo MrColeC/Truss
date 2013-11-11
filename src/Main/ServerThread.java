@@ -159,6 +159,7 @@ public class ServerThread extends Thread {
 				// the following abstract conditions are met
 				if (fromClient.toLowerCase().contains("job")) {
 					String[] CHOP = fromClient.split(":");
+					mylog.out("WARN", "Debugging:[" + fromClient + "]");
 					jobRequest = true;
 					// Add the random number passed to us to the servers UID of
 					// this client session to create a reasonable UUID
