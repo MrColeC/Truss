@@ -108,13 +108,22 @@ public class JobManagement {
 	 * @param clientsName
 	 * @return
 	 */
-	public String Assign(String clientsName) {
+	public String Assign(String clientsName, String OS, int SecLev) {
 		// TODO Refactor this to support only returning jobs the client CAN (OS)
 		// and is ALLOWED (Security Level) to do
 		int size = jobqueue.size();
 		if (size > 0) {
-			Jobs jobUnit = jobqueue.get(0); // Pull the data at spot 0
-			jobqueue.remove(0); // Remove it from the queue
+			int fetch = 0;
+			if ((OS.equalsIgnoreCase("Windows")) || (OS.equalsIgnoreCase("Linux"))) {
+				fetch = JobSearch(OS,SecLev);
+				
+				// If fetch is still 0 than no jobs exist for that OS type
+				if (fetch == 0) {
+					return "";
+				}
+			}
+			Jobs jobUnit = jobqueue.get(fetch); // Pull the data at spot 0
+			jobqueue.remove(fetch); // Remove it from the queue
 			jobUnit.SetIssued(clientsName); // Add who it was issued to
 			jobUnit.SetTimeIssued(); // Update the time issued to now
 			jobsent.add(jobUnit); // Add that data into the issued list
@@ -123,6 +132,31 @@ public class JobManagement {
 		} else {
 			return "";
 		}
+	}
+
+	/**
+	 * This is passed the OS to search for and returns the index into the array
+	 * list of the first job that matches that OS or 0 if no jobs exist for that
+	 * OS
+	 * 
+	 * @param OS
+	 * @return
+	 */
+	private int JobSearch(String OS, int SecLev) {
+		int size = jobqueue.size();
+		int scan = 0;
+		while (scan < size) {
+			Jobs looking = jobqueue.get(scan);
+			// Look for matching OS or jobs that can be ran under any OS
+			if ((looking.GetOSspecific().equalsIgnoreCase(OS)) || (looking.GetOSspecific().equalsIgnoreCase("any"))) {
+				// Make sure the security level is acceptable
+				if (looking.GetSecurityLevel() <= SecLev) {
+					return scan;
+				}
+			}
+			scan++;
+		}		
+		return 0;
 	}
 
 	/**

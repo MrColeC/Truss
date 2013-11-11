@@ -104,10 +104,10 @@ public class ServerThread extends Thread {
 	 * @param clientID
 	 * @return
 	 */
-	public String AssignJob(String clientID) {
+	public String AssignJob(String clientID, String OS, int ClientSecurityLevel) {
 		String job = "";
 		synchronized (JobLock) {
-			job = JobQueue.Assign(clientID);
+			job = JobQueue.Assign(clientID, OS, ClientSecurityLevel);
 		}
 		return job;
 	}
@@ -150,7 +150,7 @@ public class ServerThread extends Thread {
 			boolean jobRequest = false;
 			String ClientName = String.valueOf(UID);
 			String ClientOS = "";
-			int ClientSecuriyLevel = 0;
+			int ClientSecurityLevel = 0;
 			if (fromClient == null) {
 				mylog.out("WARN", "Client disconnected abruptly");
 				break;
@@ -164,7 +164,7 @@ public class ServerThread extends Thread {
 					// this client session to create a reasonable UUID
 					ClientName = ClientName + CHOP[1];
 					ClientOS = CHOP[2];
-					ClientSecuriyLevel = Integer.parseInt(CHOP[3]);
+					ClientSecurityLevel = Integer.parseInt(CHOP[3]);
 				}
 			}
 
@@ -173,10 +173,10 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "Client disconnected gracefully");
 				break;
 			} else if (jobRequest) {
-				mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecuriyLevel
+				mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecurityLevel
 						+ "] reuested a job for [" + ClientOS + "]");
 				synchronized (JobLock) {
-					String work = JobQueue.Assign(ClientName);
+					String work = JobQueue.Assign(ClientName, ClientOS, ClientSecurityLevel);
 					returnData = crypt.encrypt(work);
 					network.Send(returnData);
 					mylog.out("INFO", "JobOut:[" + work + "]");
