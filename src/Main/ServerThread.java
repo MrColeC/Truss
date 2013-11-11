@@ -148,7 +148,7 @@ public class ServerThread extends Thread {
 			// Precalculate meta data from passed arguments (for job
 			// distribution)
 			boolean jobRequest = false;
-			String ClientName = "";
+			String ClientName = String.valueOf(UID);
 			String ClientOS = "";
 			int ClientSecuriyLevel = 0;
 			if (fromClient == null) {
@@ -160,7 +160,9 @@ public class ServerThread extends Thread {
 				if (fromClient.toLowerCase().contains("job")) {
 					String[] CHOP = fromClient.split(":");
 					jobRequest = true;
-					ClientName = CHOP[1];
+					// Add the random number passed to us to the servers UID of
+					// this client session to create a reasonable UUID
+					ClientName = ClientName + CHOP[1];
 					ClientOS = CHOP[2];
 					ClientSecuriyLevel = Integer.parseInt(CHOP[3]);
 				}
@@ -174,8 +176,7 @@ public class ServerThread extends Thread {
 				mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecuriyLevel
 						+ "] reuested a job for [" + ClientOS + "]");
 				synchronized (JobLock) {
-					// TODO Add WHO the job was sent to (not test cat)
-					String work = JobQueue.Assign("Test Cat");
+					String work = JobQueue.Assign(ClientName);
 					returnData = crypt.encrypt(work);
 					network.Send(returnData);
 					mylog.out("INFO", "JobOut:[" + work + "]");

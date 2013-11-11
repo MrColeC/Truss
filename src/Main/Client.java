@@ -66,6 +66,7 @@ public class Client {
 		// Load client identification data
 		String OS = (String) clientSession.getAttribute("OS");
 		String SecLev = (String) clientSession.getAttribute("SecurityLevel");
+		String ClientID = (String) clientSession.getAttribute("ID");
 
 		// Display the UI boilerplate
 		DisplayMenu();
@@ -186,8 +187,7 @@ public class Client {
 				Current = 0;
 			} else if (UserInput.compareToIgnoreCase("job") == 0) {
 				flagJob = true; // Flags the use of a slightly different display
-				UserInput = UserInput + ":" + "Bob" + ":" + OS + ":" + SecLev;
-				// TODO Pass a REAL client ID (my IP?)
+				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;				
 			} else if (UserInput.compareToIgnoreCase("help") == 0) {
 				noSend = true; // Do not send anything, the help request stays
 								// local
