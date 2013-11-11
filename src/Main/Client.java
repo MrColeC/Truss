@@ -61,14 +61,16 @@ public class Client {
 		Socket ServerSock = ServerNetwork.PassBackClient();
 		// Bind I/O to the socket
 		ServerNetwork.BringUp(ServerSock);
+		System.out.println("Connected to Server [" + SERVERpassedTarget + "] on port [" + SERVERpassedPort + "]");
 
 		// Connect to the drop off
 		// Start up client networking
-		DropOffNetwork = new Networking(mylog, SERVERpassedPort, SERVERpassedTarget);
+		DropOffNetwork = new Networking(mylog, DROPOFFpassedPort, DROPOFFpassedTarget);
 		// Bring the created socket into this scope
 		Socket DropOffSock = DropOffNetwork.PassBackClient();
 		// Bind I/O to the socket
 		DropOffNetwork.BringUp(DropOffSock);
+		System.out.println("Connected to Drop Off [" + DROPOFFpassedTarget + "] on port [" + DROPOFFpassedPort + "]");
 
 		// Prepare the interface
 		String UserInput = null;
@@ -80,8 +82,7 @@ public class Client {
 		String ClientID = (String) clientSession.getAttribute("ID");
 
 		// Display the UI boilerplate
-		DisplayMenu();
-		System.out.println("Connected to server [" + SERVERpassedTarget + "] on port [" + SERVERpassedPort + "]");
+		DisplayMenu();		
 
 		// Activate crypto
 		crypt = new Crypto(mylog, subject.GetPSK());
