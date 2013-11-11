@@ -159,13 +159,19 @@ public class ServerThread extends Thread {
 				// the following abstract conditions are met
 				if (fromClient.toLowerCase().contains("job")) {
 					String[] CHOP = fromClient.split(":");
-					mylog.out("WARN", "Debugging:[" + fromClient + "]");
 					jobRequest = true;
 					// Add the random number passed to us to the servers UID of
 					// this client session to create a reasonable UUID
-					ClientName = ClientName + CHOP[1];
-					ClientOS = CHOP[2];
-					ClientSecurityLevel = Integer.parseInt(CHOP[3]);
+					if (CHOP.length == 4) {
+						ClientName = ClientName + CHOP[1];
+						ClientOS = CHOP[2];
+						ClientSecurityLevel = Integer.parseInt(CHOP[3]);
+					} else {
+						// The client failed to send all of the meta data we
+						// need, so abort the job request
+						fromClient = "Job request failed. Missing meta data in request.";
+						jobRequest = false;
+					}
 				}
 			}
 
