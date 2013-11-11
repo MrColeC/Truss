@@ -106,7 +106,9 @@ public class Networking {
 		// Logging
 		SocketAddress theirAddress = newClient.getRemoteSocketAddress();
 		SocketAddress myAddress = newClient.getLocalSocketAddress();
-		mylog.out("INFO", "A client from [" + theirAddress.toString() + "] has connected to [" + myAddress.toString()
+		String ClientIP = theirAddress.toString();
+		ClientIP.replace("/", "");
+		mylog.out("INFO", "A client from [" + ClientIP + "] has connected to [" + myAddress.toString()
 				+ "] and has established a new session.");
 
 		return newClient;
