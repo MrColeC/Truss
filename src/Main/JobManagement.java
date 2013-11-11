@@ -112,15 +112,24 @@ public class JobManagement {
 		int size = jobqueue.size();
 		if (size > 0) {
 			int fetch = 0;
-			if ((OS.toLowerCase().contains("windows")) || (OS.toLowerCase().contains("Linux"))) {
+			if ((OS.toLowerCase().contains("windows")) || (OS.toLowerCase().contains("linux")) || (OS.toLowerCase().contains("mac"))) {
 				fetch = JobSearch(OS, SecLev);
 
-				// If fetch is still 0 than no jobs exist for that OS type
+				// If fetch is now -1 than no jobs exist for that OS type
 				if (fetch == -1) {
 					return "";
 				}
 			}
-			Jobs jobUnit = jobqueue.get(fetch); // Pull the data at spot 0
+			else {
+				fetch = JobSearch("any", SecLev);
+
+				// If fetch is now -1 than no jobs exist for generic clients
+				if (fetch == -1) {
+					return "";
+				}
+			}
+			// If we are here then we have a valid index to work from
+			Jobs jobUnit = jobqueue.get(fetch); // Pull the data at that index
 			jobqueue.remove(fetch); // Remove it from the queue
 			jobUnit.SetIssued(clientsName); // Add who it was issued to
 			jobUnit.SetTimeIssued(); // Update the time issued to now
@@ -148,6 +157,8 @@ public class JobManagement {
 		if (OS.toLowerCase().contains("windows")) {
 			OS = "windows";
 		} else if (OS.toLowerCase().contains("linux")) {
+			OS = "linux";
+		} else if (OS.toLowerCase().contains("mac")) {
 			OS = "linux";
 		}
 
