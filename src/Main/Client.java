@@ -17,7 +17,8 @@ import org.apache.shiro.session.Session;
  */
 public class Client {
 	private Logging mylog;
-	private Networking network;
+	private Networking ServerNetwork;
+	private Networking DropOffNetwork;
 	private Auth subject;
 	private Crypto crypt;
 	private Session clientSession;
@@ -51,13 +52,23 @@ public class Client {
 	 * @param passedPort
 	 * @param passedTarget
 	 */
-	public void StartClient(int passedPort, String passedTarget) {
+	public void StartClient(int SERVERpassedPort, String SERVERpassedTarget, int DROPOFFpassedPort,
+			String DROPOFFpassedTarget) {
+		// Connect to the server
 		// Start up client networking
-		network = new Networking(mylog, passedPort, passedTarget);
+		ServerNetwork = new Networking(mylog, SERVERpassedPort, SERVERpassedTarget);
 		// Bring the created socket into this scope
-		Socket MySock = network.PassBackClient();
+		Socket ServerSock = ServerNetwork.PassBackClient();
 		// Bind I/O to the socket
-		network.BringUp(MySock);
+		ServerNetwork.BringUp(ServerSock);
+
+		// Connect to the drop off
+		// Start up client networking
+		DropOffNetwork = new Networking(mylog, SERVERpassedPort, SERVERpassedTarget);
+		// Bring the created socket into this scope
+		Socket DropOffSock = DropOffNetwork.PassBackClient();
+		// Bind I/O to the socket
+		DropOffNetwork.BringUp(DropOffSock);
 
 		// Prepare the interface
 		String UserInput = null;
@@ -70,7 +81,7 @@ public class Client {
 
 		// Display the UI boilerplate
 		DisplayMenu();
-		System.out.println("Connected to server [" + passedTarget + "] on port [" + passedPort + "]");
+		System.out.println("Connected to server [" + SERVERpassedTarget + "] on port [" + SERVERpassedPort + "]");
 
 		// Activate crypto
 		crypt = new Crypto(mylog, subject.GetPSK());
@@ -78,25 +89,44 @@ public class Client {
 		// Test bi-directional encryption is working
 		String rawTest = "Testing!!!12345";
 		byte[] testdata = crypt.encrypt(rawTest); // Craft test
-		network.Send(testdata); // Send test
-		byte[] fetched = network.ReceiveByte(); // Receive return response
+		// Test the SERVER
+		ServerNetwork.Send(testdata); // Send test
+		byte[] fetched = ServerNetwork.ReceiveByte(); // Receive return response
 		String dec = crypt.decrypt(fetched); // Decrypt
 		if (dec.equals(rawTest + "<S>")) {
-			mylog.out("INFO", "Functional bi-directional encryption established.");
+			mylog.out("INFO", "Functional bi-directional encryption established. (Server)");
 		} else {
-			mylog.out("ERROR", "Failed to establish a functional encrypted channel!");
-			mylog.out("ERROR", "Expected [" + rawTest + "<S>" + "] but recieved [" + dec + "]");
-			network.BringDown();
+			mylog.out("ERROR", "Failed to establish a functional encrypted channel! (Server)");
+			mylog.out("ERROR", "Expected [" + rawTest + "<S>" + "] but recieved [" + dec + "] (Server)");
+			ServerNetwork.BringDown();
 			try {
-				MySock.close();
+				ServerSock.close();
 			} catch (IOException e) {
-				mylog.out("ERROR", "Failed to close client socket");
+				mylog.out("ERROR", "Failed to close client socket (Server)");
+			}
+			System.exit(0);
+		}
+		// Test the DROPOFF
+		DropOffNetwork.Send(testdata); // Send test
+		fetched = DropOffNetwork.ReceiveByte(); // Receive return response
+		dec = crypt.decrypt(fetched); // Decrypt
+		if (dec.equals(rawTest + "<S>")) {
+			mylog.out("INFO", "Functional bi-directional encryption established. (Drop Off)");
+		} else {
+			mylog.out("ERROR", "Failed to establish a functional encrypted channel! (Drop Off)");
+			mylog.out("ERROR", "Expected [" + rawTest + "<S>" + "] but recieved [" + dec + "] (Drop Off)");
+			DropOffNetwork.BringDown();
+			try {
+				ServerSock.close();
+			} catch (IOException e) {
+				mylog.out("ERROR", "Failed to close client socket (Drop Off)");
 			}
 			System.exit(0);
 		}
 
 		// Use DH to change encryption key
-		DHrekey();
+		DHrekey(ServerNetwork);
+		DHrekey(DropOffNetwork);
 
 		// First prompt
 		UserInput = readUI();
@@ -107,10 +137,11 @@ public class Client {
 		boolean serverUp = true;
 		boolean flagJob = false;
 		boolean noSend = false;
-		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0) && (MySock.isConnected())) {
+		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0) && (ServerSock.isConnected())
+				&& (DropOffSock.isConnected())) {
 			if (!noSend) {
-				network.Send(crypt.encrypt(UserInput));
-				fetched = network.ReceiveByte();
+				ServerNetwork.Send(crypt.encrypt(UserInput));
+				fetched = ServerNetwork.ReceiveByte();
 				ServerResponse = crypt.decrypt(fetched);
 				if (ServerResponse == null) {
 					mylog.out("WARN", "Server disconected");
@@ -168,6 +199,8 @@ public class Client {
 							e.printStackTrace();
 						}
 						System.out.println("ExitValue: " + exitVal);
+						// TODO send completed work info to the drop off server
+						// Tell the SERVER that the work is done
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -183,10 +216,11 @@ public class Client {
 			// Check input for special commands
 			if ((UserInput.contains("rekey")) && serverUp) {
 				UserInput = "Rekey executed.";
-				DHrekey();
+				DHrekey(ServerNetwork);
+				DHrekey(DropOffNetwork);
 				Current = 0;
 			} else if (UserInput.contains("job")) {
-				//TODO Initial job requests are missign the meta data?
+				// TODO Initial job requests are missing the meta data?
 				flagJob = true; // Flags the use of a slightly different display
 				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;
 			} else if (UserInput.contains("help")) {
@@ -197,7 +231,8 @@ public class Client {
 
 			// Check for forced rekey interval
 			if (Current == MaxBeforeREKEY) {
-				DHrekey();
+				DHrekey(ServerNetwork);
+				DHrekey(DropOffNetwork);
 				Current = 0;
 			} else {
 				Current++;
@@ -205,13 +240,16 @@ public class Client {
 		}
 
 		if ((UserInput.compareToIgnoreCase("quit") == 0) && serverUp) {
-			network.Send(crypt.encrypt("quit"));
+			ServerNetwork.Send(crypt.encrypt("quit"));
+			DropOffNetwork.Send(crypt.encrypt("quit"));
 		}
 
 		// Client has quit or server shutdown
-		network.BringDown();
+		ServerNetwork.BringDown();
+		DropOffNetwork.BringDown();
 		try {
-			MySock.close();
+			ServerSock.close();
+			DropOffSock.close();
 		} catch (IOException e) {
 			mylog.out("ERROR", "Failed to close client socket");
 		}
@@ -255,7 +293,7 @@ public class Client {
 	/**
 	 * Starts a DH rekey between the client and the server
 	 */
-	private void DHrekey() {
+	private void DHrekey(Networking network) {
 		// Prep
 		byte[] fetched = null;
 		String ServerResponse = null;
@@ -265,19 +303,19 @@ public class Client {
 
 		// Share data with the server
 		network.Send(crypt.encrypt("<REKEY>"));
-		RecieveACK(); // Wait for ACK
+		RecieveACK(network); // Wait for ACK
 		network.Send(crypt.encrypt("<PRIME>"));
-		RecieveACK(); // Wait for ACK
+		RecieveACK(network); // Wait for ACK
 		network.Send(crypt.encrypt(myDH.GetPrime(16)));
-		RecieveACK(); // Wait for ACK
+		RecieveACK(network); // Wait for ACK
 		network.Send(crypt.encrypt("<BASE>"));
-		RecieveACK(); // Wait for ACK
+		RecieveACK(network); // Wait for ACK
 		network.Send(crypt.encrypt(myDH.GetBase(16)));
-		RecieveACK(); // Wait for ACK
+		RecieveACK(network); // Wait for ACK
 
 		// Validate server agrees with what has been sent
 		fetched = network.ReceiveByte();
-		SendACK(); // Send ACK
+		SendACK(network); // Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<REKEY-STARTING>") != 0) {
 			mylog.out("ERROR", "Server has failed to acknowledge re-keying!");
@@ -288,13 +326,13 @@ public class Client {
 
 		// Send my public DH key to SERVER
 		network.Send(crypt.encrypt("<PUBLICKEY>"));
-		RecieveACK(); // Wait for ACK
+		RecieveACK(network); // Wait for ACK
 		network.Send(crypt.encrypt(myDH.GetPublicKeyBF()));
-		RecieveACK(); // Wait for ACK
+		RecieveACK(network); // Wait for ACK
 
 		// Validate server agrees with what has been sent
 		fetched = network.ReceiveByte();
-		SendACK(); // Send ACK
+		SendACK(network); // Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<PubKey-GOOD>") != 0) {
 			mylog.out("ERROR", "Server has failed to acknowledge client public key!");
@@ -303,16 +341,16 @@ public class Client {
 		// Receive server public DH key
 		byte[] serverPublicKey = null;
 		fetched = network.ReceiveByte();
-		SendACK(); // Send ACK(); //Send ACK
+		SendACK(network); // Send ACK(); //Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<PUBLICKEY>") != 0) {
 			mylog.out("ERROR", "Server has failed to send its public key!");
 		} else {
 			fetched = network.ReceiveByte();
-			SendACK(); // Send ACK(); //Send ACK
+			SendACK(network); // Send ACK(); //Send ACK
 			serverPublicKey = crypt.decryptByte(fetched);
 			network.Send(crypt.encrypt("<PubKey-GOOD>"));
-			RecieveACK(); // Wait for ACK
+			RecieveACK(network); // Wait for ACK
 		}
 
 		// Use server DH public key to generate shared secret
@@ -327,7 +365,7 @@ public class Client {
 	/**
 	 * Provides message synchronization
 	 */
-	private void SendACK() {
+	private void SendACK(Networking network) {
 		network.Send(crypt.encrypt("<ACK>"));
 		if (crypt.decrypt(network.ReceiveByteACK()).compareToIgnoreCase("<ACK>") != 0) {
 			mylog.out("ERROR", "Partner failed to ACK");
@@ -337,7 +375,7 @@ public class Client {
 	/**
 	 * Provides message synchronization
 	 */
-	private void RecieveACK() {
+	private void RecieveACK(Networking network) {
 		if (crypt.decrypt(network.ReceiveByteACK()).compareToIgnoreCase("<ACK>") != 0) {
 			mylog.out("ERROR", "Partner failed to ACK");
 		}
