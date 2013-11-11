@@ -116,7 +116,7 @@ public class JobManagement {
 				fetch = JobSearch(OS, SecLev);
 
 				// If fetch is still 0 than no jobs exist for that OS type
-				if (fetch == 0) {
+				if (fetch == -1) {
 					return "";
 				}
 			}
@@ -143,31 +143,27 @@ public class JobManagement {
 	private int JobSearch(String OS, int SecLev) {
 		int size = jobqueue.size();
 		int scan = 0;
-		
-		//Simplify searches (remove anything extra that was passed
+
+		// Simplify searches (remove anything extra that was passed
 		if (OS.toLowerCase().contains("windows")) {
 			OS = "windows";
-		} else if(OS.toLowerCase().contains("linux")) {
+		} else if (OS.toLowerCase().contains("linux")) {
 			OS = "linux";
-		}	
-		
+		}
+
 		while (scan < size) {
 			Jobs looking = jobqueue.get(scan);
 			// Look for matching OS or jobs that can be ran under any OS
 			if ((looking.GetOSspecific().toLowerCase().contains(OS.toLowerCase()))
 					|| (looking.GetOSspecific().toLowerCase().contains("any"))) {
-				System.out.println("Found an OS match [" + looking.GetOSspecific().toLowerCase() + "]");
 				// Make sure the security level is acceptable
 				if (looking.GetSecurityLevel() <= SecLev) {
-					System.out.println("Found a SecLev match [" + looking.GetSecurityLevel() + "]");
 					return scan;
 				}
-				System.out.println("SecLev was no good [" + looking.GetSecurityLevel() + "]");
 			}
-			System.out.println("Still looking for an OS match [" + looking.GetOSspecific().toLowerCase() + "]");
 			scan++;
-		}		
-		return 0;
+		}
+		return -1;
 	}
 
 	/**
