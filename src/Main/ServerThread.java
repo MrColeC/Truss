@@ -2,6 +2,7 @@ package Main;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 /**
  * Provides threads for the server so multiple clients can be handled by a
@@ -25,13 +26,13 @@ public class ServerThread extends Thread {
 	 */
 	public ServerThread(Auth passedSubject, Logging passedLog, Socket passedSocket, int passedUID, Object passedLock,
 			JobManagement passedJobQueue) {
+		subject = passedSubject;
 		mylog = passedLog;
 		socket = passedSocket;
-		network = new Networking(mylog);
-		subject = passedSubject;
 		UID = passedUID;
 		JobLock = passedLock;
 		JobQueue = passedJobQueue;
+		network = new Networking(mylog);
 	}
 
 	/**
@@ -118,6 +119,11 @@ public class ServerThread extends Thread {
 	public void run() {
 		mylog.out("INFO", "Establishing session with client number [" + UID + "]");
 
+		// Load and save the cleints IP and port for future UUID creation
+		SocketAddress theirAddress = socket.getRemoteSocketAddress();
+		String ClientIP = theirAddress.toString();
+		ClientIP.replace("/", "");
+		
 		// Bind I/O to the socket
 		network.BringUp(socket);
 
@@ -148,7 +154,7 @@ public class ServerThread extends Thread {
 			// Precalculate meta data from passed arguments (for job
 			// distribution)
 			boolean jobRequest = false;
-			String ClientName = String.valueOf(UID);
+			String ClientName = ClientIP;
 			String ClientOS = "";
 			int ClientSecurityLevel = 0;
 			if (fromClient == null) {
