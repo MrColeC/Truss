@@ -87,6 +87,8 @@ public class Client {
 		DisplayMenu();
 
 		// Activate crypto
+		// TODO - Change encryption (Using 128 bit key with AES in CBC mode) to
+		// say WHO it is encryption communication with
 		cryptSVR = new Crypto(mylog, subject.GetPSK());
 		cryptDO = new Crypto(mylog, subject.GetPSK());
 
@@ -130,6 +132,7 @@ public class Client {
 		}
 
 		// Use DH to change encryption key
+		// TODO - Change "Encryption Rekeyed" to say WHO it was rekeyed with
 		DHrekey(ServerNetwork, cryptSVR);
 		DHrekey(DropOffNetwork, cryptDO);
 
@@ -185,13 +188,13 @@ public class Client {
 						 * 
 						 * @author Michael C. Daconta
 						 */
-						
+
 						// Setup and Connect
 						ArrayList<String> ErrorData = new ArrayList<String>();
 						ArrayList<String> OutputData = new ArrayList<String>();
 						Runtime rt = Runtime.getRuntime();
 						Process proc = rt.exec(ServerResponse);
-												
+
 						// Capture all STDERR
 						StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 						errorGobbler.start();
@@ -209,16 +212,16 @@ public class Client {
 						}
 						if (CheckExit != 0) {
 							System.out.println("ExitValue: " + CheckExit);
-						} else
-						{
+						} else {
 							ErrorData = errorGobbler.ReturnData();
 							OutputData = outputGobbler.ReturnData();
-							
+
 							// Send the results to the Drop Off point
-							// TODO send completed work info to the drop off server
+							// TODO send completed work info to the drop off
+							// server
 							for (String line : ErrorData) {
 								System.out.println("Error:" + line);
-							}   
+							}
 							for (String line : OutputData) {
 								System.out.println("Output:" + line);
 							}
@@ -437,19 +440,19 @@ class StreamGobbler extends Thread {
 		Collect = new ArrayList<String>();
 	}
 
-	public void run() {		
+	public void run() {
 		try {
 			InputStreamReader isr = new InputStreamReader(is);
 			BufferedReader br = new BufferedReader(isr);
 			String line = null;
 			while ((line = br.readLine()) != null) {
-				Collect.add(line);	
+				Collect.add(line);
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 	}
-	
+
 	public ArrayList<String> ReturnData() {
 		return Collect;
 	}
