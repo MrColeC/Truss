@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import org.apache.shiro.session.Session;
 
@@ -83,7 +84,7 @@ public class Client {
 		String ClientID = (String) clientSession.getAttribute("ID");
 
 		// Display the UI boilerplate
-		DisplayMenu();		
+		DisplayMenu();
 
 		// Activate crypto
 		cryptSVR = new Crypto(mylog, subject.GetPSK());
@@ -143,7 +144,12 @@ public class Client {
 		boolean noSend = false;
 		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0) && (ServerSock.isConnected())
 				&& (DropOffSock.isConnected())) {
-			if (!noSend) {
+			if (noSend) {
+				// We do not send anything to the server this time, but we will
+				// reset the boolean flag so we will next time
+				noSend = false;
+			} else {
+				// Communicate with the server
 				ServerNetwork.Send(cryptSVR.encrypt(UserInput));
 				fetched = ServerNetwork.ReceiveByte();
 				ServerResponse = cryptSVR.decrypt(fetched);
@@ -152,10 +158,6 @@ public class Client {
 					serverUp = false;
 					break;
 				}
-			} else {
-				// We did not send anything to the server this time, but we will
-				// reset the boolean flag so we will next time
-				noSend = false;
 			}
 
 			// If this is the client receiving a job from the server
@@ -183,32 +185,59 @@ public class Client {
 						 * 
 						 * @author Michael C. Daconta
 						 */
+						
+						// Setup and Connect
+						ArrayList<String> ErrorData = new ArrayList<String>();
+						ArrayList<String> OutputData = new ArrayList<String>();
 						Runtime rt = Runtime.getRuntime();
 						Process proc = rt.exec(ServerResponse);
-						// any error message?
+												
+						// Capture all STDERR
 						StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
-
-						// any output?
-						StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-						// kick them off
 						errorGobbler.start();
+
+						// Capture all STDOUT
+						StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
 						outputGobbler.start();
 
-						// any error???
-						int exitVal = 0;
+						// Wait for the work to complete
+						int CheckExit = 0;
 						try {
-							exitVal = proc.waitFor();
+							CheckExit = proc.waitFor();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						System.out.println("ExitValue: " + exitVal);
-						// TODO send completed work info to the drop off server
-						// Tell the SERVER that the work is done
+						if (CheckExit != 0) {
+							System.out.println("ExitValue: " + CheckExit);
+						} else
+						{
+							ErrorData = errorGobbler.ReturnData();
+							OutputData = outputGobbler.ReturnData();
+							
+							// Send the results to the Drop Off point
+							// TODO send completed work info to the drop off server
+							for (String line : ErrorData) {
+								System.out.println("Error:" + line);
+							}   
+							for (String line : OutputData) {
+								System.out.println("Output:" + line);
+							}
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					System.out.println("JobOut:[" + ServerResponse + "]");
+
+					// Inform the Server that the work has been completed
+					// TODO Tell the SERVER that the work is done
+					ServerNetwork.Send(cryptSVR.encrypt("Work Complete"));
+					fetched = ServerNetwork.ReceiveByte();
+					ServerResponse = cryptSVR.decrypt(fetched);
+					if (ServerResponse == null) {
+						mylog.out("WARN", "Server disconected");
+						serverUp = false;
+						break;
+					}
+					System.out.println(ServerResponse);
 				} else {
 					System.out.println("Job:[No jobs available]");
 				}
@@ -388,7 +417,7 @@ public class Client {
 }
 
 /**
- * This code is from the following URL
+ * This code is a variation of the code from the following URL
  * http://www.javaworld.com/jw-12-2000/jw-1229-traps.html?page=4
  * 
  * It is useful in catching all of the output of an executed sub-process and has
@@ -400,21 +429,28 @@ public class Client {
 class StreamGobbler extends Thread {
 	InputStream is;
 	String type;
+	ArrayList<String> Collect;
 
 	StreamGobbler(InputStream is, String type) {
 		this.is = is;
 		this.type = type;
+		Collect = new ArrayList<String>();
 	}
 
-	public void run() {
+	public void run() {		
 		try {
 			InputStreamReader isr = new InputStreamReader(is);
 			BufferedReader br = new BufferedReader(isr);
 			String line = null;
-			while ((line = br.readLine()) != null)
-				System.out.println(type + ">" + line);
+			while ((line = br.readLine()) != null) {
+				Collect.add(line);	
+			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+	}
+	
+	public ArrayList<String> ReturnData() {
+		return Collect;
 	}
 }
