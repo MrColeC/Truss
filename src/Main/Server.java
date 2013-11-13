@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import org.apache.shiro.session.Session;
+
 /**
  * Provides support for originating work and handing it out as well as receiving
  * completed work
@@ -19,15 +21,17 @@ public class Server extends Thread {
 	private int PortUsed;
 	private Object JobLock;
 	private JobManagement MasterJobQueue;
+	private Session ServerSession;
 
 	/**
 	 * CONSTRCUTOR
 	 */
-	public Server(Logging passedLog, Auth passedSubject, int PortNumber) {
+	public Server(Logging passedLog, Auth passedSubject, int PortNumber, Session session) {
 		mylog = passedLog;
 		PortUsed = PortNumber;
 		network = new Networking(mylog, PortNumber);
 		subject = passedSubject;
+		ServerSession = session;
 		// Setup master thread communication
 		JobLock = new Object();
 		MasterJobQueue = new JobManagement();
@@ -160,12 +164,19 @@ public class Server extends Thread {
 		// Seed client numeric labeling
 		int UIDcounter = 0;
 
+		// Determine mode to use (Server or Drop Off)
+		String purpose = (String) ServerSession.getAttribute("USE");
+		boolean ServerMode = true;
+		if (purpose == "dropoff") {
+			ServerMode = false;
+		}
+
 		// Listen for new connections indefinitely
 		while (1 > 0) {
 			// Block until a new connection is made
 			Socket socket = network.ListenForNewConnection();
 			UIDcounter++;
-			new ServerThread(subject, mylog, socket, UIDcounter, JobLock, MasterJobQueue).start();
+			new ServerThread(subject, mylog, socket, UIDcounter, JobLock, MasterJobQueue, ServerMode).start();
 		}
 	}
 
