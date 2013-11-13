@@ -19,7 +19,9 @@ import java.util.Scanner;
 public class JobManagement {
 	private ArrayList<Jobs> jobqueue;
 	private ArrayList<Jobs> jobsent;
+	private ArrayList<Jobs> jobcomplete;
 	private Charset ENCODING = StandardCharsets.UTF_8;
+	private int IDcounter;
 
 	/**
 	 * Default construcutor.
@@ -27,6 +29,8 @@ public class JobManagement {
 	public JobManagement() {
 		jobqueue = new ArrayList<Jobs>();
 		jobsent = new ArrayList<Jobs>();
+		jobcomplete = new ArrayList<Jobs>();
+		IDcounter = 1;
 	}
 
 	/**
@@ -72,6 +76,36 @@ public class JobManagement {
 	}
 
 	/**
+	 * Sets up to receive the completed work
+	 */
+	public int SetupResultStorage(String JobComplete) {
+		Jobs jobUnit = new Jobs(JobComplete);
+		jobcomplete.add(jobUnit);
+		jobUnit.SetJobID(IDcounter);
+		int toReturn = IDcounter;
+		IDcounter++;
+		return toReturn;
+	}
+
+	/**
+	 * Saves a line of either ERROR or OUTPUT to a specific job ID
+	 */
+	public void StoreResutls(int JobID, String ToStore, String Type) {
+		// Look for, and load, the job that has that JobID
+		int fetch = JobSearch(JobID, jobcomplete);
+		Jobs jobUnit = jobcomplete.get(fetch);
+
+		// If we can find that job...
+		if (fetch >= 0) {
+			if (Type.equalsIgnoreCase("ERROR")) {
+				jobUnit.AddToErrorList(ToStore);
+			} else if (Type.equalsIgnoreCase("OUTPUT")) {
+				jobUnit.AddToOutputList(ToStore);
+			}
+		}
+	}
+
+	/**
 	 * Populates the job queue with 10 sample jobs for windows based systems
 	 */
 	public void SampleWindows() {
@@ -112,16 +146,16 @@ public class JobManagement {
 		int size = jobqueue.size();
 		if (size > 0) {
 			int fetch = 0;
-			if ((OS.toLowerCase().contains("windows")) || (OS.toLowerCase().contains("linux")) || (OS.toLowerCase().contains("mac"))) {
-				fetch = JobSearch(OS, SecLev);
+			if ((OS.toLowerCase().contains("windows")) || (OS.toLowerCase().contains("linux"))
+					|| (OS.toLowerCase().contains("mac"))) {
+				fetch = JobSearch(OS, SecLev, jobqueue);
 
 				// If fetch is now -1 than no jobs exist for that OS type
 				if (fetch == -1) {
 					return "";
 				}
-			}
-			else {
-				fetch = JobSearch("any", SecLev);
+			} else {
+				fetch = JobSearch("any", SecLev, jobqueue);
 
 				// If fetch is now -1 than no jobs exist for generic clients
 				if (fetch == -1) {
@@ -149,8 +183,8 @@ public class JobManagement {
 	 * @param OS
 	 * @return
 	 */
-	private int JobSearch(String OS, int SecLev) {
-		int size = jobqueue.size();
+	private int JobSearch(String OS, int SecLev, ArrayList<Jobs> SearchThrough) {
+		int size = SearchThrough.size();
 		int scan = 0;
 
 		// Simplify searches (remove anything extra that was passed
@@ -163,7 +197,7 @@ public class JobManagement {
 		}
 
 		while (scan < size) {
-			Jobs looking = jobqueue.get(scan);
+			Jobs looking = SearchThrough.get(scan);
 			// Look for matching OS or jobs that can be ran under any OS
 			if ((looking.GetOSspecific().toLowerCase().contains(OS.toLowerCase()))
 					|| (looking.GetOSspecific().toLowerCase().contains("any"))) {
@@ -171,6 +205,32 @@ public class JobManagement {
 				if (looking.GetSecurityLevel() <= SecLev) {
 					return scan;
 				}
+			}
+			scan++;
+		}
+		return -1;
+	}
+
+	/**
+	 * This is passed the JobID to search for and returns the index into the
+	 * array
+	 * 
+	 * @param JobID
+	 * @return
+	 */
+	private int JobSearch(int JobID, ArrayList<Jobs> SearchThrough) {
+		int size = SearchThrough.size();
+		int scan = 0;
+
+		if (JobID < 0) {
+			return -1;
+		}
+
+		while (scan < size) {
+			Jobs looking = SearchThrough.get(scan);
+			// Look for matching OS or jobs that can be ran under any OS
+			if (looking.GetJobIT() == JobID) {
+				return scan;
 			}
 			scan++;
 		}
