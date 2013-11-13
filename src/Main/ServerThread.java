@@ -20,18 +20,20 @@ public class ServerThread extends Thread {
 	private Crypto crypt;
 	private Object JobLock;
 	private JobManagement JobQueue;
+	private boolean ServerMode;
 
 	/**
 	 * CONSTRUCTOR for Server Worker Thread
 	 */
 	public ServerThread(Auth passedSubject, Logging passedLog, Socket passedSocket, int passedUID, Object passedLock,
-			JobManagement passedJobQueue) {
+			JobManagement passedJobQueue, boolean PassedMode) {
 		subject = passedSubject;
 		mylog = passedLog;
 		socket = passedSocket;
 		UID = passedUID;
 		JobLock = passedLock;
 		JobQueue = passedJobQueue;
+		ServerMode = PassedMode;
 		network = new Networking(mylog);
 	}
 
@@ -155,8 +157,8 @@ public class ServerThread extends Thread {
 			// Decrypt sent data
 			fromClient = crypt.decrypt(fetched);
 
-			// Precalculate meta data from passed arguments (for job
-			// distribution)
+			// Pre-calculate meta data from passed arguments
+			// (for job distribution)
 			boolean jobRequest = false;
 			String ClientName = ClientIP;
 			String ClientOS = "";
@@ -164,9 +166,11 @@ public class ServerThread extends Thread {
 			if (fromClient == null) {
 				mylog.out("WARN", "Client disconnected abruptly");
 				break;
-			} else {
-				// Only if the client did not abruptly disconnect, and only if
-				// the following abstract conditions are met
+			}
+
+			// If this is a SERVER
+			if (ServerMode) {
+				// Preliminary scanning and data input manipulation
 				if (fromClient.toLowerCase().contains("job")) {
 					String[] CHOP = fromClient.split(":");
 					jobRequest = true;
@@ -183,28 +187,34 @@ public class ServerThread extends Thread {
 						jobRequest = false;
 					}
 				}
+
+				// Phase 2 reaction to input
+				if (jobRequest) {
+					mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecurityLevel
+							+ "] reuested a job for [" + ClientOS + "]");
+					synchronized (JobLock) {
+						String work = JobQueue.Assign(ClientName, ClientOS, ClientSecurityLevel);
+						returnData = crypt.encrypt(work);
+						network.Send(returnData);
+						if (work.length() > 0) {
+							mylog.out("INFO", "JobOut:[" + work + "]");
+							mylog.out("INFO", "[" + JobQueue.UnassignedCount()
+									+ "] unassigned jobs are left in the queue");
+							mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
+						} else {
+							mylog.out("WARN", "There are no jobs for [" + ClientOS + "] with Security Level ["
+									+ ClientSecurityLevel + "]");
+						}
+					}
+				}
+			} else {
+				// If this is a Drop Off point
 			}
 
-			// Case sensitive actions based upon data received
+			// Common actions below (Server AND Drop Off point)
 			if (fromClient.compareToIgnoreCase("quit") == 0) {
 				mylog.out("INFO", "Client disconnected gracefully");
 				break;
-			} else if (jobRequest) {
-				mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecurityLevel
-						+ "] reuested a job for [" + ClientOS + "]");
-				synchronized (JobLock) {
-					String work = JobQueue.Assign(ClientName, ClientOS, ClientSecurityLevel);
-					returnData = crypt.encrypt(work);
-					network.Send(returnData);
-					if (work.length() > 0) {
-						mylog.out("INFO", "JobOut:[" + work + "]");
-						mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are left in the queue");
-						mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
-					} else {
-						mylog.out("WARN", "There are no jobs for [" + ClientOS + "] with Security Level ["
-								+ ClientSecurityLevel + "]");
-					}
-				}
 			} else if (fromClient.compareToIgnoreCase("<REKEY>") == 0) {
 				SendACK(); // Send ACK
 				String prime = null;
@@ -275,14 +285,14 @@ public class ServerThread extends Thread {
 				crypt.ReKey(myDH.GetSharedSecret(10));
 
 			} else {
-				mylog.out("INFO", "Received from client [" + fromClient + "]");
-				craftReturn = "<S>" + fromClient;
+				mylog.out("INFO", "Not a supported request [" + fromClient + "]");
+				craftReturn = "Not a supported request [" + fromClient + "]";
 				returnData = crypt.encrypt(craftReturn);
 				network.Send(returnData);
 			}
 			try {
-				Thread.sleep(1000); // Have the thread sleep for 1 second to
-									// lower CPU load on the server
+				// Have the thread sleep for 1 second to lower CPU load
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				mylog.out("ERROR", "Failed to have the thread sleep.");
 				e.printStackTrace();
