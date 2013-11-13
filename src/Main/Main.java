@@ -115,15 +115,19 @@ public class Main {
 		if (purpose == "server") {
 			session.setAttribute("workGiven", "0");
 			// Launch server (sender)
-			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));
+			Server server = new Server(mylog, subject, Integer.parseInt(Pbind), session);
+			// Fork to handle clients
 			server.start();
+			// Launch UI
 			server.LaunchServer();
 		} else if (purpose == "dropoff") {
 			//TODO Actually implement job drop off
 			session.setAttribute("workRecieved", "0");
 			// Launch server (receiver)
-			Server server = new Server(mylog, subject, Integer.parseInt(Pbind));
+			Server server = new Server(mylog, subject, Integer.parseInt(Pbind), session);
+			// Fork to handle clients
 			server.start();
+			// Launch UI
 			server.LaunchDropOff();
 		} else if (purpose == "private") {
 			session.setAttribute("totalJobs", "0");
