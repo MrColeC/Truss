@@ -1,5 +1,7 @@
 package Main;
 
+import java.util.ArrayList;
+
 /**
  * 
  * @author Cole Christie
@@ -14,6 +16,8 @@ public class Jobs {
 	private long timeIssued;
 	private int SecurityLevel;
 	private String OSspecific;
+	private ArrayList<String> ReturnedErrors;
+	private ArrayList<String> ReturnedOutput;
 
 	/**
 	 * Default constructor - Initializes values to empty set
@@ -24,6 +28,8 @@ public class Jobs {
 		timeIssued = 0;
 		SecurityLevel = 0;
 		OSspecific = "any";
+		ReturnedErrors = new ArrayList<String>();
+		ReturnedOutput = new ArrayList<String>();
 	}
 
 	/**
@@ -37,6 +43,8 @@ public class Jobs {
 		timeIssued = 0;
 		SecurityLevel = 0;
 		OSspecific = "any";
+		ReturnedErrors = new ArrayList<String>();
+		ReturnedOutput = new ArrayList<String>();
 	}
 	
 	/**
@@ -50,6 +58,8 @@ public class Jobs {
 		timeIssued = 0;
 		SecurityLevel = 0;
 		OSspecific = PassedOSspecific;
+		ReturnedErrors = new ArrayList<String>();
+		ReturnedOutput = new ArrayList<String>();
 	}
 	
 	/**
@@ -64,6 +74,44 @@ public class Jobs {
 		timeIssued = 0;
 		SecurityLevel = PassedSecurityLevel;
 		OSspecific = PassedOSspecific;
+		ReturnedErrors = new ArrayList<String>();
+		ReturnedOutput = new ArrayList<String>();
+	}
+
+	/**
+	 * Returns the output (results) cached with the job results
+	 * 
+	 * @return
+	 */
+	public ArrayList<String> GetOutputList() {
+		return ReturnedOutput;
+	}
+
+	/**
+	 * Inserts another string into the output storage cache
+	 * 
+	 * @param SingleString
+	 */
+	public void AddToOutputList(String OutputString) {
+		ReturnedOutput.add(OutputString);
+	}
+	
+	/**
+	 * Returns the errors cached with the job results
+	 * 
+	 * @return
+	 */
+	public ArrayList<String> GetErrorList() {
+		return ReturnedErrors;
+	}
+
+	/**
+	 * Inserts another string into the error storage cache
+	 * 
+	 * @param SingleString
+	 */
+	public void AddToErrorList(String ErrorString) {
+		ReturnedErrors.add(ErrorString);
 	}
 	
 	/**
