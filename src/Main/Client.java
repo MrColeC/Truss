@@ -56,6 +56,10 @@ public class Client {
 	 */
 	public void StartClient(int SERVERpassedPort, String SERVERpassedTarget, int DROPOFFpassedPort,
 			String DROPOFFpassedTarget) {
+		// TODO Setup a parameter to put the client into an endless loop of job
+		// requests. In that loop, when jobs are missing sleep - after a certain
+		// number of cycles quit
+
 		// Connect to the server
 		// Start up client networking
 		ServerNetwork = new Networking(mylog, SERVERpassedPort, SERVERpassedTarget);
@@ -132,7 +136,7 @@ public class Client {
 		// Use DH to change encryption key
 		DHrekey(ServerNetwork, cryptSVR, "Server");
 		DHrekey(DropOffNetwork, cryptDO, "Drop Off");
-		
+
 		// Begin UI loop
 		int MaxBeforeREKEY = 100;
 		int Current = 0;
@@ -211,8 +215,7 @@ public class Client {
 							OutputData = outputGobbler.ReturnData();
 
 							// Send the results to the Drop Off point
-							// TODO send completed work info to the drop off
-							// server
+							// TODO send completed work to drop off point
 							for (String line : ErrorData) {
 								System.out.println("Error:" + line);
 							}
@@ -250,7 +253,6 @@ public class Client {
 				DHrekey(DropOffNetwork, cryptDO, "Drop Off");
 				Current = 0;
 			} else if (UserInput.contains("job")) {
-				// TODO Initial job requests are missing the meta data?
 				flagJob = true; // Flags the use of a slightly different display
 				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;
 			} else if (UserInput.contains("help")) {
