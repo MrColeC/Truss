@@ -6,8 +6,8 @@ import java.util.ArrayList;
  * 
  * @author Cole Christie
  * 
- *         The Jobs class is a simple storage structure that holds data relevant to simple job
- *         queue management
+ *         The Jobs class is a simple storage structure that holds data relevant
+ *         to simple job queue management
  * 
  */
 public class Jobs {
@@ -18,6 +18,7 @@ public class Jobs {
 	private String OSspecific;
 	private ArrayList<String> ReturnedErrors;
 	private ArrayList<String> ReturnedOutput;
+	private int JobID;
 
 	/**
 	 * Default constructor - Initializes values to empty set
@@ -30,6 +31,7 @@ public class Jobs {
 		OSspecific = "any";
 		ReturnedErrors = new ArrayList<String>();
 		ReturnedOutput = new ArrayList<String>();
+		JobID = 0;
 	}
 
 	/**
@@ -45,10 +47,11 @@ public class Jobs {
 		OSspecific = "any";
 		ReturnedErrors = new ArrayList<String>();
 		ReturnedOutput = new ArrayList<String>();
+		JobID = 0;
 	}
-	
+
 	/**
-	 * Constructor that sets: work field, OS required field 
+	 * Constructor that sets: work field, OS required field
 	 * 
 	 * @param PassedWork
 	 */
@@ -60,10 +63,12 @@ public class Jobs {
 		OSspecific = PassedOSspecific;
 		ReturnedErrors = new ArrayList<String>();
 		ReturnedOutput = new ArrayList<String>();
+		JobID = 0;
 	}
-	
+
 	/**
-	 * Constructor that sets: work field, OS required field, required security level
+	 * Constructor that sets: work field, OS required field, required security
+	 * level
 	 * 
 	 * @param PassedWork
 	 * @param PassedIssuedTo
@@ -76,8 +81,27 @@ public class Jobs {
 		OSspecific = PassedOSspecific;
 		ReturnedErrors = new ArrayList<String>();
 		ReturnedOutput = new ArrayList<String>();
+		JobID = 0;
 	}
 
+	/**
+	 * Returns the job ID
+	 * 
+	 * @return
+	 */
+	public int GetJobIT() {
+		return JobID;
+	}
+
+	/**
+	 * Sets the job ID
+	 * 
+	 * @param DesiredJobID
+	 */
+	public void SetJobID(int DesiredJobID) {
+		JobID = DesiredJobID;
+	}	
+	
 	/**
 	 * Returns the output (results) cached with the job results
 	 * 
@@ -95,7 +119,7 @@ public class Jobs {
 	public void AddToOutputList(String OutputString) {
 		ReturnedOutput.add(OutputString);
 	}
-	
+
 	/**
 	 * Returns the errors cached with the job results
 	 * 
@@ -113,7 +137,7 @@ public class Jobs {
 	public void AddToErrorList(String ErrorString) {
 		ReturnedErrors.add(ErrorString);
 	}
-	
+
 	/**
 	 * Returns the security level
 	 * 
@@ -131,7 +155,7 @@ public class Jobs {
 	public void SetSecurityLevel(int PassedSecurityLevel) {
 		SecurityLevel = PassedSecurityLevel;
 	}
-	
+
 	/**
 	 * Returns the OS required to run the job (if any)
 	 * 
