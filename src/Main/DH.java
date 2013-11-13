@@ -11,6 +11,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
 
@@ -200,11 +201,11 @@ public class DH {
 	/**
 	 * Performs phase 2 of a Diffie Hellmankeying agreement
 	 */
-	public void DHPhase2(PublicKey partnersKey) {
+	public void DHPhase2(PublicKey partnersKey, String ReKeyedWith) {
 		try {
 			keyAgree.doPhase(partnersKey, true);
 		} catch (InvalidKeyException | IllegalStateException e) {
-			mylog.out("ERROR", "Unable to complete keying agreement.");
+			mylog.out("ERROR", "Unable to complete keying agreement with " + ReKeyedWith);
 		}
 
 		// Generate shared Secret

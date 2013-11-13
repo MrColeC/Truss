@@ -4,8 +4,10 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.SecretKeyFactory;
+
 import org.apache.shiro.codec.CodecSupport;
 import org.apache.shiro.crypto.AesCipherService;
 import org.apache.shiro.crypto.CryptoException;
@@ -62,7 +64,7 @@ public class Crypto {
 	 * 
 	 * @param newPassword
 	 */
-	public void ReKey(String newPassword) {
+	public void ReKey(String newPassword, String ReKeyedWith) {
 		byte[] salt = CodecSupport.toBytes(newPassword + "ExtraSalty");
 		SecretKeyFactory factory = null;
 		try {
@@ -78,7 +80,7 @@ public class Crypto {
 			mylog.out("ERROR", "Failed to generate secret key");
 		}
 		KeyBytes = key.getEncoded();
-		mylog.out("INFO", "Encryption rekeyed");
+		mylog.out("INFO", "Encryption rekeyed with " + ReKeyedWith);
 	}
 
 	/**
@@ -170,8 +172,8 @@ public class Crypto {
 		DH sideB = new DH(mylog, sideA.GetPrime(16), 16, sideA.GetBase(16), 16);
 		sideA.DHPhase1();
 		sideB.DHPhase1();
-		sideA.DHPhase2(sideB.GetPublicKey());
-		sideB.DHPhase2(sideA.GetPublicKey());
+		sideA.DHPhase2(sideB.GetPublicKey(), "Test");
+		sideB.DHPhase2(sideA.GetPublicKey(), "Test");
 
 		// Final verification
 		System.out.println("Shared Secret (Hex): " + sideA.GetSharedSecret(16));
