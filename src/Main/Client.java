@@ -87,8 +87,8 @@ public class Client {
 		DisplayMenu();
 
 		// Activate crypto
-		cryptSVR = new Crypto(mylog, subject.GetPSK(),"Server");
-		cryptDO = new Crypto(mylog, subject.GetPSK(),"Drop Off Point");
+		cryptSVR = new Crypto(mylog, subject.GetPSK(), "Server");
+		cryptDO = new Crypto(mylog, subject.GetPSK(), "Drop Off Point");
 
 		// Test bi-directional encryption is working
 		String rawTest = "Testing!!!12345";
@@ -130,20 +130,16 @@ public class Client {
 		}
 
 		// Use DH to change encryption key
-		// TODO - Change "Encryption Rekeyed" to say WHO it was rekeyed with
-		DHrekey(ServerNetwork, cryptSVR);
-		DHrekey(DropOffNetwork, cryptDO);
-
-		// First prompt
-		UserInput = readUI();
-
+		DHrekey(ServerNetwork, cryptSVR, "Server");
+		DHrekey(DropOffNetwork, cryptDO, "Drop Off");
+		
 		// Begin UI loop
 		int MaxBeforeREKEY = 100;
 		int Current = 0;
 		boolean serverUp = true;
 		boolean flagJob = false;
 		boolean noSend = false;
-		while ((UserInput != null) && (UserInput.compareToIgnoreCase("quit") != 0) && (ServerSock.isConnected())
+		while ((UserInput.compareToIgnoreCase("quit") != 0) && (ServerSock.isConnected())
 				&& (DropOffSock.isConnected())) {
 			if (noSend) {
 				// We do not send anything to the server this time, but we will
@@ -250,23 +246,23 @@ public class Client {
 			// Check input for special commands
 			if ((UserInput.contains("rekey")) && serverUp) {
 				UserInput = "Rekey executed.";
-				DHrekey(ServerNetwork, cryptSVR);
-				DHrekey(DropOffNetwork, cryptDO);
+				DHrekey(ServerNetwork, cryptSVR, "Server");
+				DHrekey(DropOffNetwork, cryptDO, "Drop Off");
 				Current = 0;
 			} else if (UserInput.contains("job")) {
 				// TODO Initial job requests are missing the meta data?
 				flagJob = true; // Flags the use of a slightly different display
 				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;
 			} else if (UserInput.contains("help")) {
-				noSend = true; // Do not send anything, the help request stays
-								// local
+				// Do not send anything, a help request stays local
+				noSend = true;
 				DisplayMenu();
 			}
 
 			// Check for forced rekey interval
 			if (Current == MaxBeforeREKEY) {
-				DHrekey(ServerNetwork, cryptSVR);
-				DHrekey(DropOffNetwork, cryptDO);
+				DHrekey(ServerNetwork, cryptSVR, "Server");
+				DHrekey(DropOffNetwork, cryptDO, "Drop Off");
 				Current = 0;
 			} else {
 				Current++;
@@ -327,7 +323,7 @@ public class Client {
 	/**
 	 * Starts a DH rekey between the client and the server
 	 */
-	private void DHrekey(Networking network, Crypto crypt) {
+	private void DHrekey(Networking network, Crypto crypt, String ReKeyedWith) {
 		// Prep
 		byte[] fetched = null;
 		String ServerResponse = null;
@@ -352,7 +348,7 @@ public class Client {
 		SendACK(network, crypt); // Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<REKEY-STARTING>") != 0) {
-			mylog.out("ERROR", "Server has failed to acknowledge re-keying!");
+			mylog.out("ERROR", ReKeyedWith + " has failed to acknowledge re-keying!");
 		}
 
 		// Phase 1 of DH
@@ -369,7 +365,7 @@ public class Client {
 		SendACK(network, crypt); // Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<PubKey-GOOD>") != 0) {
-			mylog.out("ERROR", "Server has failed to acknowledge client public key!");
+			mylog.out("ERROR", ReKeyedWith + " has failed to acknowledge client public key!");
 		}
 
 		// Receive server public DH key
@@ -378,7 +374,7 @@ public class Client {
 		SendACK(network, crypt); // Send ACK(); //Send ACK
 		ServerResponse = crypt.decrypt(fetched);
 		if (ServerResponse.compareToIgnoreCase("<PUBLICKEY>") != 0) {
-			mylog.out("ERROR", "Server has failed to send its public key!");
+			mylog.out("ERROR", ReKeyedWith + " has failed to send its public key!");
 		} else {
 			fetched = network.ReceiveByte();
 			SendACK(network, crypt); // Send ACK(); //Send ACK
@@ -388,12 +384,12 @@ public class Client {
 		}
 
 		// Use server DH public key to generate shared secret
-		myDH.DHPhase2(myDH.CraftPublicKey(serverPublicKey));
+		myDH.DHPhase2(myDH.CraftPublicKey(serverPublicKey), ReKeyedWith);
 
 		// Final verification
 		// System.out.println("Shared Secret (Hex): " +
 		// myDH.GetSharedSecret(10));
-		crypt.ReKey(myDH.GetSharedSecret(10));
+		crypt.ReKey(myDH.GetSharedSecret(10), ReKeyedWith);
 	}
 
 	/**
