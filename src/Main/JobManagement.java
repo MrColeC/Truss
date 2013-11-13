@@ -24,7 +24,7 @@ public class JobManagement {
 	private int IDcounter;
 
 	/**
-	 * Default construcutor.
+	 * Default constructor.
 	 */
 	public JobManagement() {
 		jobqueue = new ArrayList<Jobs>();
@@ -135,6 +135,8 @@ public class JobManagement {
 		}
 	}
 
+	// TODO Setup job sign off code (server acknowledges job is complete)
+	
 	/**
 	 * Assigns a job to a client and returns the string contain what that job is
 	 * (what work needs to be done)

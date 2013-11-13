@@ -187,6 +187,8 @@ public class ServerThread extends Thread {
 						jobRequest = false;
 					}
 				}
+				
+				// TODO Use client ID to keep track off (and sign off on) jobs 
 
 				// Phase 2 reaction to input
 				if (jobRequest) {
@@ -277,12 +279,12 @@ public class ServerThread extends Thread {
 				}
 
 				// Use server DH public key to generate shared secret
-				myDH.DHPhase2(myDH.CraftPublicKey(clientPubKey));
+				myDH.DHPhase2(myDH.CraftPublicKey(clientPubKey), "Client");
 
 				// Final verification
 				// System.out.println("Shared Secret (Hex): " +
 				// myDH.GetSharedSecret(10));
-				crypt.ReKey(myDH.GetSharedSecret(10));
+				crypt.ReKey(myDH.GetSharedSecret(10), "Client");
 
 			} else {
 				mylog.out("INFO", "Not a supported request [" + fromClient + "]");
