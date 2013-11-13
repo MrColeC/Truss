@@ -87,10 +87,8 @@ public class Client {
 		DisplayMenu();
 
 		// Activate crypto
-		// TODO - Change encryption (Using 128 bit key with AES in CBC mode) to
-		// say WHO it is encryption communication with
-		cryptSVR = new Crypto(mylog, subject.GetPSK());
-		cryptDO = new Crypto(mylog, subject.GetPSK());
+		cryptSVR = new Crypto(mylog, subject.GetPSK(),"Server");
+		cryptDO = new Crypto(mylog, subject.GetPSK(),"Drop Off Point");
 
 		// Test bi-directional encryption is working
 		String rawTest = "Testing!!!12345";

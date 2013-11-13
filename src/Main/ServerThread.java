@@ -135,7 +135,7 @@ public class ServerThread extends Thread {
 		String fromClient = null;
 
 		// Activate crypto
-		crypt = new Crypto(mylog, subject.GetPSK());
+		crypt = new Crypto(mylog, subject.GetPSK(), "Client");
 		byte[] fetched = network.ReceiveByte();
 		String dec = crypt.decrypt(fetched);
 		String craftReturn = dec + "<S>";

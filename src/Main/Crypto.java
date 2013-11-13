@@ -24,7 +24,7 @@ public class Crypto {
 	/**
 	 * CONSTRUCTOR
 	 */
-	public Crypto(Logging passedLog, String password) {
+	public Crypto(Logging passedLog, String password, String Target) {
 		// Setup log
 		mylog = passedLog;
 
@@ -53,7 +53,8 @@ public class Crypto {
 		int keySize = cipher.getKeySize();
 		String cryptoAlg = cipher.getAlgorithmName();
 		String cryptoMode = cipher.getModeName();
-		mylog.out("INFO", "Using " + keySize + " bit key with " + cryptoAlg + " in " + cryptoMode + " mode.");
+		mylog.out("INFO", "Using " + keySize + " bit key with " + cryptoAlg + " in " + cryptoMode
+				+ " mode to encrypt communication with the " + Target + ".");
 	}
 
 	/**
@@ -138,13 +139,11 @@ public class Crypto {
 				mylog.out("WARN", "Failed to decrypt the message. Likely bad PSK.");
 			}
 			return decrypted;
-		}
-		else
-		{
+		} else {
 			mylog.out("WARN", "Null value passed to decryption, ignoring.");
 			return null;
 		}
-		
+
 	}
 
 	/**
