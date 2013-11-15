@@ -145,6 +145,12 @@ public class Client {
 		boolean noSend = false;
 		while ((UserInput.compareToIgnoreCase("quit") != 0) && (ServerSock.isConnected())
 				&& (DropOffSock.isConnected())) {
+			//Do not send empty strings
+			if (UserInput.length() == 0) {
+				noSend = true;
+			}
+			
+			// Main server/client communication code block
 			if (noSend) {
 				// We do not send anything to the server this time, but we will
 				// reset the boolean flag so we will next time
