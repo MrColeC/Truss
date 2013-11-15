@@ -192,6 +192,7 @@ public class JobManagement {
 				}
 			}
 
+			// TODO This is not working
 			// Safety check
 			if (JobSearch(clientsName, jobsent) > 0) {
 				// Client ALREADY has an assigned job (do not double assign)

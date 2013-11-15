@@ -188,7 +188,7 @@ public class ServerThread extends Thread {
 
 						// Assign a job to the client
 						mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecurityLevel
-								+ "] reuested a job for [" + ClientOS + "]");
+								+ "] requested a job for [" + ClientOS + "]");
 						synchronized (JobLock) {
 							NoSend = true; // Do not send a secondary response
 							String work = JobQueue.Assign(ClientName, ClientOS, ClientSecurityLevel);
@@ -319,6 +319,8 @@ public class ServerThread extends Thread {
 				network.Send(returnData);
 			} else {
 				// Anything else, respond with error text
+				// TODO Rekey trips this code?
+				// TODO workdone trips this code?
 				mylog.out("INFO", "Not a supported request [" + fromClient + "]");
 				craftReturn = "Not a supported request [" + fromClient + "]";
 				returnData = crypt.encrypt(craftReturn);
