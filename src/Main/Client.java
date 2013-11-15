@@ -291,6 +291,7 @@ public class Client {
 		} catch (IOException e) {
 			mylog.out("ERROR", "Failed to close client socket");
 		}
+		mylog.out("INFO", "Client terminated");
 	}
 
 	/**
