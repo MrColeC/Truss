@@ -188,7 +188,7 @@ public class Auth {
 			// later
 			session.setAttribute("OS", System.getProperty("os.name").toString());
 			// Create and save a small pseudo random integer that we will use to
-			// Uniquely identify this client (when used along with its IP
+			// uniquely identify this client (when used along with its IP
 			// address)
 			int SmallRandom = (1 + (int) (Math.random() * 65536));
 			session.setAttribute("ID", String.valueOf(SmallRandom));
