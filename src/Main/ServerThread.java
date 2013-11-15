@@ -205,7 +205,8 @@ public class ServerThread extends Thread {
 					} else {
 						// The client failed to send all of the meta data we
 						// need, so abort the job request
-						fromClient = "Job request failed. Missing meta data in request.";
+						fromClient = "";
+						mylog.out("INFO", "Job request failed. Missing meta data in request.");
 					}
 				} else if (fromClient.toLowerCase().contains("workdone")) {
 					if (ClientMetaSet) {
@@ -304,7 +305,13 @@ public class ServerThread extends Thread {
 				// myDH.GetSharedSecret(10));
 				crypt.ReKey(myDH.GetSharedSecret(10), "Client");
 
+			} else if (fromClient.length() == 0) {
+				// Send back empty data
+				craftReturn = "";
+				returnData = crypt.encrypt(craftReturn);
+				network.Send(returnData);
 			} else {
+				// Anything else, respond with error text
 				mylog.out("INFO", "Not a supported request [" + fromClient + "]");
 				craftReturn = "Not a supported request [" + fromClient + "]";
 				returnData = crypt.encrypt(craftReturn);

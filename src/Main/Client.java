@@ -143,6 +143,7 @@ public class Client {
 		boolean serverUp = true;
 		boolean flagJob = false;
 		boolean noSend = false;
+		boolean NewServerResponse = false;
 		while ((UserInput.compareToIgnoreCase("quit") != 0) && (ServerSock.isConnected())
 				&& (DropOffSock.isConnected())) {
 			//Do not send empty strings
@@ -165,6 +166,7 @@ public class Client {
 					serverUp = false;
 					break;
 				}
+				NewServerResponse = true;
 			}
 
 			// If this is the client receiving a job from the server
@@ -248,8 +250,9 @@ public class Client {
 					System.out.println("Job:[No jobs available]");
 				}
 				flagJob = false;
-			} else {
+			} else if(NewServerResponse) {
 				System.out.println(ServerResponse);
+				NewServerResponse = false;
 			}
 			UserInput = readUI().toLowerCase();
 			// Check input for special commands
