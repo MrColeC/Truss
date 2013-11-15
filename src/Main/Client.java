@@ -254,7 +254,7 @@ public class Client {
 				Current = 0;
 			} else if (UserInput.contains("job")) {
 				flagJob = true; // Flags the use of a slightly different display
-				UserInput = UserInput + ":" + ClientID + ":" + OS + ":" + SecLev;
+				UserInput = "job" + ":" + ClientID + ":" + OS + ":" + SecLev;
 			} else if (UserInput.contains("help")) {
 				// Do not send anything, a help request stays local
 				noSend = true;
