@@ -89,7 +89,7 @@ public class Jobs {
 	 * 
 	 * @return
 	 */
-	public int GetJobIT() {
+	public int GetJobID() {
 		return JobID;
 	}
 
