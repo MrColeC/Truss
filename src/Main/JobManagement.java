@@ -135,13 +135,40 @@ public class JobManagement {
 		}
 	}
 
-	// TODO Setup job sign off code (server acknowledges job is complete)
-	
+	/**
+	 * Signs off (acknowledges) a job that was assigned to a client has been
+	 * completed
+	 * 
+	 * @param clientsName
+	 * @param OS
+	 * @param SecLev
+	 * @return
+	 */
+	public String Signoff(String clientsName) {
+		int size = jobsent.size();
+		int fetch = 0;
+		if (size > 0) {
+			fetch = JobSearch(clientsName, jobsent);
+
+			// If fetch is 0 or -1 than no jobs have been assigned to that
+			// client
+			if (fetch <= 0) {
+				return "Failed";
+			} else {
+				jobsent.remove(fetch); // Remove it from the queue
+				return "Done";
+			}
+		}
+		return "Failed";
+	}
+
 	/**
 	 * Assigns a job to a client and returns the string contain what that job is
 	 * (what work needs to be done)
 	 * 
 	 * @param clientsName
+	 * @param OS
+	 * @param SecLev
 	 * @return
 	 */
 	public String Assign(String clientsName, String OS, int SecLev) {
@@ -157,13 +184,20 @@ public class JobManagement {
 					return "";
 				}
 			} else {
-				fetch = JobSearch("any", SecLev, jobqueue);
+				fetch = JobSearch("any", jobqueue);
 
 				// If fetch is now -1 than no jobs exist for generic clients
 				if (fetch == -1) {
 					return "";
 				}
 			}
+
+			// Safety check
+			if (JobSearch(clientsName, jobsent) > 0) {
+				// Client ALREADY has an assigned job (do not double assign)
+				return "";
+			}
+
 			// If we are here then we have a valid index to work from
 			Jobs jobUnit = jobqueue.get(fetch); // Pull the data at that index
 			jobqueue.remove(fetch); // Remove it from the queue
@@ -214,6 +248,28 @@ public class JobManagement {
 	}
 
 	/**
+	 * This is passed the ClientsID to search for and returns the index into the
+	 * array
+	 * 
+	 * @param JobID
+	 * @return
+	 */
+	private int JobSearch(String ClientID, ArrayList<Jobs> SearchThrough) {
+		int size = SearchThrough.size();
+		int scan = 0;
+
+		while (scan < size) {
+			Jobs looking = SearchThrough.get(scan);
+			// See if the client name matches the search parameter
+			if (looking.GetIussed() == ClientID) {
+				return scan;
+			}
+			scan++;
+		}
+		return -1;
+	}
+
+	/**
 	 * This is passed the JobID to search for and returns the index into the
 	 * array
 	 * 
@@ -230,8 +286,8 @@ public class JobManagement {
 
 		while (scan < size) {
 			Jobs looking = SearchThrough.get(scan);
-			// Look for matching OS or jobs that can be ran under any OS
-			if (looking.GetJobIT() == JobID) {
+			// See if the job id matches the search parameter
+			if (looking.GetJobID() == JobID) {
 				return scan;
 			}
 			scan++;

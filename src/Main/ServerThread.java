@@ -159,8 +159,8 @@ public class ServerThread extends Thread {
 
 			// Pre-calculate meta data from passed arguments
 			// (for job distribution)
-			boolean jobRequest = false;
 			String ClientName = ClientIP;
+			boolean ClientMetaSet = false;
 			String ClientOS = "";
 			int ClientSecurityLevel = 0;
 			if (fromClient == null) {
@@ -173,40 +173,58 @@ public class ServerThread extends Thread {
 				// Preliminary scanning and data input manipulation
 				if (fromClient.toLowerCase().contains("job")) {
 					String[] CHOP = fromClient.split(":");
-					jobRequest = true;
 					// Add the random number passed to us to the servers UID of
 					// this client session to create a reasonable UUID
 					if (CHOP.length == 4) {
-						ClientName = ClientName + CHOP[1];
-						ClientOS = CHOP[2];
-						ClientSecurityLevel = Integer.parseInt(CHOP[3]);
+						// Extract meta data
+						if (!ClientMetaSet) {
+							// Only set this once
+							ClientName = ClientName + CHOP[1];
+							ClientOS = CHOP[2];
+							ClientSecurityLevel = Integer.parseInt(CHOP[3]);
+							ClientMetaSet = true;
+						}
+
+						// Assign a job to the client
+						mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecurityLevel
+								+ "] reuested a job for [" + ClientOS + "]");
+						synchronized (JobLock) {
+							String work = JobQueue.Assign(ClientName, ClientOS, ClientSecurityLevel);
+							returnData = crypt.encrypt(work);
+							network.Send(returnData);
+							if (work.length() > 0) {
+								mylog.out("INFO", "JobOut:[" + work + "]");
+								mylog.out("INFO", "[" + JobQueue.UnassignedCount()
+										+ "] unassigned jobs are left in the queue");
+								mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
+							} else {
+								mylog.out("WARN", "There are no jobs for [" + ClientOS + "] with Security Level ["
+										+ ClientSecurityLevel + "]");
+							}
+						}
 					} else {
 						// The client failed to send all of the meta data we
 						// need, so abort the job request
 						fromClient = "Job request failed. Missing meta data in request.";
-						jobRequest = false;
 					}
-				}
-				
-				// TODO Use client ID to keep track off (and sign off on) jobs 
-
-				// Phase 2 reaction to input
-				if (jobRequest) {
-					mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecurityLevel
-							+ "] reuested a job for [" + ClientOS + "]");
-					synchronized (JobLock) {
-						String work = JobQueue.Assign(ClientName, ClientOS, ClientSecurityLevel);
-						returnData = crypt.encrypt(work);
-						network.Send(returnData);
-						if (work.length() > 0) {
-							mylog.out("INFO", "JobOut:[" + work + "]");
-							mylog.out("INFO", "[" + JobQueue.UnassignedCount()
-									+ "] unassigned jobs are left in the queue");
-							mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
-						} else {
-							mylog.out("WARN", "There are no jobs for [" + ClientOS + "] with Security Level ["
-									+ ClientSecurityLevel + "]");
+				} else if (fromClient.toLowerCase().contains("workdone")) {
+					if (ClientMetaSet) {
+						synchronized (JobLock) {
+							String work = JobQueue.Signoff(ClientName);
+							if (work.equalsIgnoreCase("Failed")) {
+								// The job was not able to be acknowledged
+								mylog.out("WARN", "Client [" + ClientName
+										+ "] job complete was NOT acknowledged (no was job assigned previously).");
+							} else {
+								mylog.out("INFO", "Client [" + ClientName + "] job was acknowledged.");
+							}
+							work = "Acknowledged";
+							returnData = crypt.encrypt(work);
+							network.Send(returnData);
 						}
+					} else {
+						mylog.out("ERROR",
+								"Client is requesting to acknowledge job completion before being assigned a job");
 					}
 				}
 			} else {

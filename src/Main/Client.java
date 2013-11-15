@@ -228,8 +228,8 @@ public class Client {
 					}
 
 					// Inform the Server that the work has been completed
-					// TODO Tell the SERVER that the work is done
-					ServerNetwork.Send(cryptSVR.encrypt("Work Complete"));
+					UserInput = "workdone";
+					ServerNetwork.Send(cryptSVR.encrypt(UserInput));
 					fetched = ServerNetwork.ReceiveByte();
 					ServerResponse = cryptSVR.decrypt(fetched);
 					if (ServerResponse == null) {
