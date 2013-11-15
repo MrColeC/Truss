@@ -135,6 +135,7 @@ public class ServerThread extends Thread {
 
 		// Prep
 		String fromClient = null;
+		boolean NoSend = false;
 
 		// Activate crypto
 		crypt = new Crypto(mylog, subject.GetPSK(), "Client");
@@ -189,6 +190,7 @@ public class ServerThread extends Thread {
 						mylog.out("INFO", "Client [" + ClientName + "] with security level [" + ClientSecurityLevel
 								+ "] reuested a job for [" + ClientOS + "]");
 						synchronized (JobLock) {
+							NoSend = true; // Do not send a secondary response
 							String work = JobQueue.Assign(ClientName, ClientOS, ClientSecurityLevel);
 							returnData = crypt.encrypt(work);
 							network.Send(returnData);
@@ -211,6 +213,7 @@ public class ServerThread extends Thread {
 				} else if (fromClient.toLowerCase().contains("workdone")) {
 					if (ClientMetaSet) {
 						synchronized (JobLock) {
+							NoSend = true; // Do not send a secondary response
 							String work = JobQueue.Signoff(ClientName);
 							if (work.equalsIgnoreCase("Failed")) {
 								// The job was not able to be acknowledged
@@ -233,7 +236,11 @@ public class ServerThread extends Thread {
 			}
 
 			// Common actions below (Server AND Drop Off point)
-			if (fromClient.compareToIgnoreCase("quit") == 0) {
+			if (NoSend) {
+				// We do not send anything this time as the transmission to the
+				// client was already handled above
+				NoSend = false;
+			} else if (fromClient.compareToIgnoreCase("quit") == 0) {
 				mylog.out("INFO", "Client disconnected gracefully");
 				break;
 			} else if (fromClient.compareToIgnoreCase("<REKEY>") == 0) {
