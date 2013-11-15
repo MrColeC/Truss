@@ -79,7 +79,7 @@ public class Client {
 		System.out.println("Connected to Drop Off [" + DROPOFFpassedTarget + "] on port [" + DROPOFFpassedPort + "]");
 
 		// Prepare the interface
-		String UserInput = null;
+		String UserInput = "";
 		String ServerResponse = null;
 
 		// Load client identification data
