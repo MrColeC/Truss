@@ -55,7 +55,7 @@ public class JobManagement {
 		int scan = 0;
 
 		// Display header
-		System.out.println("# " + TargetName + " #");
+		System.out.println("# " + TargetName + " ########################################");
 		if (mode.equalsIgnoreCase("unassigned")) {
 			System.out.printf("%8s|%6s|%-50s%n", "OS", "SecLev", "Job");
 		} else if (mode.equalsIgnoreCase("assigned")) {
