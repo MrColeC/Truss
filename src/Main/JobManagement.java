@@ -33,6 +33,51 @@ public class JobManagement {
 		IDcounter = 1;
 	}
 
+	public void DetailedList(String mode) {
+		// Cast generic target type, then specify it
+		ArrayList<Jobs> TargetList;
+		String TargetName = "";
+		if (mode.equalsIgnoreCase("unassigned")) {
+			TargetList = jobqueue;
+			TargetName = "Unassigned List";
+		} else if (mode.equalsIgnoreCase("assigned")) {
+			TargetList = jobsent;
+			TargetName = "Assigned List";
+		} else if (mode.equalsIgnoreCase("complete")) {
+			TargetList = jobcomplete;
+			TargetName = "Completed List";
+		} else {
+			return;
+		}
+
+		// Setup bounds and iterator
+		int size = TargetList.size();
+		int scan = 0;
+		System.out.println("# " + TargetName + " #");
+
+		while (scan < size) {
+			// Load the target an associated data
+			Jobs looking = TargetList.get(scan);
+			String Issued = looking.GetIussed();
+			int JobID = looking.GetJobID();
+			long AssignedOn = looking.GetTimeIssued();
+			int SecLev = looking.GetSecurityLevel();
+			String OS = looking.GetOSspecific();
+			String ActualJob = looking.GetWork();
+
+			// Display the data
+			if (mode.equalsIgnoreCase("unassigned")) {
+				System.out.printf( "%8s %2s %50s %n", OS, SecLev, ActualJob);
+			} else if (mode.equalsIgnoreCase("assigned")) {
+				System.out.printf( "%25s %15s %8s %2s %50s %n", Issued, AssignedOn, OS, SecLev, ActualJob);
+			} else if (mode.equalsIgnoreCase("complete")) {
+				System.out.printf( "%5s %50s %n", JobID, ActualJob);
+			}
+
+			scan++;
+		}
+	}
+
 	/**
 	 * Returns the number of jobs yet to be assigned
 	 * 
@@ -51,7 +96,7 @@ public class JobManagement {
 	public int AssignedCount() {
 		return jobsent.size();
 	}
-	
+
 	/**
 	 * Returns the number of jobs that have been assigned, but not yet
 	 * acknowledged as complete
