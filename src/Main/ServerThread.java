@@ -150,6 +150,12 @@ public class ServerThread extends Thread {
 		byte[] returnData = crypt.encrypt(craftReturn);
 		network.Send(returnData);
 
+		// Prepare client meta data containers
+		String ClientName = ClientIP;
+		boolean ClientMetaSet = false;
+		String ClientOS = "";
+		int ClientSecurityLevel = 0;
+
 		// Main Loop
 		while (!socket.isClosed()) {
 			// Collect data sent over the network
@@ -161,13 +167,6 @@ public class ServerThread extends Thread {
 
 			// Decrypt sent data
 			fromClient = crypt.decrypt(fetched);
-
-			// Pre-calculate meta data from passed arguments
-			// (for job distribution)
-			String ClientName = ClientIP;
-			boolean ClientMetaSet = false;
-			String ClientOS = "";
-			int ClientSecurityLevel = 0;
 			if (fromClient == null) {
 				mylog.out("WARN", "Client disconnected abruptly");
 				break;
