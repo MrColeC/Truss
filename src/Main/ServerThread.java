@@ -322,8 +322,6 @@ public class ServerThread extends Thread {
 				network.Send(returnData);
 			} else {
 				// Anything else, respond with error text
-				// TODO Rekey trips this code?
-				// TODO workdone trips this code?
 				mylog.out("INFO", "Not a supported request [" + fromClient + "]");
 				craftReturn = "Not a supported request [" + fromClient + "]";
 				returnData = crypt.encrypt(craftReturn);
