@@ -216,7 +216,7 @@ public class JobManagement {
 
 			// If fetch is 0 or -1 than no jobs have been assigned to that
 			// client
-			if (fetch <= 0) {
+			if (fetch < 0) {
 				return "Failed";
 			} else {
 				jobsent.remove(fetch); // Remove it from the queue

@@ -221,7 +221,7 @@ public class ServerThread extends Thread {
 							if (work.equalsIgnoreCase("Failed")) {
 								// The job was not able to be acknowledged
 								mylog.out("WARN", "Client [" + ClientName
-										+ "] job complete was NOT acknowledged (no was job assigned previously).");
+										+ "] job complete was NOT acknowledged (no job was assigned previously).");
 							} else {
 								mylog.out("INFO", "Client [" + ClientName + "] job was acknowledged.");
 							}
