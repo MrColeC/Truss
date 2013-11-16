@@ -136,9 +136,7 @@ public class Server extends Thread {
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SW");
 			} else if (UserInput.compareToIgnoreCase("list") == 0) {
 				// Displays the list of jobs currently being held in the buffer
-				// TODO Only have it show the data relevant to the DropOff
-				// server
-				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LIST");
+				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LISTDO");
 			} else if (UserInput.compareToIgnoreCase("save") == 0) {
 				// Flush the buffer to a file
 				String filename = "";

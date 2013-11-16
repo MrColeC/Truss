@@ -36,7 +36,7 @@ public class JobManagement {
 	/**
 	 * Returns the number of jobs yet to be assigned
 	 * 
-	 * @return
+	 * @return int
 	 */
 	public int UnassignedCount() {
 		return jobqueue.size();
@@ -46,10 +46,20 @@ public class JobManagement {
 	 * Returns the number of jobs that have been assigned, but not yet
 	 * acknowledged as complete
 	 * 
-	 * @return
+	 * @return int
 	 */
 	public int AssignedCount() {
 		return jobsent.size();
+	}
+	
+	/**
+	 * Returns the number of jobs that have been assigned, but not yet
+	 * acknowledged as complete
+	 * 
+	 * @return int
+	 */
+	public int CompletedCount() {
+		return jobcomplete.size();
 	}
 
 	/**
@@ -194,7 +204,8 @@ public class JobManagement {
 
 			// TODO This is not working
 			// Safety check
-			if (JobSearch(clientsName, jobsent) > 0) {
+			int PreventDoubleAssignment = JobSearch(clientsName, jobsent);
+			if (PreventDoubleAssignment > 0) {
 				// Client ALREADY has an assigned job (do not double assign)
 				return "";
 			}
