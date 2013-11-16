@@ -118,10 +118,9 @@ public class ServerThread extends Thread {
 	}
 
 	/**
-	 * Server thread Enables multi-client support
+	 * Server/Drop off thread Enables multi-client support
 	 */
 	public void run() {
-		// TODO Refactor so this can be used for both the SERVER and the DROPOFF
 		// UID is just an iterator from the server side
 		// It has no bearing on anything besides the raw question
 		// "How many have connected to this single runtime?"
