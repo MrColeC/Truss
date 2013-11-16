@@ -259,7 +259,7 @@ public class JobManagement {
 			// TODO This is not working
 			// Safety check
 			int PreventDoubleAssignment = JobSearch(clientsName, jobsent);
-			if (PreventDoubleAssignment > 0) {
+			if (PreventDoubleAssignment >= 0) {
 				// Client ALREADY has an assigned job (do not double assign)
 				return "";
 			}
