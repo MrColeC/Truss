@@ -57,9 +57,9 @@ public class JobManagement {
 		// Display header
 		System.out.println("# " + TargetName + " #");
 		if (mode.equalsIgnoreCase("unassigned")) {
-			System.out.printf("%8s|%2s|%-50s%n", "OS", "SecLev", "Job");
+			System.out.printf("%8s|%6s|%-50s%n", "OS", "SecLev", "Job");
 		} else if (mode.equalsIgnoreCase("assigned")) {
-			System.out.printf("%25s|%15s|%8s|%2s|%-50s %n", "Issued To", "Issued At", "OS", "SecLev", "Job");
+			System.out.printf("%25s|%15s|%8s|%6s|%-50s %n", "Issued To", "Issued At", "OS", "SecLev", "Job");
 		} else if (mode.equalsIgnoreCase("complete")) {
 			System.out.printf("%5s|%-50s %n", "JobID", "Job");
 		}
@@ -76,9 +76,9 @@ public class JobManagement {
 
 			// Display the data
 			if (mode.equalsIgnoreCase("unassigned")) {
-				System.out.printf("%8s|%2s|%-50s%n", OS, SecLev, ActualJob);
+				System.out.printf("%8s|%6s|%-50s%n", OS, SecLev, ActualJob);
 			} else if (mode.equalsIgnoreCase("assigned")) {
-				System.out.printf("%25s|%15s|%8s|%2s|%-50s %n", Issued, AssignedOn, OS, SecLev, ActualJob);
+				System.out.printf("%25s|%15s|%8s|%6s|%-50s %n", Issued, AssignedOn, OS, SecLev, ActualJob);
 			} else if (mode.equalsIgnoreCase("complete")) {
 				System.out.printf("%5s|%-50s %n", JobID, ActualJob);
 			}
