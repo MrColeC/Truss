@@ -127,27 +127,65 @@ public class JobManagement {
 	 * @throws IOException
 	 */
 	public int Load(String filepath) throws IOException {
-		// TODO Load is here
-		int AddeCounter = 0;
+		// Setup
+		int AddedCounter = 0;
+		boolean LoadJob = true;
+
+		// Open the file and parse it
 		Path path = Paths.get(filepath);
 		try (Scanner scanner = new Scanner(path, ENCODING.name())) {
+			System.out.printf("%8s|%6s|%-50s%n", "OS", "SecLev", "Job");
 			while (scanner.hasNextLine()) {
 				// Read each line into the array list
 				String line = scanner.nextLine();
 				if (line != null && !line.isEmpty()) {
-					// System.out.println("Loading:[" + line + "]");
+					// Parse line
 					String[] parse = line.split(" ", 3);
+
+					// Validate OS
 					String parsedOS = parse[0];
-					String parsedSecLev = parse[1];
+					if (!((parsedOS.equalsIgnoreCase("any")) || (parsedOS.equalsIgnoreCase("windows")) || (parsedOS
+							.equalsIgnoreCase("linux")))) {
+						// If the OS is NOT "any", "windows" or "linux"...
+						System.out.println("\tOS improperly defined (needs to be \"any\", \"windows\" or \"linux\"");
+						LoadJob = false;
+					}
+
+					// Validate SecLev
+					int parsedSecLev = -1;
+					try {
+						parsedSecLev = Integer.parseInt(parse[1]);
+					} catch (NumberFormatException e) {
+						// Do not display a stack trace
+					}
+					if (parsedSecLev < 0) {
+						System.out.println("\tSecurity level improperly formated");
+						LoadJob = false;
+					}
+
+					// Validate the job
 					String parsedJob = parse[2];
-					System.out.println("Loading:[" + parsedOS + "][" + parsedSecLev + "][" + parsedJob + "]");
-					// Jobs jobUnit = new Jobs(line);
-					// jobqueue.add(jobUnit);
-					AddeCounter++;
+					if (parsedJob.length() <= 0) {
+						System.out.println("\tNo job was provided");
+						LoadJob = false;
+					}
+
+					if (LoadJob) {
+						// Display
+						System.out.printf("%8s|%6s|%-50s%n", parsedOS, parsedSecLev, parsedJob);
+
+						// Load
+						Jobs jobUnit = new Jobs(parsedJob, parsedOS, parsedSecLev);
+						jobqueue.add(jobUnit);
+						AddedCounter++;
+					} else
+					{
+						System.out.println("\tImproperly formated line [" + line + "]");						
+					}
 				}
 			}
 		}
-		return AddeCounter;
+		return AddedCounter;
 	}
 
 	/**
