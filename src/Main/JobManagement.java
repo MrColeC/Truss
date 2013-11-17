@@ -53,6 +53,10 @@ public class JobManagement {
 		// Setup bounds and iterator
 		int size = TargetList.size();
 		int scan = 0;
+		
+		if (size == 0) {
+			return;
+		}
 
 		// Display header
 		System.out.println("# " + TargetName + " ########################################");
