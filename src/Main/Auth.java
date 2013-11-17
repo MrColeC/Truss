@@ -142,18 +142,14 @@ public class Auth {
 			mylog.out("WARN", "Account has NO PRIVLEGES");
 		} else {
 			if (currentUser.hasRole("secureTarget")) {
-				mylog.out("INFO", "Jobs can be RECIEVED");
-				mylog.out("INFO", "PRIVATE jobs can be calculated");
+				mylog.out("INFO", "Public jobs can be completed");
+				mylog.out("INFO", "Private jobs can be completed");
 			} else if (currentUser.hasRole("insecureTarget")) {
-				mylog.out("INFO", "Jobs can be RECIEVED");
-				mylog.out("INFO", "PUBLIC jobs can be calculated");
+				mylog.out("INFO", "Public jobs can be completed");
 			} else if (currentUser.hasRole("sourceTarget")) {
-				mylog.out("INFO", "Job classification system ENABLED");
-				mylog.out("INFO", "Jobs can be SENT");
-				mylog.out("INFO", "Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO", "Jobs can be assigned");
 			} else if (currentUser.hasRole("resultTarget")) {
-				mylog.out("INFO", "Completed jobs (WORK) can be RECIEVED");
-				mylog.out("INFO", "Workers can be BOUND (Authenticated & Authorized)");
+				mylog.out("INFO", "Completed jobs (work) can be receieved");
 			}
 		}
 		return currentUser;
