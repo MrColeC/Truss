@@ -147,7 +147,8 @@ public class JobManagement {
 					if (!((parsedOS.equalsIgnoreCase("any")) || (parsedOS.equalsIgnoreCase("windows")) || (parsedOS
 							.equalsIgnoreCase("linux")))) {
 						// If the OS is NOT "any", "windows" or "linux"...
-						System.out.println("\tOS improperly defined (needs to be \"any\", \"windows\" or \"linux\"");
+						System.out.println("\tOS improperly defined (needs to be \"any\", \"windows\" or \"linux\" ("
+								+ line + ")");
 						LoadJob = false;
 					}
 
@@ -159,14 +160,14 @@ public class JobManagement {
 						// Do not display a stack trace
 					}
 					if (parsedSecLev < 0) {
-						System.out.println("\tSecurity level improperly formated");
+						System.out.println("\tSecurity level improperly formated (" + line + ")");
 						LoadJob = false;
 					}
 
 					// Validate the job
 					String parsedJob = parse[2];
 					if (parsedJob.length() <= 0) {
-						System.out.println("\tNo job was provided");
+						System.out.println("\tNo job was provided (" + line + ")");
 						LoadJob = false;
 					}
 
@@ -178,10 +179,11 @@ public class JobManagement {
 						Jobs jobUnit = new Jobs(parsedJob, parsedOS, parsedSecLev);
 						jobqueue.add(jobUnit);
 						AddedCounter++;
-					} else
-					{
-						System.out.println("\tImproperly formated line [" + line + "]");						
+					} else {
+						// Reset for the next line
+						LoadJob = true;
 					}
+
 				}
 			}
 		}
