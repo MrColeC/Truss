@@ -224,7 +224,7 @@ public class ServerThread extends Thread {
 							} else {
 								mylog.out("INFO", "Client [" + ClientName + "] job was acknowledged.");
 							}
-							work = "Acknowledged";
+							work = "Job Complete Acknowledged";
 							returnData = crypt.encrypt(work);
 							network.Send(returnData);
 						}
@@ -241,17 +241,32 @@ public class ServerThread extends Thread {
 							NoSend = true; // Do not send a secondary response
 
 							// Now read the job next
-							String JobWas = crypt.decrypt(fetched);
-							if (JobWas == null) {
+							// Collect data sent over the network
+							fetched = network.ReceiveByte();
+							if (fetched == null) {
+								mylog.out("WARN", "Client disconnected abruptly");
+								break;
+							}
+
+							// Decrypt sent data
+							fromClient = crypt.decrypt(fetched);
+							if (fromClient == null) {
 								mylog.out("WARN", "Client disconnected abruptly");
 								break;
 							}
 
 							// Setup a job container for that job
-							int ThisJobsID = JobQueue.SetupResultStorage(JobWas);
+							int ThisJobsID = JobQueue.SetupResultStorage(fromClient);
 
 							// Now check for how many ERROR lines we will need
 							// to store
+							fetched = network.ReceiveByte();
+							if (fetched == null) {
+								mylog.out("WARN", "Client disconnected abruptly");
+								break;
+							}
+
+							// Decrypt sent data
 							fromClient = crypt.decrypt(fetched);
 							if (fromClient == null) {
 								mylog.out("WARN", "Client disconnected abruptly");
@@ -265,6 +280,13 @@ public class ServerThread extends Thread {
 							}
 							while (ErrorLineCount > 0) {
 								// Receive the line from the client and store it
+								fetched = network.ReceiveByte();
+								if (fetched == null) {
+									mylog.out("WARN", "Client disconnected abruptly");
+									break;
+								}
+
+								// Decrypt sent data
 								fromClient = crypt.decrypt(fetched);
 								if (fromClient == null) {
 									mylog.out("WARN", "Client disconnected abruptly");
@@ -276,6 +298,13 @@ public class ServerThread extends Thread {
 
 							// Now check for how many OUTPUT lines we will need
 							// to store
+							fetched = network.ReceiveByte();
+							if (fetched == null) {
+								mylog.out("WARN", "Client disconnected abruptly");
+								break;
+							}
+
+							// Decrypt sent data
 							fromClient = crypt.decrypt(fetched);
 							if (fromClient == null) {
 								mylog.out("WARN", "Client disconnected abruptly");
@@ -289,6 +318,13 @@ public class ServerThread extends Thread {
 							}
 							while (OutputLineCount > 0) {
 								// Receive the line from the client and store it
+								fetched = network.ReceiveByte();
+								if (fetched == null) {
+									mylog.out("WARN", "Client disconnected abruptly");
+									break;
+								}
+
+								// Decrypt sent data
 								fromClient = crypt.decrypt(fetched);
 								if (fromClient == null) {
 									mylog.out("WARN", "Client disconnected abruptly");
