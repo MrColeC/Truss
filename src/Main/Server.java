@@ -1,10 +1,10 @@
 package Main;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-
 import org.apache.shiro.session.Session;
 
 /**
@@ -105,6 +105,26 @@ public class Server extends Thread {
 				String filename = "";
 				// TODO - Get filename from prompt
 				// TODO - Implement parsing the file into the job queue
+
+				// ===============================================================
+				// Directory path here
+				String path = ".";
+
+				String files;
+				File folder = new File(path);
+				File[] listOfFiles = folder.listFiles();
+
+				for (int i = 0; i < listOfFiles.length; i++) {
+
+					if (listOfFiles[i].isFile()) {
+						files = listOfFiles[i].getName();
+						if (files.endsWith(".txt") || files.endsWith(".TXT")) {
+							System.out.println("[File:" + files + "]");
+						}
+					}
+				}
+				// ===============================================================
+
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD", filename);
 			} else if (UserInput.compareToIgnoreCase("help") == 0) {
 				// Display the UI boilerplate
