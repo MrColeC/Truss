@@ -218,6 +218,7 @@ public class Client {
 						}
 						if (CheckExit != 0) {
 							System.out.println("ExitValue: " + CheckExit);
+							// TODO Send errors to drop off point?
 							ErrorData = errorGobbler.ReturnData();
 							for (String line : ErrorData) {
 								System.out.println("Error:" + line);
