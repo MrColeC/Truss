@@ -24,14 +24,16 @@ public class Client {
 	private Crypto cryptSVR;
 	private Crypto cryptDO;
 	private Session clientSession;
+	private boolean ClientUI;
 
 	/**
 	 * s CONSTRUCTOR
 	 */
-	public Client(Logging passedLog, Auth passedSubject, Session passedSession) {
+	public Client(Logging passedLog, Auth passedSubject, Session passedSession, boolean ClientMode) {
 		mylog = passedLog;
 		subject = passedSubject;
 		clientSession = passedSession;
+		ClientUI = ClientMode;
 	}
 
 	/**
@@ -56,10 +58,6 @@ public class Client {
 	 */
 	public void StartClient(int SERVERpassedPort, String SERVERpassedTarget, int DROPOFFpassedPort,
 			String DROPOFFpassedTarget) {
-		// TODO Setup a parameter to put the client into an endless loop of job
-		// requests. In that loop, when jobs are missing sleep - after a certain
-		// number of cycles quit
-
 		// Connect to the server
 		// Start up client networking
 		ServerNetwork = new Networking(mylog, SERVERpassedPort, SERVERpassedTarget);
@@ -88,7 +86,11 @@ public class Client {
 		String ClientID = (String) clientSession.getAttribute("ID");
 
 		// Display the UI boilerplate
-		DisplayMenu();
+		if (ClientUI) {
+			DisplayMenu();
+		} else {
+			mylog.out("INFO", "Client will be opearting in an automatic mode. UI input disabled");
+		}
 
 		// Activate crypto
 		cryptSVR = new Crypto(mylog, subject.GetPSK(), "Server");
@@ -146,11 +148,11 @@ public class Client {
 		boolean NewServerResponse = false;
 		while ((UserInput.compareToIgnoreCase("quit") != 0) && (ServerSock.isConnected())
 				&& (DropOffSock.isConnected())) {
-			//Do not send empty strings
+			// Do not send empty strings
 			if (UserInput.length() == 0) {
 				noSend = true;
 			}
-			
+
 			// Main server/client communication code block
 			if (noSend) {
 				// We do not send anything to the server this time, but we will
@@ -200,7 +202,7 @@ public class Client {
 						ArrayList<String> OutputData = new ArrayList<String>();
 						Runtime rt = Runtime.getRuntime();
 						Process proc = rt.exec(ServerResponse);
-						
+
 						// Capture all STDERR
 						StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 						errorGobbler.start();
@@ -208,7 +210,7 @@ public class Client {
 						// Capture all STDOUT
 						StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
 						outputGobbler.start();
-						
+
 						// Wait for the work to complete
 						int CheckExit = 0;
 						try {
@@ -254,13 +256,33 @@ public class Client {
 					System.out.println(ServerResponse);
 				} else {
 					System.out.println("Job:[No jobs available]");
+					
+					// If we are running in an automatic mode, and there are no jobs, sleep for a bit
+					if (!ClientUI) {
+						// Between 20 an 40 seconds, pseudo random distribution
+						int SleepFor = ((20 + (int) (Math.random() * 20)) * 1000);
+						try {
+							Thread.sleep(SleepFor);
+						} catch (InterruptedException e) {
+							mylog.out("ERROR", "Failed to have the thread sleep.");
+							e.printStackTrace();
+						}
+					}
 				}
 				flagJob = false;
-			} else if(NewServerResponse) {
+			} else if (NewServerResponse) {
 				System.out.println(ServerResponse);
 				NewServerResponse = false;
 			}
-			UserInput = readUI().toLowerCase();
+			
+			// If running an interactive client, prompt for user input
+			// Else, set it to request a job
+			if (ClientUI) {
+				UserInput = readUI().toLowerCase();
+			} else {
+				UserInput = "job";
+			}
+			
 			// Check input for special commands
 			if ((UserInput.contains("rekey")) && serverUp) {
 				UserInput = "Rekey executed.";
