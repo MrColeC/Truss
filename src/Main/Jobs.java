@@ -103,6 +103,15 @@ public class Jobs {
 	}	
 	
 	/**
+	 * Returns the SIZE of the output (results) cached with the job results
+	 * 
+	 * @return
+	 */
+	public int GetOutputListSize() {
+		return ReturnedOutput.size();
+	}
+	
+	/**
 	 * Returns the output (results) cached with the job results
 	 * 
 	 * @return
@@ -120,6 +129,15 @@ public class Jobs {
 		ReturnedOutput.add(OutputString);
 	}
 
+	/**
+	 * Returns the SIZE of the errors cached with the job results
+	 * 
+	 * @return
+	 */
+	public int GetErrorListSize() {
+		return ReturnedErrors.size();
+	}
+	
 	/**
 	 * Returns the errors cached with the job results
 	 * 
