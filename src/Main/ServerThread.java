@@ -236,121 +236,119 @@ public class ServerThread extends Thread {
 			} else {
 				// If this is a Drop Off point
 				if (fromClient.toLowerCase().contains("workdone")) {
-					if (ClientMetaSet) {
-						synchronized (JobLock) {
-							NoSend = true; // Do not send a secondary response
-							
-							//=================================================================
-							// Ack the client for the next piece
-							returnData = crypt.encrypt("NEXT");
-							network.Send(returnData);
-							// Now read the job next
-							// Collect data sent over the network
-							fetched = network.ReceiveByte();
-							if (fetched == null) {
-								mylog.out("WARN", "Client disconnected abruptly");
-								break;
-							}
-							// Decrypt sent data
-							fromClient = crypt.decrypt(fetched);
-							if (fromClient == null) {
-								mylog.out("WARN", "Client disconnected abruptly");
-								break;
-							}
-							// Setup a job container for that job
-							int ThisJobsID = JobQueue.SetupResultStorage(fromClient);
-							
-							//=================================================================
-							// Ack the client for the next piece
-							returnData = crypt.encrypt("NEXT");
-							network.Send(returnData);
-							// Now check for how many ERROR lines we will need
-							// to store
-							fetched = network.ReceiveByte();
-							if (fetched == null) {
-								mylog.out("WARN", "Client disconnected abruptly");
-								break;
-							}
-							// Decrypt sent data
-							fromClient = crypt.decrypt(fetched);
-							if (fromClient == null) {
-								mylog.out("WARN", "Client disconnected abruptly");
-								break;
-							}
-							int ErrorLineCount = 0;
-							try {
-								ErrorLineCount = Integer.parseInt(fromClient);
-							} catch (NumberFormatException e) {
-								mylog.out("ERROR", "String passed when number expected");
-							}
-							while (ErrorLineCount > 0) {
-								// Ack the client for the next piece
-								returnData = crypt.encrypt("NEXT");
-								network.Send(returnData);
-								// Receive the line from the client and store it
-								fetched = network.ReceiveByte();
-								if (fetched == null) {
-									mylog.out("WARN", "Client disconnected abruptly");
-									break;
-								}
-								// Decrypt sent data
-								fromClient = crypt.decrypt(fetched);
-								if (fromClient == null) {
-									mylog.out("WARN", "Client disconnected abruptly");
-									break;
-								}
-								JobQueue.StoreResutls(ThisJobsID, fromClient, "ERROR");
-								ErrorLineCount--;
-							}
+					synchronized (JobLock) {
+						NoSend = true; // Do not send a secondary response
 
-							//=================================================================
-							// Ack the client for the next piece
-							returnData = crypt.encrypt("NEXT");
-							network.Send(returnData);
-							// Now check for how many OUTPUT lines we will need
-							// to store
-							fetched = network.ReceiveByte();
-							if (fetched == null) {
-								mylog.out("WARN", "Client disconnected abruptly");
-								break;
-							}
-							// Decrypt sent data
-							fromClient = crypt.decrypt(fetched);
-							if (fromClient == null) {
-								mylog.out("WARN", "Client disconnected abruptly");
-								break;
-							}
-							int OutputLineCount = 0;
-							try {
-								OutputLineCount = Integer.parseInt(fromClient);
-							} catch (NumberFormatException e) {
-								mylog.out("ERROR", "String passed when number expected");
-							}
-							while (OutputLineCount > 0) {
-								// Ack the client for the next piece
-								returnData = crypt.encrypt("NEXT");
-								network.Send(returnData);
-								// Receive the line from the client and store it
-								fetched = network.ReceiveByte();
-								if (fetched == null) {
-									mylog.out("WARN", "Client disconnected abruptly");
-									break;
-								}
-								// Decrypt sent data
-								fromClient = crypt.decrypt(fetched);
-								if (fromClient == null) {
-									mylog.out("WARN", "Client disconnected abruptly");
-									break;
-								}
-								JobQueue.StoreResutls(ThisJobsID, fromClient, "OUTPUT");
-								OutputLineCount--;
-							}
-
-							// Send acknowledgement to the client that the job
-							// has been received
-							returnData = crypt.encrypt("Acknowledged");
-							network.Send(returnData);
+						// =================================================================
+						// Ack the client for the next piece
+						returnData = crypt.encrypt("NEXT");
+						network.Send(returnData);
+						// Now read the job next
+						// Collect data sent over the network
+						fetched = network.ReceiveByte();
+						if (fetched == null) {
+							mylog.out("WARN", "Client disconnected abruptly");
+							break;
 						}
+						// Decrypt sent data
+						fromClient = crypt.decrypt(fetched);
+						if (fromClient == null) {
+							mylog.out("WARN", "Client disconnected abruptly");
+							break;
+						}
+						// Setup a job container for that job
+						int ThisJobsID = JobQueue.SetupResultStorage(fromClient);
+
+						// =================================================================
+						// Ack the client for the next piece
+						returnData = crypt.encrypt("NEXT");
+						network.Send(returnData);
+						// Now check for how many ERROR lines we will need
+						// to store
+						fetched = network.ReceiveByte();
+						if (fetched == null) {
+							mylog.out("WARN", "Client disconnected abruptly");
+							break;
+						}
+						// Decrypt sent data
+						fromClient = crypt.decrypt(fetched);
+						if (fromClient == null) {
+							mylog.out("WARN", "Client disconnected abruptly");
+							break;
+						}
+						int ErrorLineCount = 0;
+						try {
+							ErrorLineCount = Integer.parseInt(fromClient);
+						} catch (NumberFormatException e) {
+							mylog.out("ERROR", "String passed when number expected");
+						}
+						while (ErrorLineCount > 0) {
+							// Ack the client for the next piece
+							returnData = crypt.encrypt("NEXT");
+							network.Send(returnData);
+							// Receive the line from the client and store it
+							fetched = network.ReceiveByte();
+							if (fetched == null) {
+								mylog.out("WARN", "Client disconnected abruptly");
+								break;
+							}
+							// Decrypt sent data
+							fromClient = crypt.decrypt(fetched);
+							if (fromClient == null) {
+								mylog.out("WARN", "Client disconnected abruptly");
+								break;
+							}
+							JobQueue.StoreResutls(ThisJobsID, fromClient, "ERROR");
+							ErrorLineCount--;
+						}
+
+						// =================================================================
+						// Ack the client for the next piece
+						returnData = crypt.encrypt("NEXT");
+						network.Send(returnData);
+						// Now check for how many OUTPUT lines we will need
+						// to store
+						fetched = network.ReceiveByte();
+						if (fetched == null) {
+							mylog.out("WARN", "Client disconnected abruptly");
+							break;
+						}
+						// Decrypt sent data
+						fromClient = crypt.decrypt(fetched);
+						if (fromClient == null) {
+							mylog.out("WARN", "Client disconnected abruptly");
+							break;
+						}
+						int OutputLineCount = 0;
+						try {
+							OutputLineCount = Integer.parseInt(fromClient);
+						} catch (NumberFormatException e) {
+							mylog.out("ERROR", "String passed when number expected");
+						}
+						while (OutputLineCount > 0) {
+							// Ack the client for the next piece
+							returnData = crypt.encrypt("NEXT");
+							network.Send(returnData);
+							// Receive the line from the client and store it
+							fetched = network.ReceiveByte();
+							if (fetched == null) {
+								mylog.out("WARN", "Client disconnected abruptly");
+								break;
+							}
+							// Decrypt sent data
+							fromClient = crypt.decrypt(fetched);
+							if (fromClient == null) {
+								mylog.out("WARN", "Client disconnected abruptly");
+								break;
+							}
+							JobQueue.StoreResutls(ThisJobsID, fromClient, "OUTPUT");
+							OutputLineCount--;
+						}
+
+						// Send acknowledgement to the client that the job
+						// has been received
+						returnData = crypt.encrypt("Acknowledged");
+						network.Send(returnData);
 					}
 				}
 			}
