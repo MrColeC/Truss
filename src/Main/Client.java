@@ -200,7 +200,7 @@ public class Client {
 						ArrayList<String> OutputData = new ArrayList<String>();
 						Runtime rt = Runtime.getRuntime();
 						Process proc = rt.exec(ServerResponse);
-
+						
 						// Capture all STDERR
 						StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 						errorGobbler.start();
@@ -208,7 +208,7 @@ public class Client {
 						// Capture all STDOUT
 						StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
 						outputGobbler.start();
-
+						
 						// Wait for the work to complete
 						int CheckExit = 0;
 						try {
@@ -218,6 +218,10 @@ public class Client {
 						}
 						if (CheckExit != 0) {
 							System.out.println("ExitValue: " + CheckExit);
+							ErrorData = errorGobbler.ReturnData();
+							for (String line : ErrorData) {
+								System.out.println("Error:" + line);
+							}
 						} else {
 							ErrorData = errorGobbler.ReturnData();
 							OutputData = outputGobbler.ReturnData();
