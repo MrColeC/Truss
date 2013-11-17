@@ -53,7 +53,7 @@ public class JobManagement {
 		// Setup bounds and iterator
 		int size = TargetList.size();
 		int scan = 0;
-		
+
 		if (size == 0) {
 			return;
 		}
@@ -127,7 +127,7 @@ public class JobManagement {
 	 * @throws IOException
 	 */
 	public int Load(String filepath) throws IOException {
-		//TODO Load is here
+		// TODO Load is here
 		int AddeCounter = 0;
 		Path path = Paths.get(filepath);
 		try (Scanner scanner = new Scanner(path, ENCODING.name())) {
@@ -135,9 +135,14 @@ public class JobManagement {
 				// Read each line into the array list
 				String line = scanner.nextLine();
 				if (line != null && !line.isEmpty()) {
-					System.out.println("read:[" + line + "]");
-					//Jobs jobUnit = new Jobs(line);
-					//jobqueue.add(jobUnit);
+					// System.out.println("Loading:[" + line + "]");
+					String[] parse = line.split(" ", 3);
+					String parsedOS = parse[0];
+					String parsedSecLev = parse[1];
+					String parsedJob = parse[2];
+					System.out.println("Loading:[" + parsedOS + "][" + parsedSecLev + "][" + parsedJob + "]");
+					// Jobs jobUnit = new Jobs(line);
+					// jobqueue.add(jobUnit);
 					AddeCounter++;
 				}
 			}
