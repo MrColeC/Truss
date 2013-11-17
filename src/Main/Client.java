@@ -298,7 +298,6 @@ public class Client {
 														+ ")");
 										break;
 									}
-
 									DropOffNetwork.Send(cryptDO.encrypt(line));
 								}
 							}
@@ -314,7 +313,7 @@ public class Client {
 							// If there are any output lines to record
 							int OutputLineCount = outputGobbler.GetSize();
 							DropOffNetwork.Send(cryptDO.encrypt(Integer.toString(OutputLineCount)));
-							if (ErrorLineCount > 0) {
+							if (OutputLineCount > 0) {
 								for (String line : OutputData) {
 									// Make sure the drop off point is ready
 									dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
@@ -324,7 +323,6 @@ public class Client {
 														+ ")");
 										break;
 									}
-
 									DropOffNetwork.Send(cryptDO.encrypt(line));
 								}
 							}
