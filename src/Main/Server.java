@@ -131,19 +131,27 @@ public class Server extends Thread {
 					System.out.println("These files can be loaded. Please make a selection:");
 					int At = 0;
 					while (At < ListSize) {
-						System.out.println(FitleredResults.get(At).getName());
+						System.out.println(At + " : " + FitleredResults.get(At).getName());
 						At++;
 					}
 					System.out.println("===================================================");
 					System.out.println("What file would you like to load? Enter nothing to abort.");
 					UserInput = readUI(); // Prompt for user input
-					// If the user input is good, pass that file name to the file parser
-					if ((UserInput.length() > 0) && (Integer.parseInt(UserInput) >= 0)
-							&& (Integer.parseInt(UserInput) < ListSize)) {
-						new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD",
-								FitleredResults.get(Integer.parseInt(UserInput)).getName());
+					// If the user input is good, pass that file name to the
+					// file parser
+					if (UserInput.length() > 0) {
+						try {
+							if ((Integer.parseInt(UserInput) >= 0) && (Integer.parseInt(UserInput) < ListSize)) {
+								new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD",
+										FitleredResults.get(Integer.parseInt(UserInput)).getName());
+							} else {
+								mylog.out("WARN", "Number is out of bounds");
+							}
+						} catch (NumberFormatException e) {
+							mylog.out("ERROR", "String passed when number expected");
+						}
 					} else {
-						mylog.out("INFO", "Load aborted");
+						mylog.out("INFO", "Load aborted by user request");
 					}
 				} else {
 					mylog.out("ERROR", "No files ending in txt exisit in the current working directory. Load aborted");
