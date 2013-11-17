@@ -223,6 +223,7 @@ public class Client {
 							OutputData = outputGobbler.ReturnData();
 
 							// Send the results to the Drop Off point
+							// TODO first job, output not being collected?
 							// TODO send completed work to drop off point
 							for (String line : ErrorData) {
 								System.out.println("Error:" + line);
