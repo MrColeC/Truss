@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+
 import org.apache.shiro.session.Session;
 
 /**
@@ -102,30 +104,50 @@ public class Server extends Thread {
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LIST");
 			} else if (UserInput.compareToIgnoreCase("load") == 0) {
 				// Load a set of jobs from a text file located on this system
-				String filename = "";
-				// TODO - Get filename from prompt
-				// TODO - Implement parsing the file into the job queue
+				// (in this CWD)
 
-				// ===============================================================
-				// Directory path here
-				String path = ".";
+				// Only list/load files from the current working directory
+				String CWD = ".";
 
-				String files;
-				File folder = new File(path);
-				File[] listOfFiles = folder.listFiles();
+				// Generate a list of files
+				String FileName;
+				File folder = new File(CWD);
+				File[] RawResults = folder.listFiles();
 
-				for (int i = 0; i < listOfFiles.length; i++) {
-
-					if (listOfFiles[i].isFile()) {
-						files = listOfFiles[i].getName();
-						if (files.endsWith(".txt") || files.endsWith(".TXT")) {
-							System.out.println("[File:" + files + "]");
+				// Filter results
+				ArrayList<File> FitleredResults = new ArrayList<File>();
+				for (int scan = 0; scan < RawResults.length; scan++) {
+					if (RawResults[scan].isFile()) {
+						FileName = RawResults[scan].getName();
+						if (FileName.endsWith(".txt") || FileName.endsWith(".TXT")) {
+							FitleredResults.add(RawResults[scan]);
 						}
 					}
 				}
-				// ===============================================================
 
-				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD", filename);
+				// List files that end with a txt file extension
+				int ListSize = FitleredResults.size();
+				if (ListSize > 0) {
+					System.out.println("These files can be loaded. Please make a selection:");
+					int At = 0;
+					while (At < ListSize) {
+						System.out.println(FitleredResults.get(At).getName());
+						At++;
+					}
+					System.out.println("===================================================");
+					System.out.println("What file would you like to load? Enter nothing to abort.");
+					UserInput = readUI(); // Prompt for user input
+					// If the user input is good, pass that file name to the file parser
+					if ((UserInput.length() > 0) && (Integer.parseInt(UserInput) >= 0)
+							&& (Integer.parseInt(UserInput) < ListSize)) {
+						new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LOAD",
+								FitleredResults.get(Integer.parseInt(UserInput)).getName());
+					} else {
+						mylog.out("INFO", "Load aborted");
+					}
+				} else {
+					mylog.out("ERROR", "No files ending in txt exisit in the current working directory. Load aborted");
+				}
 			} else if (UserInput.compareToIgnoreCase("help") == 0) {
 				// Display the UI boilerplate
 				DisplayMenu("Server");

@@ -123,6 +123,7 @@ public class JobManagement {
 	 * @throws IOException
 	 */
 	public int Load(String filepath) throws IOException {
+		//TODO Load is here
 		int AddeCounter = 0;
 		Path path = Paths.get(filepath);
 		try (Scanner scanner = new Scanner(path, ENCODING.name())) {
@@ -130,8 +131,9 @@ public class JobManagement {
 				// Read each line into the array list
 				String line = scanner.nextLine();
 				if (line != null && !line.isEmpty()) {
-					Jobs jobUnit = new Jobs(line);
-					jobqueue.add(jobUnit);
+					System.out.println("read:[" + line + "]");
+					//Jobs jobUnit = new Jobs(line);
+					//jobqueue.add(jobUnit);
 					AddeCounter++;
 				}
 			}

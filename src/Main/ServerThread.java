@@ -73,13 +73,12 @@ public class ServerThread extends Thread {
 			} else if (type.compareToIgnoreCase("list") == 0) {
 				JobQueue.DetailedList("unassigned");
 				JobQueue.DetailedList("assigned");
-				mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are left in the queue");
+				mylog.out("INFO", "[" + JobQueue.UnassignedCount() + "] unassigned jobs are in the queue");
 				mylog.out("INFO", "[" + JobQueue.AssignedCount() + "] jobs are in progress");
 			} else if (type.compareToIgnoreCase("listdo") == 0) {
 				JobQueue.DetailedList("complete");
 				mylog.out("INFO", "[" + JobQueue.CompletedCount() + "] completed jobs are in the queue");
 			}
-			// TODO add "load" option
 		}
 	}
 
