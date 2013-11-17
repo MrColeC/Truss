@@ -16,7 +16,7 @@ public class Logging {
 	/**
 	 * CONSTRCUTOR
 	 * 
-	 * Pass it the log level to set the verbosty of allowed loggin Options are:
+	 * Pass it the log level to set the verbosity of allowed logging Options are:
 	 * INFO, WARN, ERROR, FATAL, OFF Default is FATAL
 	 */
 	public Logging(String loglevel) {
@@ -53,7 +53,7 @@ public class Logging {
 	}
 
 	/**
-	 * Supports multi-level logging with programmatic "silencing"
+	 * Supports multi-level logging with programmatic "silencing". Modes are INFO, WARN and ERROR
 	 * 
 	 * @param level
 	 * @param msg
