@@ -218,23 +218,71 @@ public class Client {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						
+
 						// Send the results to the Drop Off point
+						DropOffNetwork.Send(cryptDO.encrypt("workdone"));
+						// Make sure the drop off point acknowledges it is ready
+						// for the next segment
+						fetched = DropOffNetwork.ReceiveByte(); // Receive
+																// return
+																// response
+						dec = cryptDO.decrypt(fetched); // Decrypt
+						if (!dec.equals("NEXT")) {
+							mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+									+ ")");
+							break;
+						}
+
+						// TODO sent the job name here
+
 						if (CheckExit != 0) {
 							System.out.println("Program did not exit normally. Exit value: " + CheckExit);
 							// Aggregate data
 							ErrorData = errorGobbler.ReturnData();
+
+							// Make sure the drop off point acknowledges it is
+							// ready for the next segment
+							fetched = DropOffNetwork.ReceiveByte(); // Receive
+																	// return
+																	// response
+							dec = cryptDO.decrypt(fetched); // Decrypt
+							if (!dec.equals("NEXT")) {
+								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+										+ ")");
+								break;
+							}
 
 							// If there are any error lines to record
 							int ErrorLineCount = errorGobbler.GetSize();
 							DropOffNetwork.Send(cryptDO.encrypt(Integer.toString(ErrorLineCount)));
 							if (ErrorLineCount > 0) {
 								for (String line : ErrorData) {
+									// Make sure the drop off point acknowledges
+									// it is ready for the next segment
+									fetched = DropOffNetwork.ReceiveByte(); // Receive
+																			// return
+																			// response
+									dec = cryptDO.decrypt(fetched); // Decrypt
+									if (!dec.equals("NEXT")) {
+										mylog.out("INFO",
+												"Drop Off did NOT acknowledge readyness for the next segment (" + dec
+														+ ")");
+										break;
+									}
 									DropOffNetwork.Send(cryptDO.encrypt(line));
 								}
-							} else {
-								// No error lines
-								DropOffNetwork.Send(cryptDO.encrypt("0"));
+							}
+
+							// Make sure the drop off point acknowledges it is
+							// ready for the next segment
+							fetched = DropOffNetwork.ReceiveByte(); // Receive
+																	// return
+																	// response
+							dec = cryptDO.decrypt(fetched); // Decrypt
+							if (!dec.equals("NEXT")) {
+								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+										+ ")");
+								break;
 							}
 
 							// No output lines
@@ -244,38 +292,84 @@ public class Client {
 							ErrorData = errorGobbler.ReturnData();
 							OutputData = outputGobbler.ReturnData();
 
+							// Make sure the drop off point acknowledges it is
+							// ready for the next segment
+							fetched = DropOffNetwork.ReceiveByte(); // Receive
+																	// return
+																	// response
+							dec = cryptDO.decrypt(fetched); // Decrypt
+							if (!dec.equals("NEXT")) {
+								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+										+ ")");
+								break;
+							}
+
 							// If there are any error lines to record
 							int ErrorLineCount = errorGobbler.GetSize();
 							DropOffNetwork.Send(cryptDO.encrypt(Integer.toString(ErrorLineCount)));
 							if (ErrorLineCount > 0) {
 								for (String line : ErrorData) {
+									// Make sure the drop off point acknowledges
+									// it is ready for the next segment
+									fetched = DropOffNetwork.ReceiveByte(); // Receive
+																			// return
+																			// response
+									dec = cryptDO.decrypt(fetched); // Decrypt
+									if (!dec.equals("NEXT")) {
+										mylog.out("INFO",
+												"Drop Off did NOT acknowledge readyness for the next segment (" + dec
+														+ ")");
+										break;
+									}
+
 									DropOffNetwork.Send(cryptDO.encrypt(line));
 								}
-							} else {
-								// No error lines
-								DropOffNetwork.Send(cryptDO.encrypt("0"));
 							}
-							
+
+							// Make sure the drop off point acknowledges it is
+							// ready for the next segment
+							fetched = DropOffNetwork.ReceiveByte(); // Receive
+																	// return
+																	// response
+							dec = cryptDO.decrypt(fetched); // Decrypt
+							if (!dec.equals("NEXT")) {
+								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+										+ ")");
+								break;
+							}
+
 							// If there are any output lines to record
 							int OutputLineCount = outputGobbler.GetSize();
 							DropOffNetwork.Send(cryptDO.encrypt(Integer.toString(OutputLineCount)));
 							if (ErrorLineCount > 0) {
 								for (String line : OutputData) {
+									// Make sure the drop off point acknowledges
+									// it is ready for the next segment
+									fetched = DropOffNetwork.ReceiveByte(); // Receive
+																			// return
+																			// response
+									dec = cryptDO.decrypt(fetched); // Decrypt
+									if (!dec.equals("NEXT")) {
+										mylog.out("INFO",
+												"Drop Off did NOT acknowledge readyness for the next segment (" + dec
+														+ ")");
+										break;
+									}
+
 									DropOffNetwork.Send(cryptDO.encrypt(line));
 								}
-							} else {
-								// No error lines
-								DropOffNetwork.Send(cryptDO.encrypt("0"));
 							}
 						}
-						
+
 						// Make sure the drop off point acknowledges
-						fetched = DropOffNetwork.ReceiveByte(); // Receive return response
+						fetched = DropOffNetwork.ReceiveByte(); // Receive
+																// return
+																// response
 						dec = cryptDO.decrypt(fetched); // Decrypt
 						if (dec.equals("Acknowledged")) {
 							mylog.out("INFO", "Drop Off acknowledges job recipt");
 						} else {
-							mylog.out("INFO", "Drop Off did NOT acknowledge job recipt (" + dec +")");
+							mylog.out("INFO", "Drop Off did NOT acknowledge job recipt (" + dec + ")");
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -324,7 +418,7 @@ public class Client {
 
 			// Check input for special commands
 			if ((UserInput.contains("rekey")) && serverUp) {
-				UserInput = "Rekey executed.";
+				UserInput = "";
 				DHrekey(ServerNetwork, cryptSVR, "Server");
 				DHrekey(DropOffNetwork, cryptDO, "Drop Off");
 				Current = 0;
