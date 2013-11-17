@@ -63,7 +63,7 @@ public class JobManagement {
 		if (mode.equalsIgnoreCase("unassigned")) {
 			System.out.printf("%8s|%6s|%-50s%n", "OS", "SecLev", "Job");
 		} else if (mode.equalsIgnoreCase("assigned")) {
-			System.out.printf("%25s|%15s|%8s|%6s|%-50s %n", "Issued To", "Issued At", "OS", "SecLev", "Job");
+			System.out.printf("%25s|%25s|%8s|%6s|%-50s %n", "Issued To", "Seconds Since Issued", "OS", "SecLev", "Job");
 		} else if (mode.equalsIgnoreCase("complete")) {
 			System.out.printf("%5s|%-50s %n", "JobID", "Job");
 		}
@@ -74,6 +74,7 @@ public class JobManagement {
 			String Issued = looking.GetIussed();
 			int JobID = looking.GetJobID();
 			long AssignedOn = looking.GetTimeIssued();
+			long SecondsAgo = ((System.nanoTime() - AssignedOn) / 1000000000);
 			int SecLev = looking.GetSecurityLevel();
 			String OS = looking.GetOSspecific();
 			String ActualJob = looking.GetWork();
@@ -82,7 +83,7 @@ public class JobManagement {
 			if (mode.equalsIgnoreCase("unassigned")) {
 				System.out.printf("%8s|%6s|%-50s%n", OS, SecLev, ActualJob);
 			} else if (mode.equalsIgnoreCase("assigned")) {
-				System.out.printf("%25s|%15s|%8s|%6s|%-50s %n", Issued, AssignedOn, OS, SecLev, ActualJob);
+				System.out.printf("%25s|%25s|%8s|%6s|%-50s %n", Issued, SecondsAgo, OS, SecLev, ActualJob);
 			} else if (mode.equalsIgnoreCase("complete")) {
 				System.out.printf("%5s|%-50s %n", JobID, ActualJob);
 			}
