@@ -224,7 +224,7 @@ public class Client {
 						// Make sure the drop off point acknowledges readiness
 						dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 						if (!dec.equals("NEXT")) {
-							mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+							mylog.out("INFO", "Drop Off did NOT acknowledge readiness for the next segment (" + dec
 									+ ")");
 							break;
 						}
@@ -241,7 +241,7 @@ public class Client {
 							// readiness
 							dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 							if (!dec.equals("NEXT")) {
-								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+								mylog.out("INFO", "Drop Off did NOT acknowledge readiness for the next segment (" + dec
 										+ ")");
 								break;
 							}
@@ -256,7 +256,7 @@ public class Client {
 									dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 									if (!dec.equals("NEXT")) {
 										mylog.out("INFO",
-												"Drop Off did NOT acknowledge readyness for the next segment (" + dec
+												"Drop Off did NOT acknowledge readiness for the next segment (" + dec
 														+ ")");
 										break;
 									}
@@ -268,7 +268,7 @@ public class Client {
 							// readiness
 							dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 							if (!dec.equals("NEXT")) {
-								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+								mylog.out("INFO", "Drop Off did NOT acknowledge readiness for the next segment (" + dec
 										+ ")");
 								break;
 							}
@@ -284,7 +284,7 @@ public class Client {
 							// readiness
 							dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 							if (!dec.equals("NEXT")) {
-								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+								mylog.out("INFO", "Drop Off did NOT acknowledge readiness for the next segment (" + dec
 										+ ")");
 								break;
 							}
@@ -299,7 +299,7 @@ public class Client {
 									dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 									if (!dec.equals("NEXT")) {
 										mylog.out("INFO",
-												"Drop Off did NOT acknowledge readyness for the next segment (" + dec
+												"Drop Off did NOT acknowledge readiness for the next segment (" + dec
 														+ ")");
 										break;
 									}
@@ -312,7 +312,7 @@ public class Client {
 							// readiness
 							dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 							if (!dec.equals("NEXT")) {
-								mylog.out("INFO", "Drop Off did NOT acknowledge readyness for the next segment (" + dec
+								mylog.out("INFO", "Drop Off did NOT acknowledge readiness for the next segment (" + dec
 										+ ")");
 								break;
 							}
@@ -327,7 +327,7 @@ public class Client {
 									dec = cryptDO.decrypt(DropOffNetwork.ReceiveByte());
 									if (!dec.equals("NEXT")) {
 										mylog.out("INFO",
-												"Drop Off did NOT acknowledge readyness for the next segment (" + dec
+												"Drop Off did NOT acknowledge readiness for the next segment (" + dec
 														+ ")");
 										break;
 									}

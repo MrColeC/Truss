@@ -256,6 +256,7 @@ public class ServerThread extends Thread {
 							break;
 						}
 						// Setup a job container for that job
+						mylog.out("INFO", "Job Complete:" + fromClient);
 						int ThisJobsID = JobQueue.SetupResultStorage(fromClient);
 
 						// =================================================================
@@ -280,6 +281,7 @@ public class ServerThread extends Thread {
 						} catch (NumberFormatException e) {
 							mylog.out("ERROR", "String passed when number expected");
 						}
+						mylog.out("INFO", "Error Lines:" + ErrorLineCount);
 						while (ErrorLineCount > 0) {
 							// Ack the client for the next piece
 							network.Send(crypt.encrypt("NEXT"));
@@ -321,6 +323,7 @@ public class ServerThread extends Thread {
 						} catch (NumberFormatException e) {
 							mylog.out("ERROR", "String passed when number expected");
 						}
+						mylog.out("INFO", "Output Lines:" + OutputLineCount);
 						while (OutputLineCount > 0) {
 							// Ack the client for the next piece
 							network.Send(crypt.encrypt("NEXT"));
@@ -339,7 +342,7 @@ public class ServerThread extends Thread {
 							JobQueue.StoreResutls(ThisJobsID, fromClient, "OUTPUT");
 							OutputLineCount--;
 						}
-
+						mylog.out("INFO", "Job receipt complete");
 						// Send acknowledgement to the client that the job
 						// has been received
 						network.Send(crypt.encrypt("Acknowledged"));
