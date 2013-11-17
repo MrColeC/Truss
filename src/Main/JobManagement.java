@@ -65,7 +65,7 @@ public class JobManagement {
 		} else if (mode.equalsIgnoreCase("assigned")) {
 			System.out.printf("%25s|%25s|%8s|%6s|%-50s %n", "Issued To", "Seconds Since Issued", "OS", "SecLev", "Job");
 		} else if (mode.equalsIgnoreCase("complete")) {
-			System.out.printf("%5s|%-50s %n", "JobID", "Job");
+			System.out.printf("%5s|%17s|%17s|%-50s %n", "JobID", "Error Line Count", "Output Line Count", "Job");
 		}
 
 		while (scan < size) {
@@ -78,6 +78,8 @@ public class JobManagement {
 			int SecLev = looking.GetSecurityLevel();
 			String OS = looking.GetOSspecific();
 			String ActualJob = looking.GetWork();
+			int ErrorSize = looking.GetErrorListSize();
+			int OutputSize = looking.GetOutputListSize();
 
 			// Display the data
 			if (mode.equalsIgnoreCase("unassigned")) {
@@ -85,7 +87,7 @@ public class JobManagement {
 			} else if (mode.equalsIgnoreCase("assigned")) {
 				System.out.printf("%25s|%25s|%8s|%6s|%-50s %n", Issued, SecondsAgo, OS, SecLev, ActualJob);
 			} else if (mode.equalsIgnoreCase("complete")) {
-				System.out.printf("%5s|%-50s %n", JobID, ActualJob);
+				System.out.printf("%5s|%17s|%17s|%-50s %n", JobID, ErrorSize, OutputSize, ActualJob);
 			}
 
 			scan++;
