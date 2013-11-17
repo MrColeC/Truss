@@ -241,8 +241,7 @@ public class ServerThread extends Thread {
 
 						// =================================================================
 						// Ack the client for the next piece
-						returnData = crypt.encrypt("NEXT");
-						network.Send(returnData);
+						network.Send(crypt.encrypt("NEXT"));
 						// Now read the job next
 						// Collect data sent over the network
 						fetched = network.ReceiveByte();
@@ -261,8 +260,7 @@ public class ServerThread extends Thread {
 
 						// =================================================================
 						// Ack the client for the next piece
-						returnData = crypt.encrypt("NEXT");
-						network.Send(returnData);
+						network.Send(crypt.encrypt("NEXT"));
 						// Now check for how many ERROR lines we will need
 						// to store
 						fetched = network.ReceiveByte();
@@ -284,8 +282,7 @@ public class ServerThread extends Thread {
 						}
 						while (ErrorLineCount > 0) {
 							// Ack the client for the next piece
-							returnData = crypt.encrypt("NEXT");
-							network.Send(returnData);
+							network.Send(crypt.encrypt("NEXT"));
 							// Receive the line from the client and store it
 							fetched = network.ReceiveByte();
 							if (fetched == null) {
@@ -304,8 +301,7 @@ public class ServerThread extends Thread {
 
 						// =================================================================
 						// Ack the client for the next piece
-						returnData = crypt.encrypt("NEXT");
-						network.Send(returnData);
+						network.Send(crypt.encrypt("NEXT"));
 						// Now check for how many OUTPUT lines we will need
 						// to store
 						fetched = network.ReceiveByte();
@@ -327,8 +323,7 @@ public class ServerThread extends Thread {
 						}
 						while (OutputLineCount > 0) {
 							// Ack the client for the next piece
-							returnData = crypt.encrypt("NEXT");
-							network.Send(returnData);
+							network.Send(crypt.encrypt("NEXT"));
 							// Receive the line from the client and store it
 							fetched = network.ReceiveByte();
 							if (fetched == null) {
@@ -347,8 +342,7 @@ public class ServerThread extends Thread {
 
 						// Send acknowledgement to the client that the job
 						// has been received
-						returnData = crypt.encrypt("Acknowledged");
-						network.Send(returnData);
+						network.Send(crypt.encrypt("Acknowledged"));
 					}
 				}
 			}
