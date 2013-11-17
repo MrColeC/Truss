@@ -14,4 +14,8 @@
 <tr><td>The drop off points IP</td><td>dip</td><td>(default is 127.0.0.1)</td><td>Client</td></tr>
 <tr><td>The drop off poitns port</td><td>dport</td><td>(default is 8080)</td><td>Client</td></tr>
 <tr><td>The port to listen on</td><td>bind</td><td>(default is 8080)</td><td>Server/Drop Off</td></tr>
+<tr><td>Interactive mode</td><td>ic</td><td>(default is an automatic client)</td><td>Client</td></tr>
 </table>
+
+<h5>Paramater Example:</h5>
+-Duser=<i>user_name</i> -Dpass=<i>password</i> -Dkey=<i>pre_shared_key</i> -Dloglevel=info -Dsip=192.168.0.121 -Dsport=8080 -Ddip=192.168.0.121 -Ddport=8081 -Dic
