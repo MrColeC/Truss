@@ -218,26 +218,64 @@ public class Client {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
+						
+						// Send the results to the Drop Off point
 						if (CheckExit != 0) {
-							System.out.println("ExitValue: " + CheckExit);
-							// TODO Send errors to drop off point?
+							System.out.println("Program did not exit normally. Exit value: " + CheckExit);
+							// Aggregate data
 							ErrorData = errorGobbler.ReturnData();
-							for (String line : ErrorData) {
-								System.out.println("Error:" + line);
+
+							// If there are any error lines to record
+							int ErrorLineCount = errorGobbler.GetSize();
+							DropOffNetwork.Send(cryptDO.encrypt(Integer.toString(ErrorLineCount)));
+							if (ErrorLineCount > 0) {
+								for (String line : ErrorData) {
+									DropOffNetwork.Send(cryptDO.encrypt(line));
+								}
+							} else {
+								// No error lines
+								DropOffNetwork.Send(cryptDO.encrypt("0"));
 							}
+
+							// No output lines
+							DropOffNetwork.Send(cryptDO.encrypt("0"));
 						} else {
+							// Aggregate data
 							ErrorData = errorGobbler.ReturnData();
 							OutputData = outputGobbler.ReturnData();
 
-							// Send the results to the Drop Off point
-							// TODO first job, output not being collected?
-							// TODO send completed work to drop off point
-							for (String line : ErrorData) {
-								System.out.println("Error:" + line);
+							// If there are any error lines to record
+							int ErrorLineCount = errorGobbler.GetSize();
+							DropOffNetwork.Send(cryptDO.encrypt(Integer.toString(ErrorLineCount)));
+							if (ErrorLineCount > 0) {
+								for (String line : ErrorData) {
+									DropOffNetwork.Send(cryptDO.encrypt(line));
+								}
+							} else {
+								// No error lines
+								DropOffNetwork.Send(cryptDO.encrypt("0"));
 							}
-							for (String line : OutputData) {
-								System.out.println("Output:" + line);
+							
+							// If there are any output lines to record
+							int OutputLineCount = outputGobbler.GetSize();
+							DropOffNetwork.Send(cryptDO.encrypt(Integer.toString(OutputLineCount)));
+							if (ErrorLineCount > 0) {
+								for (String line : OutputData) {
+									DropOffNetwork.Send(cryptDO.encrypt(line));
+								}
+							} else {
+								// No error lines
+								DropOffNetwork.Send(cryptDO.encrypt("0"));
 							}
+						}
+						
+						// Make sure the drop off point acknowledges
+						fetched = DropOffNetwork.ReceiveByte(); // Receive return response
+						dec = cryptDO.decrypt(fetched); // Decrypt
+						if (dec.equals("Acknowledged")) {
+							mylog.out("INFO", "Drop Off acknowledges job recipt");
+						} else {
+							mylog.out("INFO", "Drop Off did NOT acknowledge job recipt (" + dec +")");
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -256,8 +294,9 @@ public class Client {
 					System.out.println(ServerResponse);
 				} else {
 					System.out.println("Job:[No jobs available]");
-					
-					// If we are running in an automatic mode, and there are no jobs, sleep for a bit
+
+					// If we are running in an automatic mode, and there are no
+					// jobs, sleep for a bit
 					if (!ClientUI) {
 						// Between 20 an 40 seconds, pseudo random distribution
 						int SleepFor = ((20 + (int) (Math.random() * 20)) * 1000);
@@ -274,7 +313,7 @@ public class Client {
 				System.out.println(ServerResponse);
 				NewServerResponse = false;
 			}
-			
+
 			// If running an interactive client, prompt for user input
 			// Else, set it to request a job
 			if (ClientUI) {
@@ -282,7 +321,7 @@ public class Client {
 			} else {
 				UserInput = "job";
 			}
-			
+
 			// Check input for special commands
 			if ((UserInput.contains("rekey")) && serverUp) {
 				UserInput = "Rekey executed.";
@@ -485,6 +524,10 @@ class StreamGobbler extends Thread {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+	}
+
+	public int GetSize() {
+		return Collect.size();
 	}
 
 	public ArrayList<String> ReturnData() {
