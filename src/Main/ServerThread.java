@@ -240,7 +240,6 @@ public class ServerThread extends Thread {
 						NoSend = true; // Do not send a secondary response
 
 						// =================================================================
-						System.out.println("Sent next to get job text");
 						// Ack the client for the next piece
 						network.Send(crypt.encrypt("NEXT"));
 						// Now read the job next
@@ -261,7 +260,6 @@ public class ServerThread extends Thread {
 						int ThisJobsID = JobQueue.SetupResultStorage(fromClient);
 
 						// =================================================================
-						System.out.println("Sent next to get error count");
 						// Ack the client for the next piece
 						network.Send(crypt.encrypt("NEXT"));
 						// Now check for how many ERROR lines we will need
@@ -285,7 +283,6 @@ public class ServerThread extends Thread {
 						}
 						mylog.out("INFO", "Error Lines:" + ErrorLineCount);
 						while (ErrorLineCount > 0) {
-							System.out.println("Sent next to get errror line");
 							// Ack the client for the next piece
 							network.Send(crypt.encrypt("NEXT"));
 							// Receive the line from the client and store it
@@ -305,7 +302,6 @@ public class ServerThread extends Thread {
 						}
 
 						// =================================================================
-						System.out.println("Sent next to get output line count");
 						// Ack the client for the next piece
 						network.Send(crypt.encrypt("NEXT"));
 						// Now check for how many OUTPUT lines we will need
@@ -329,7 +325,6 @@ public class ServerThread extends Thread {
 						}
 						mylog.out("INFO", "Output Lines:" + OutputLineCount);
 						while (OutputLineCount > 0) {
-							System.out.println("Sent next to get output lines");
 							// Ack the client for the next piece
 							network.Send(crypt.encrypt("NEXT"));
 							// Receive the line from the client and store it
