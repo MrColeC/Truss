@@ -1,6 +1,7 @@
 package Main;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -200,68 +201,48 @@ public class JobManagement {
 	 * @throws IOException
 	 */
 	public int Save(String filepath) throws IOException {
-		// TODO Work here
-		// Setup
-		int AddedCounter = 0;
-		boolean LoadJob = true;
+		// Open the file
+		PrintWriter writer = new PrintWriter(filepath, "UTF-8");
 
-		// Open the file and parse it
-		Path path = Paths.get(filepath);
-		try (Scanner scanner = new Scanner(path, ENCODING.name())) {
-			System.out.printf("%8s|%6s|%-50s%n", "OS", "SecLev", "Job");
-			while (scanner.hasNextLine()) {
-				// Read each line into the array list
-				String line = scanner.nextLine();
-				if (line != null && !line.isEmpty()) {
-					// Parse line
-					String[] parse = line.split(" ", 3);
+		// Save each cached set of job results to the file
+		int size = jobcomplete.size();
+		int SavePointer = 0;
+		while (SavePointer < size) {
+			// Load the job
+			Jobs looking = jobcomplete.get(0);
 
-					// Validate OS
-					String parsedOS = parse[0];
-					if (!((parsedOS.equalsIgnoreCase("any")) || (parsedOS.equalsIgnoreCase("windows")) || (parsedOS
-							.equalsIgnoreCase("linux")))) {
-						// If the OS is NOT "any", "windows" or "linux"...
-						System.out.println("\tOS improperly defined (needs to be \"any\", \"windows\" or \"linux\" ("
-								+ line + ")");
-						LoadJob = false;
-					}
+			// Extract the data
+			String workDone = looking.GetWork();
+			ArrayList<String> ReturnedErrors = looking.GetErrorList();
+			ArrayList<String> ReturnedOutput = looking.GetOutputList();
 
-					// Validate SecLev
-					int parsedSecLev = -1;
-					try {
-						parsedSecLev = Integer.parseInt(parse[1]);
-					} catch (NumberFormatException e) {
-						// Do not display a stack trace
-					}
-					if (parsedSecLev < 0) {
-						System.out.println("\tSecurity level improperly formated (" + line + ")");
-						LoadJob = false;
-					}
-
-					// Validate the job
-					String parsedJob = parse[2];
-					if (parsedJob.length() <= 0) {
-						System.out.println("\tNo job was provided (" + line + ")");
-						LoadJob = false;
-					}
-
-					if (LoadJob) {
-						// Display
-						System.out.printf("%8s|%6s|%-50s%n", parsedOS, parsedSecLev, parsedJob);
-
-						// Load
-						Jobs jobUnit = new Jobs(parsedJob, parsedOS, parsedSecLev);
-						jobqueue.add(jobUnit);
-						AddedCounter++;
-					} else {
-						// Reset for the next line
-						LoadJob = true;
-					}
-
-				}
+			// Write to the file
+			if (SavePointer > 0) {
+				// If there is more than one job to save, provide separators
+				writer.println("##################################################");
 			}
+			// Write job
+			writer.println("Job:" + workDone);
+			// Write out error List
+			for (String line : ReturnedErrors) {
+				writer.println("Error:" + line);
+			}
+			// Write out output List
+			for (String line : ReturnedOutput) {
+				writer.println("Output:" + line);
+			}
+
+			// Remove that job from the list
+			jobcomplete.remove(0);
+			
+			SavePointer++;
 		}
-		return AddedCounter;
+
+		writer.println("");
+
+		// Close the file & return
+		writer.close();
+		return SavePointer;
 	}
 
 	/**
