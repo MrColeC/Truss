@@ -104,7 +104,11 @@ public class ServerThread extends Thread {
 				} catch (IOException e) {
 					mylog.out("ERROR", "Failed to save jobs to the file [" + filename + "]");
 				}
-				mylog.out("INFO", "Saved [" + QtyJobsLoaded + "] jobs results to the file");
+				if (QtyJobsLoaded == 0) {
+					mylog.out("INFO", "No jobs were saved to file (queue is empty, or error occured)");
+				} else {
+					mylog.out("INFO", "Saved [" + QtyJobsLoaded + "] jobs results to the file");	
+				}
 			}
 		}
 	}

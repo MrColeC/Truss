@@ -201,12 +201,19 @@ public class JobManagement {
 	 * @throws IOException
 	 */
 	public int Save(String filepath) throws IOException {
+		// Setup
+		int size = jobcomplete.size();
+		int SavePointer = 0;
+		
+		// If there is nothing to save, do not create an empty file
+		if (size == 0) {
+			return 0;
+		}
+		
 		// Open the file
 		PrintWriter writer = new PrintWriter(filepath, "UTF-8");
 
 		// Save each cached set of job results to the file
-		int size = jobcomplete.size();
-		int SavePointer = 0;
 		while (SavePointer < size) {
 			// Load the job
 			Jobs looking = jobcomplete.get(0);
@@ -234,7 +241,7 @@ public class JobManagement {
 
 			// Remove that job from the list
 			jobcomplete.remove(0);
-			
+
 			SavePointer++;
 		}
 

@@ -193,7 +193,7 @@ public class Server extends Thread {
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LISTDO");
 			} else if (UserInput.compareToIgnoreCase("save") == 0) {
 				// Flush the buffer to a file
-				String filename = "SavedResults-" + DropOffUID + "-" + DropOffSaveCounter;
+				String filename = "SavedResults-" + DropOffUID + "-" + DropOffSaveCounter + ".txt";
 				DropOffSaveCounter++;
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SAVE", filename);
 			} else if (UserInput.compareToIgnoreCase("help") == 0) {
