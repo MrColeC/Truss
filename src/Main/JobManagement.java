@@ -194,6 +194,77 @@ public class JobManagement {
 	}
 
 	/**
+	 * Saves the job cache to a file
+	 * 
+	 * @param filepath
+	 * @throws IOException
+	 */
+	public int Save(String filepath) throws IOException {
+		// TODO Work here
+		// Setup
+		int AddedCounter = 0;
+		boolean LoadJob = true;
+
+		// Open the file and parse it
+		Path path = Paths.get(filepath);
+		try (Scanner scanner = new Scanner(path, ENCODING.name())) {
+			System.out.printf("%8s|%6s|%-50s%n", "OS", "SecLev", "Job");
+			while (scanner.hasNextLine()) {
+				// Read each line into the array list
+				String line = scanner.nextLine();
+				if (line != null && !line.isEmpty()) {
+					// Parse line
+					String[] parse = line.split(" ", 3);
+
+					// Validate OS
+					String parsedOS = parse[0];
+					if (!((parsedOS.equalsIgnoreCase("any")) || (parsedOS.equalsIgnoreCase("windows")) || (parsedOS
+							.equalsIgnoreCase("linux")))) {
+						// If the OS is NOT "any", "windows" or "linux"...
+						System.out.println("\tOS improperly defined (needs to be \"any\", \"windows\" or \"linux\" ("
+								+ line + ")");
+						LoadJob = false;
+					}
+
+					// Validate SecLev
+					int parsedSecLev = -1;
+					try {
+						parsedSecLev = Integer.parseInt(parse[1]);
+					} catch (NumberFormatException e) {
+						// Do not display a stack trace
+					}
+					if (parsedSecLev < 0) {
+						System.out.println("\tSecurity level improperly formated (" + line + ")");
+						LoadJob = false;
+					}
+
+					// Validate the job
+					String parsedJob = parse[2];
+					if (parsedJob.length() <= 0) {
+						System.out.println("\tNo job was provided (" + line + ")");
+						LoadJob = false;
+					}
+
+					if (LoadJob) {
+						// Display
+						System.out.printf("%8s|%6s|%-50s%n", parsedOS, parsedSecLev, parsedJob);
+
+						// Load
+						Jobs jobUnit = new Jobs(parsedJob, parsedOS, parsedSecLev);
+						jobqueue.add(jobUnit);
+						AddedCounter++;
+					} else {
+						// Reset for the next line
+						LoadJob = true;
+					}
+
+				}
+			}
+		}
+		return AddedCounter;
+	}
+
+	/**
 	 * Sets up to receive the completed work
 	 */
 	public int SetupResultStorage(String JobComplete) {

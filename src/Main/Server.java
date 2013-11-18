@@ -24,6 +24,8 @@ public class Server extends Thread {
 	private Object JobLock;
 	private JobManagement MasterJobQueue;
 	private Session ServerSession;
+	private int DropOffUID;
+	private int DropOffSaveCounter;
 
 	/**
 	 * CONSTRCUTOR
@@ -37,6 +39,8 @@ public class Server extends Thread {
 		// Setup master thread communication
 		JobLock = new Object();
 		MasterJobQueue = new JobManagement();
+		DropOffUID = (1 + (int) (Math.random() * 65536));
+		DropOffSaveCounter = 1;
 	}
 
 	/**
@@ -189,9 +193,8 @@ public class Server extends Thread {
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("LISTDO");
 			} else if (UserInput.compareToIgnoreCase("save") == 0) {
 				// Flush the buffer to a file
-				String filename = "";
-				// TODO - Get filename from prompt
-				// TODO - Implement flushing the queue to a file
+				String filename = "SavedResults-" + DropOffUID + "-" + DropOffSaveCounter;
+				DropOffSaveCounter++;
 				new ServerThread(mylog, JobLock, MasterJobQueue).JobLoader("SAVE", filename);
 			} else if (UserInput.compareToIgnoreCase("help") == 0) {
 				// Display the UI boilerplate

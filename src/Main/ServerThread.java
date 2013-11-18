@@ -83,9 +83,7 @@ public class ServerThread extends Thread {
 	}
 
 	/**
-	 * Runs the Job loading framework based upon the execution request passed to
-	 * it (string argument). Returns the count (int) of the number of jobs that
-	 * were loaded.
+	 * Runs the Job loading framework to load from, or save to, a file (based upon type)
 	 * 
 	 * @param type
 	 * @return
@@ -99,7 +97,14 @@ public class ServerThread extends Thread {
 				} catch (IOException e) {
 					mylog.out("ERROR", "Failed to load jobs from file [" + filename + "]");
 				}
-				mylog.out("INFO", "Loaded [" + QtyJobsLoaded + "] jobs.");
+				mylog.out("INFO", "Loaded [" + QtyJobsLoaded + "] jobs");
+			} else if (type.compareToIgnoreCase("save") == 0) {
+				try {
+					QtyJobsLoaded = JobQueue.Save(filename);
+				} catch (IOException e) {
+					mylog.out("ERROR", "Failed to save jobs to the file [" + filename + "]");
+				}
+				mylog.out("INFO", "Saved [" + QtyJobsLoaded + "] jobs results to the file");
 			}
 		}
 	}
