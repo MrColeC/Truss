@@ -47,6 +47,11 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/Main/resources</directory>
+			</resource>
+		</resources>
 	</build>
 	<dependencies>
 		<!-- Shiro: For Crypto, Authenticate & Authorization -->
