@@ -44,6 +44,8 @@
 </table>
 <br>
 <h5>Examples of how to launch the code:</h5>
+<strong>Note:</strong> The default password for all accounts is "pw". This can be changed in the Shiro.ini file inside the source code. Also, in that same file, Shiro can be integrated with other authentication systems.<br>
+<strong>Note:</strong> The pre-shared key can be anything you want. Longer keys do provide additional security, but keep in mind that the pre-shared key is only used to facilitate the secure negotiation of a new completely random key and will have no lasting impact on the security of the infrastructure.<br>
 <h6>This would launch a server</h6>
 java -Duser=server -Dpass=<i>password</i> -Dkey=<i>pre_shared_key</i> -Dloglevel=info -Dbind=<i>server_port</i> -jar Truss*.jar
 <br>
