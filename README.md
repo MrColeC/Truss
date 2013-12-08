@@ -16,7 +16,17 @@
   <li>Using pre-shared keys to provide a password-authenticated Diffie-Hellman key agreement in order to prevent man-in-the-middle attacks</li>
   <li>Re-negotiating the established Diffie-Hellman agreements periodically in order to prevent an attackers ability to break the encryption and read all previous or future network traffic</li>
 </ul>
-
+<br>
+<hr>
+<h5>How to compile the code from source</h5>
+<p>This project uses 100% Mavenized Java code. This means you will need the following in order to compile the code from source:</p>
+<ol>
+<li>A copy of code (available via Git)</li>
+<li>A Java JDK</li>
+<li>Maven installed on your system</li>
+</ol>
+<p>Once these prerequisites are made, all you need to do is go to the root of the checkout (this will contain the pom.xml for this project) and then run: <strong>mvn clean compile assembly:single</strong>. This will download all required dependencies and then compile the project into a single portable jar file.</p>
+<br>
 <hr>
 <h5>Runtime (JVM) variables:</h5>
 <table>
