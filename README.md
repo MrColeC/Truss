@@ -1,6 +1,6 @@
 <h3>Truss</h3>
 <hr>
-<p><strong>Truss is a lightweight secure middleware for distributed computing.</strong> The goal of Truss is to provide a simple framework of securly routing jobs, and collecting the produced output, over a heterogenous network of computers. This means that clients and servers running Truss do not have to be on the same operating system, hardware, or asserted trust level.</p>
+<p><strong>Truss is a lightweight secure middleware for distributed computing.</strong> The goal of Truss is to provide a simple framework of securely routing jobs, and collecting the produced output, over a heterogeneous network of computers. This means that clients and servers running Truss do not have to be on the same operating system, hardware, or asserted trust level.</p>
 
 <p>Truss accomplishes this by:</p>
 <ul>
