@@ -12,7 +12,7 @@
 <ul>
   <li>Having a single lightweight code base that is used to implement both clients as well as servers</li>
   <li>Providing a simple and extensible means of authenticating the client (from using a local configuration file within the code, to LDAP integration or other forms of single sign on)</li>
-  <li>Encrypting all network traffic with AES128, providing both a reasonably degree of security as well as minimal additional costs over plain test transmissions</li>
+  <li>Encrypting all network traffic with AES128, providing both a reasonable degree of security as well as minimal overhead when compared with plain text transmissions</li>
   <li>Using pre-shared keys to provide a password-authenticated Diffie-Hellman key agreement in order to prevent man-in-the-middle attacks</li>
   <li>Re-negotiating the established Diffie-Hellman agreements periodically in order to prevent an attackers ability to break the encryption and read all previous or future network traffic</li>
 </ul>
