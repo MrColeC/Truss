@@ -1,0 +1,7 @@
+any 1 echo cat
+windows 1 echo cat
+linux 1 echo cat
+dog 1 echo cat
+any x echo cat
+any 1 
+any 1 echo last line
