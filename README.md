@@ -1,6 +1,17 @@
 <h3>Truss</h3>
 <hr>
-<h5>Secure middleware for distributed computing</h5>
+<p><strong>Truss is a lightweight secure middleware for distributed computing.</strong> The goal of Truss is to provide a simple framework of securly routing jobs, and collecting the produced output, over a heterogenous network of computers. This means that clients and servers running Truss do not have to be on the same operating system, hardware, or asserted trust level.</p>
+
+<p>Truss accomplishes this by:</p>
+<ul>
+  <li>Having a single lightweight code base that is used to implement both clients as well as servers</li>
+  <li>Providing a simple and extensible means of authenticating the client (from using a local configuration file within the code, to LDAP integration or other forms of single sign on)</li>
+  <li>Encrypting all network traffic with AES128, providing both a reasonably degree of security as well as minimal additional costs over plain test transmissions</li>
+  <li>Using pre-shared keys to provide a password-authenticated Diffie-Hellman key agreement in order to prevent man-in-the-middle attacks</li>
+  <li>Re-negotiating the established Diffie-Hellman agreements periodically in order to prevent an attackers ability to break the encryption and read all previous or future network traffic</li>
+  <li></li>
+  <li></li>
+</ul>
 
 <b>Runtime (JVM) variables:</b><br>
 <table>
